@@ -1,0 +1,1971 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Petre Coffee — Tempahan</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --black: #0d0d0d;
+  --white: #ffffff;
+  --off-white: #fafafa;
+  --grey-50: #f5f5f5;
+  --grey-100: #ebebeb;
+  --grey-200: #d9d9d9;
+  --grey-300: #bdbdbd;
+  --grey-400: #9e9e9e;
+  --grey-600: #5c5c5c;
+  --grey-700: #3d3d3d;
+  --accent: #c8a97e;
+  --accent-light: #f7f0e6;
+  --accent-dark: #9a7a50;
+  --error: #d32f2f;
+  --success: #388e3c;
+  --radius: 14px;
+  --radius-sm: 8px;
+  --radius-xs: 6px;
+  --shadow-sm: 0 1px 8px rgba(0,0,0,0.06);
+  --shadow: 0 4px 24px rgba(0,0,0,0.08);
+  --shadow-lg: 0 12px 48px rgba(0,0,0,0.14);
+  --transition: all 0.22s cubic-bezier(0.4,0,0.2,1);
+  --max-width: 660px;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--white);
+  color: var(--black);
+  min-height: 100vh;
+  -webkit-font-smoothing: antialiased;
+  line-height: 1.6;
+}
+
+/* ── HEADER ── */
+.header {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+  height: 60px;
+  background: rgba(255,255,255,0.94);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--grey-100);
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 0 20px;
+}
+
+.logo {
+  display: flex; align-items: center; gap: 9px;
+  text-decoration: none;
+}
+
+.logo-mark {
+  width: 32px; height: 32px;
+  background: var(--black);
+  border-radius: 7px;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Syne', sans-serif;
+  font-weight: 800; font-size: 12px;
+  color: var(--white); letter-spacing: 0.5px;
+}
+
+.logo-name {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700; font-size: 15px;
+  color: var(--black); letter-spacing: -0.2px;
+}
+
+.progress-wrap {
+  display: flex; align-items: center; gap: 5px;
+}
+
+.prog-dot {
+  width: 24px; height: 3px;
+  border-radius: 2px;
+  background: var(--grey-200);
+  transition: var(--transition);
+}
+.prog-dot.active { background: var(--black); width: 32px; }
+.prog-dot.done { background: var(--grey-300); }
+
+/* ── MAIN ── */
+.main {
+  padding-top: 60px;
+  min-height: 100vh;
+  display: flex; justify-content: center;
+}
+
+/* ── PAGES ── */
+.page {
+  display: none;
+  width: 100%; max-width: var(--max-width);
+  padding: 44px 24px 100px;
+  animation: slideUp 0.35s cubic-bezier(0.4,0,0.2,1);
+}
+.page.active { display: block; }
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ── TYPOGRAPHY ── */
+.eyebrow {
+  font-size: 10px; font-weight: 500;
+  letter-spacing: 2.5px; text-transform: uppercase;
+  color: var(--grey-400); margin-bottom: 10px;
+}
+
+.page-title {
+  font-family: 'Syne', sans-serif;
+  font-size: clamp(26px, 5.5vw, 38px);
+  font-weight: 800; line-height: 1.1;
+  letter-spacing: -1px; color: var(--black);
+  margin-bottom: 8px;
+}
+
+.page-sub {
+  font-size: 14px; color: var(--grey-600);
+  line-height: 1.65; margin-bottom: 36px;
+  font-weight: 300;
+}
+
+.section-label {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700; font-size: 13px;
+  letter-spacing: 0.5px; color: var(--black);
+  margin-bottom: 14px; margin-top: 28px;
+  display: flex; align-items: center; gap: 8px;
+}
+
+.section-label::after {
+  content: '';
+  flex: 1; height: 1px;
+  background: var(--grey-100);
+}
+
+/* ── GUIDELINE LIST ── */
+.guide-list { list-style: none; }
+
+.guide-item {
+  display: flex; gap: 14px;
+  padding: 14px 0;
+  border-bottom: 1px solid var(--grey-100);
+}
+.guide-item:last-child { border-bottom: none; }
+
+.guide-icon {
+  width: 32px; height: 32px; flex-shrink: 0;
+  background: var(--grey-50);
+  border-radius: var(--radius-xs);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px; margin-top: 1px;
+}
+
+.guide-strong {
+  font-weight: 600; font-size: 13px;
+  color: var(--black); margin-bottom: 3px;
+  display: block;
+}
+
+.guide-text { font-size: 13px; color: var(--grey-600); line-height: 1.5; }
+
+/* ── CALENDAR ── */
+.cal-shell {
+  border: 1.5px solid var(--grey-200);
+  border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.cal-header {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  padding: 14px 18px;
+  background: var(--grey-50);
+  border-bottom: 1.5px solid var(--grey-100);
+}
+
+.cal-nav {
+  width: 34px; height: 34px;
+  border: 1.5px solid var(--grey-200);
+  border-radius: var(--radius-xs);
+  background: var(--white);
+  cursor: pointer; font-size: 14px;
+  display: flex; align-items: center; justify-content: center;
+  transition: var(--transition); color: var(--black);
+}
+.cal-nav:hover { border-color: var(--black); }
+
+.cal-month-label {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700; font-size: 15px;
+}
+
+.cal-body { padding: 10px 12px 12px; }
+
+.cal-weekdays {
+  display: grid; grid-template-columns: repeat(7,1fr);
+  margin-bottom: 2px;
+}
+
+.cal-wd {
+  text-align: center;
+  font-size: 10px; font-weight: 500;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: var(--grey-400); padding: 6px 0;
+}
+
+.cal-grid {
+  display: grid; grid-template-columns: repeat(7,1fr); gap: 2px;
+}
+
+.cal-cell {
+  aspect-ratio: 1;
+  display: flex; align-items: center; justify-content: center;
+  border-radius: var(--radius-xs);
+  font-size: 13px; font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition);
+  border: 1.5px solid transparent;
+  position: relative;
+}
+
+.cal-cell:hover:not(.cal-disabled):not(.cal-empty) {
+  background: var(--grey-100);
+}
+.cal-cell.cal-today {
+  border-color: var(--accent);
+  color: var(--accent-dark);
+  font-weight: 700;
+}
+.cal-cell.cal-selected {
+  background: var(--black);
+  color: var(--white);
+  border-color: var(--black);
+}
+.cal-cell.cal-disabled {
+  color: var(--grey-200);
+  cursor: not-allowed;
+}
+.cal-cell.cal-empty { cursor: default; }
+
+/* ── SLOT BUTTONS ── */
+.slot-section { margin-top: 22px; }
+
+.slot-grid {
+  display: grid;
+  grid-template-columns: repeat(3,1fr);
+  gap: 10px; margin-top: 10px;
+}
+
+.slot-btn {
+  padding: 14px 6px;
+  border: 1.5px solid var(--grey-200);
+  border-radius: var(--radius-sm);
+  background: var(--white);
+  font-family: 'Syne', sans-serif;
+  font-weight: 700; font-size: 14px;
+  color: var(--black); cursor: pointer;
+  transition: var(--transition); text-align: center;
+}
+.slot-btn:hover:not(:disabled) { border-color: var(--black); }
+.slot-btn.selected { background: var(--black); color: var(--white); border-color: var(--black); }
+.slot-btn:disabled {
+  background: var(--grey-50); color: var(--grey-300);
+  cursor: not-allowed; border-color: var(--grey-100);
+  text-decoration: line-through;
+}
+
+.slot-note {
+  font-size: 11px; color: var(--grey-400);
+  margin-top: 8px; display: flex; align-items: center; gap: 5px;
+}
+
+/* ── PACKAGE TABS ── */
+.pkg-tabs {
+  display: flex;
+  background: var(--grey-100);
+  border-radius: var(--radius-sm);
+  padding: 3px; gap: 3px;
+  margin-bottom: 18px;
+}
+
+.pkg-tab {
+  flex: 1; padding: 10px;
+  text-align: center;
+  font-family: 'Syne', sans-serif;
+  font-weight: 600; font-size: 12px;
+  letter-spacing: 0.3px;
+  border-radius: 6px; cursor: pointer;
+  transition: var(--transition);
+  color: var(--grey-600); border: none; background: none;
+}
+.pkg-tab.active {
+  background: var(--white); color: var(--black);
+  box-shadow: 0 1px 6px rgba(0,0,0,0.1);
+}
+
+/* ── PACKAGE CARDS ── */
+.pkg-card {
+  border: 1.5px solid var(--grey-200);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  margin-bottom: 10px;
+  cursor: pointer;
+  transition: var(--transition);
+  position: relative; overflow: hidden;
+}
+.pkg-card:hover { border-color: var(--grey-400); }
+.pkg-card.selected { border-color: var(--black); background: var(--off-white); }
+
+.pkg-card.selected::after {
+  content: '✓';
+  position: absolute; top: 14px; right: 14px;
+  width: 22px; height: 22px;
+  background: var(--black); color: var(--white);
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; font-weight: 700;
+}
+
+.pkg-badge {
+  display: inline-block;
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 1px; text-transform: uppercase;
+  padding: 3px 8px; border-radius: 4px;
+  background: var(--accent-light);
+  color: var(--accent-dark);
+  margin-bottom: 8px;
+}
+
+.pkg-name {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700; font-size: 16px;
+  margin-bottom: 3px;
+}
+
+.pkg-desc { font-size: 12px; color: var(--grey-600); margin-bottom: 10px; }
+
+.pkg-price {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800; font-size: 22px;
+  letter-spacing: -0.5px;
+}
+
+/* ── ADD-ONS ── */
+.addon-card {
+  border: 1.5px solid var(--grey-200);
+  border-radius: var(--radius-sm);
+  padding: 16px 18px;
+  margin-bottom: 10px;
+  transition: var(--transition);
+}
+.addon-card.hidden { display: none; }
+.addon-card:has(.addon-active) { border-color: var(--black); }
+
+.addon-top {
+  display: flex; align-items: flex-start;
+  justify-content: space-between; gap: 12px;
+}
+
+.addon-info { flex: 1; }
+
+.addon-name {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700; font-size: 14px; margin-bottom: 2px;
+}
+
+.addon-price-label { font-size: 12px; color: var(--grey-600); }
+.addon-desc { font-size: 12px; color: var(--grey-400); margin-top: 6px; line-height: 1.5; }
+
+/* Qty input style */
+.qty-wrap {
+  display: flex; align-items: center; gap: 8px; flex-shrink: 0;
+}
+
+.qty-btn {
+  width: 30px; height: 30px;
+  border: 1.5px solid var(--grey-200);
+  border-radius: 6px; background: var(--white);
+  font-size: 16px; cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  transition: var(--transition); color: var(--black);
+  font-weight: 400; line-height: 1;
+}
+.qty-btn:hover { border-color: var(--black); }
+
+.qty-input {
+  width: 52px; height: 30px;
+  border: 1.5px solid var(--grey-200);
+  border-radius: 6px;
+  text-align: center;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700; font-size: 14px;
+  color: var(--black); outline: none;
+  transition: var(--transition);
+}
+.qty-input:focus { border-color: var(--black); }
+.qty-input.error { border-color: var(--error); }
+
+.addon-subtotal {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700; font-size: 13px;
+  color: var(--black); min-width: 64px;
+  text-align: right; flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* Checkbox addons */
+.addon-checkbox-wrap {
+  display: flex; align-items: flex-start;
+  gap: 14px; cursor: pointer;
+}
+
+.addon-check {
+  width: 20px; height: 20px; flex-shrink: 0;
+  border: 2px solid var(--grey-200);
+  border-radius: 5px; margin-top: 2px;
+  display: flex; align-items: center; justify-content: center;
+  transition: var(--transition); font-size: 11px; color: var(--white);
+}
+.addon-check.checked { background: var(--black); border-color: var(--black); }
+
+/* Running total */
+.running-total {
+  position: sticky; bottom: 20px;
+  background: var(--black); color: var(--white);
+  border-radius: var(--radius);
+  padding: 14px 20px;
+  display: flex; justify-content: space-between; align-items: center;
+  margin-top: 20px;
+  box-shadow: var(--shadow-lg);
+}
+.rt-label { font-size: 12px; opacity: 0.65; }
+.rt-amount {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800; font-size: 22px; letter-spacing: -0.5px;
+}
+
+/* ── FORM ELEMENTS ── */
+.form-group { margin-bottom: 18px; }
+
+.form-label {
+  display: block; font-size: 12px; font-weight: 500;
+  color: var(--black); margin-bottom: 7px; letter-spacing: 0.2px;
+}
+.form-label .req { color: var(--error); margin-left: 2px; }
+
+.form-input, .form-select, .form-textarea {
+  width: 100%; padding: 11px 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; color: var(--black);
+  background: var(--white);
+  border: 1.5px solid var(--grey-200);
+  border-radius: var(--radius-sm);
+  outline: none; transition: var(--transition);
+  appearance: none; -webkit-appearance: none;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--black); }
+.form-input.has-error, .form-select.has-error { border-color: var(--error); }
+
+.form-select-wrap { position: relative; }
+.form-select-wrap::after {
+  content: '↓'; position: absolute;
+  right: 12px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--grey-400); pointer-events: none;
+  font-size: 12px;
+}
+
+.form-textarea { resize: vertical; min-height: 90px; line-height: 1.6; }
+
+.err-msg {
+  font-size: 11px; color: var(--error);
+  margin-top: 4px; display: none; align-items: center; gap: 4px;
+}
+.err-msg.show { display: flex; }
+
+/* Phone row */
+.phone-row { display: flex; gap: 8px; }
+.phone-prefix-wrap { width: 130px; flex-shrink: 0; position: relative; }
+.phone-prefix-wrap::after {
+  content: '↓'; position: absolute;
+  right: 10px; top: 50%;
+  transform: translateY(-50%);
+  color: var(--grey-400); pointer-events: none; font-size: 12px;
+}
+.phone-prefix-input {
+  width: 100%; padding: 11px 28px 11px 14px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px; color: var(--black);
+  background: var(--white);
+  border: 1.5px solid var(--grey-200);
+  border-radius: var(--radius-sm);
+  outline: none; transition: var(--transition);
+  appearance: none; -webkit-appearance: none;
+}
+.phone-prefix-input:focus { border-color: var(--black); }
+.phone-prefix-input.has-error { border-color: var(--error); }
+
+/* Address grid */
+.addr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 480px) { .addr-grid { grid-template-columns: 1fr; } }
+
+/* Radio toggle */
+.radio-row { display: flex; gap: 8px; }
+.radio-opt {
+  flex: 1; padding: 11px 14px;
+  border: 1.5px solid var(--grey-200);
+  border-radius: var(--radius-sm);
+  cursor: pointer; transition: var(--transition);
+  text-align: center; font-size: 13px; font-weight: 500;
+}
+.radio-opt:hover { border-color: var(--grey-400); }
+.radio-opt.selected { background: var(--black); color: var(--white); border-color: var(--black); }
+.radio-opt input { display: none; }
+
+/* Map pin */
+.map-pin-btn {
+  width: 100%; height: 150px;
+  background: var(--grey-50);
+  border: 1.5px dashed var(--grey-200);
+  border-radius: var(--radius-sm);
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center; gap: 6px;
+  cursor: pointer; transition: var(--transition);
+  color: var(--grey-400); font-size: 13px;
+}
+.map-pin-btn:hover { border-color: var(--black); color: var(--black); }
+.map-pin-icon { font-size: 24px; }
+
+/* ── SPECIAL REQUESTS ── */
+.req-row {
+  display: flex; gap: 8px; margin-bottom: 8px; align-items: center;
+}
+.req-row .form-input { flex: 1; margin: 0; }
+
+.del-btn {
+  width: 34px; height: 34px; flex-shrink: 0;
+  border: 1.5px solid var(--grey-200);
+  border-radius: var(--radius-xs);
+  background: var(--white); cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 13px; color: var(--grey-400);
+  transition: var(--transition);
+}
+.del-btn:hover { border-color: var(--error); color: var(--error); }
+
+.add-req-btn {
+  width: 100%; padding: 10px;
+  border: 1.5px dashed var(--grey-200);
+  border-radius: var(--radius-sm);
+  background: none; cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 13px; color: var(--grey-400);
+  transition: var(--transition);
+  display: flex; align-items: center; justify-content: center; gap: 6px;
+}
+.add-req-btn:hover { border-color: var(--black); color: var(--black); }
+
+/* ── SUMMARY ── */
+.sum-block {
+  border: 1.5px solid var(--grey-100);
+  border-radius: var(--radius);
+  overflow: hidden; margin-bottom: 12px;
+}
+
+.sum-block-head {
+  padding: 12px 16px;
+  background: var(--grey-50);
+  border-bottom: 1.5px solid var(--grey-100);
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: var(--grey-400);
+}
+
+.sum-row {
+  display: flex; justify-content: space-between;
+  align-items: flex-start; gap: 12px;
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--grey-100);
+  font-size: 13px;
+}
+.sum-row:last-child { border-bottom: none; }
+.sum-key { color: var(--grey-600); flex-shrink: 0; }
+.sum-val { font-weight: 500; text-align: right; }
+
+.total-bar {
+  background: var(--black); color: var(--white);
+  border-radius: var(--radius-sm);
+  padding: 16px 20px;
+  display: flex; justify-content: space-between; align-items: center;
+  margin: 4px 0 16px;
+}
+.total-bar-label {
+  font-family: 'Syne', sans-serif;
+  font-weight: 700; font-size: 12px;
+  letter-spacing: 1.5px; text-transform: uppercase; opacity: 0.7;
+}
+.total-bar-val {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800; font-size: 26px; letter-spacing: -0.5px;
+}
+
+/* TNC */
+.tnc-row {
+  display: flex; align-items: flex-start; gap: 12px;
+  padding: 14px 16px;
+  border: 1.5px solid var(--grey-200);
+  border-radius: var(--radius-sm);
+  cursor: pointer; transition: var(--transition);
+  margin-top: 16px;
+}
+.tnc-row:hover { border-color: var(--grey-400); }
+.tnc-row.checked { border-color: var(--black); background: var(--off-white); }
+
+.tnc-box {
+  width: 18px; height: 18px; flex-shrink: 0;
+  border: 2px solid var(--grey-200);
+  border-radius: 4px; margin-top: 2px;
+  display: flex; align-items: center; justify-content: center;
+  transition: var(--transition); font-size: 10px; color: var(--white);
+}
+.tnc-row.checked .tnc-box { background: var(--black); border-color: var(--black); }
+.tnc-text { font-size: 12px; color: var(--grey-600); line-height: 1.6; }
+.tnc-text a { color: var(--black); font-weight: 500; }
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex; align-items: center;
+  justify-content: center; gap: 7px;
+  padding: 13px 24px;
+  font-family: 'Syne', sans-serif;
+  font-size: 14px; font-weight: 700;
+  border-radius: var(--radius-sm);
+  cursor: pointer; transition: var(--transition);
+  border: none; text-decoration: none;
+  letter-spacing: 0.2px;
+}
+.btn-black { background: var(--black); color: var(--white); }
+.btn-black:hover:not(:disabled) { opacity: 0.82; transform: translateY(-1px); }
+.btn-black:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+.btn-outline {
+  background: var(--white); color: var(--black);
+  border: 1.5px solid var(--grey-200);
+}
+.btn-outline:hover { border-color: var(--black); }
+.btn-full { width: 100%; }
+
+.nav-row {
+  display: flex; gap: 10px; margin-top: 36px;
+}
+.nav-row .btn-black { flex: 1; }
+
+/* ── HERO ── */
+.hero-img {
+  width: calc(100% + 48px); margin-left: -24px;
+  height: 220px; object-fit: cover; display: block;
+  margin-top: -44px; margin-bottom: 32px;
+}
+@media (max-width: 480px) { .hero-img { height: 160px; } }
+
+/* ── DIVIDER ── */
+.divider { height: 1px; background: var(--grey-100); margin: 24px 0; }
+
+/* ── SUCCESS ── */
+.success-center { text-align: center; padding: 32px 0; }
+.success-ring {
+  width: 72px; height: 72px;
+  background: var(--black); border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  margin: 0 auto 20px; font-size: 30px;
+  animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+@keyframes popIn {
+  from { transform: scale(0); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.ref-box {
+  background: var(--grey-50);
+  border: 1.5px solid var(--grey-100);
+  border-radius: var(--radius);
+  padding: 18px; margin: 20px 0;
+}
+.ref-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--grey-400); margin-bottom: 5px; }
+.ref-num {
+  font-family: 'Syne', sans-serif;
+  font-weight: 800; font-size: 26px; letter-spacing: -0.5px;
+}
+
+.link-box {
+  background: var(--black); border-radius: var(--radius-sm);
+  padding: 12px 14px;
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 10px; margin: 12px 0;
+}
+.link-url { font-size: 12px; color: var(--grey-400); word-break: break-all; text-align: left; }
+.copy-btn {
+  background: rgba(255,255,255,0.1);
+  border: none; border-radius: 5px;
+  padding: 5px 10px; color: var(--white);
+  font-size: 11px; font-weight: 500;
+  cursor: pointer; flex-shrink: 0;
+  transition: var(--transition);
+  font-family: 'DM Sans', sans-serif;
+}
+.copy-btn:hover { background: rgba(255,255,255,0.2); }
+
+.info-chips { margin: 14px 0; display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.chip {
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 6px 12px; background: var(--grey-50);
+  border-radius: 20px; font-size: 12px; color: var(--grey-600);
+}
+
+/* ── LOADING ── */
+.loading-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(255,255,255,0.88);
+  z-index: 999; flex-direction: column;
+  align-items: center; justify-content: center; gap: 14px;
+}
+.loading-overlay.show { display: flex; }
+.spinner {
+  width: 36px; height: 36px;
+  border: 2.5px solid var(--grey-200);
+  border-top-color: var(--black);
+  border-radius: 50%;
+  animation: spin 0.75s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-txt {
+  font-family: 'Syne', sans-serif;
+  font-weight: 600; font-size: 14px; color: var(--black);
+}
+
+/* ── TOAST ── */
+.toast {
+  position: fixed; bottom: 24px; left: 50%;
+  transform: translateX(-50%) translateY(70px);
+  background: var(--black); color: var(--white);
+  padding: 10px 18px; border-radius: 100px;
+  font-size: 12px; font-weight: 500; z-index: 9999;
+  transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
+  white-space: nowrap; pointer-events: none;
+}
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .page { padding: 32px 18px 90px; }
+  .nav-row { flex-direction: column-reverse; }
+  .nav-row .btn-outline { width: 100%; }
+  .slot-grid { gap: 8px; }
+}
+@media (max-width: 480px) {
+  .header { padding: 0 14px; }
+  .page { padding: 24px 14px 90px; }
+  .prog-dot { width: 18px; }
+  .prog-dot.active { width: 26px; }
+  .phone-prefix-wrap { width: 110px; }
+  .addr-grid { grid-template-columns: 1fr; gap: 0; }
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="logo">
+    <div class="logo-mark">PC</div>
+    <span class="logo-name">Petre Coffee</span>
+  </div>
+  <div class="progress-wrap" id="progressWrap">
+    <div class="prog-dot active" data-s="1"></div>
+    <div class="prog-dot" data-s="2"></div>
+    <div class="prog-dot" data-s="3"></div>
+    <div class="prog-dot" data-s="4"></div>
+    <div class="prog-dot" data-s="5"></div>
+    <div class="prog-dot" data-s="6"></div>
+    <div class="prog-dot" data-s="7"></div>
+  </div>
+</header>
+
+<main class="main">
+
+<!-- ══════════════════════════════════════
+     PAGE 1 — INTRODUCTION
+══════════════════════════════════════ -->
+<div class="page active" id="page-1">
+  <img src="https://images.unsplash.com/photo-1610889556528-9a770e32642f?w=800&q=80&fit=crop" class="hero-img" alt="Petre Coffee">
+  <div class="eyebrow">Selamat Datang</div>
+  <h1 class="page-title">Tempah Petre Coffee untuk Event Anda</h1>
+  <p class="page-sub">Popup coffee booth premium untuk setiap majlis. Sila baca panduan berikut sebelum membuat tempahan.</p>
+  <ul class="guide-list">
+    <li class="guide-item">
+      <div class="guide-icon">📅</div>
+      <div>
+        <span class="guide-strong">Lead Time Minimum 2 Minggu</span>
+        <span class="guide-text">Tempahan perlu dibuat sekurang-kurangnya 14 hari sebelum tarikh event.</span>
+      </div>
+    </li>
+    <li class="guide-item">
+      <div class="guide-icon">⏱️</div>
+      <div>
+        <span class="guide-strong">Slot Perkhidmatan 4 Jam</span>
+        <span class="guide-text">Setiap slot lalai adalah 4 jam. Masa boleh ditambah melalui add-on.</span>
+      </div>
+    </li>
+    <li class="guide-item">
+      <div class="guide-icon">✅</div>
+      <div>
+        <span class="guide-strong">Tertakluk kepada Pengesahan Admin</span>
+        <span class="guide-text">Setiap tempahan akan disemak oleh pasukan kami dalam masa 1–2 hari bekerja.</span>
+      </div>
+    </li>
+    <li class="guide-item">
+      <div class="guide-icon">💳</div>
+      <div>
+        <span class="guide-strong">Pembayaran Deposit atau Penuh</span>
+        <span class="guide-text">Pilih bayar 50% deposit atau bayaran penuh selepas tempahan disahkan.</span>
+      </div>
+    </li>
+    <li class="guide-item">
+      <div class="guide-icon">🔄</div>
+      <div>
+        <span class="guide-strong">Polisi Pembatalan</span>
+        <span class="guide-text">&gt;30 hari: Refund penuh &nbsp;|&nbsp; 14–30 hari: 50% &nbsp;|&nbsp; 7–14 hari: 25%</span>
+      </div>
+    </li>
+  </ul>
+  <div class="nav-row" style="margin-top: 28px;">
+    <button class="btn btn-black btn-full" onclick="goTo(2)">Mula Tempahan →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PAGE 2 — DATE & SLOT
+══════════════════════════════════════ -->
+<div class="page" id="page-2">
+  <div class="eyebrow">Langkah 1 dari 6</div>
+  <h1 class="page-title">Tarikh & Slot Masa</h1>
+  <p class="page-sub">Pilih tarikh event anda. Tarikh minimum adalah 14 hari dari hari ini.</p>
+
+  <div class="cal-shell">
+    <div class="cal-header">
+      <button class="cal-nav" onclick="prevMonth()">←</button>
+      <span class="cal-month-label" id="calLabel"></span>
+      <button class="cal-nav" onclick="nextMonth()">→</button>
+    </div>
+    <div class="cal-body">
+      <div class="cal-weekdays">
+        <div class="cal-wd">Ah</div><div class="cal-wd">Is</div>
+        <div class="cal-wd">Se</div><div class="cal-wd">Ra</div>
+        <div class="cal-wd">Kh</div><div class="cal-wd">Ju</div>
+        <div class="cal-wd">Sa</div>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+    </div>
+  </div>
+
+  <div class="slot-section" id="slotSection" style="display:none;">
+    <div class="section-label">Pilih Slot Masa</div>
+    <div class="slot-grid">
+      <button class="slot-btn" id="slot-8AM" onclick="pickSlot('8AM')">8:00 AM</button>
+      <button class="slot-btn" id="slot-2PM" onclick="pickSlot('2PM')">2:00 PM</button>
+      <button class="slot-btn" id="slot-8PM" onclick="pickSlot('8PM')">8:00 PM</button>
+    </div>
+    <div class="slot-note">⏱ Tempoh lalai setiap slot adalah 4 jam</div>
+  </div>
+
+  <div class="nav-row">
+    <button class="btn btn-outline" onclick="goTo(1)">← Kembali</button>
+    <button class="btn btn-black" id="btn2next" disabled onclick="goTo(3)">Seterusnya →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PAGE 3 — PACKAGE
+══════════════════════════════════════ -->
+<div class="page" id="page-3">
+  <div class="eyebrow">Langkah 2 dari 6</div>
+  <h1 class="page-title">Pilih Pakej Asas</h1>
+  <p class="page-sub">Pilih pakej yang sesuai dengan keperluan event anda.</p>
+
+  <div class="pkg-tabs">
+    <button class="pkg-tab active" id="tab-time" onclick="switchTab('time')">Berasaskan Masa</button>
+    <button class="pkg-tab" id="tab-cups" onclick="switchTab('cups')">Berasaskan Cawan</button>
+  </div>
+
+  <div id="pkgs-time">
+    <div class="pkg-card" id="p-bronze-time" onclick="pickPkg('bronze-time','TIME_BASED',800,'Bronze Time',4,null)">
+      <div class="pkg-badge">Berasaskan Masa</div>
+      <div class="pkg-name">Bronze Time</div>
+      <div class="pkg-desc">Sesuai untuk event kecil. Perkhidmatan 4 jam, cawan tanpa had.</div>
+      <div class="pkg-price">RM 800</div>
+    </div>
+    <div class="pkg-card" id="p-silver-time" onclick="pickPkg('silver-time','TIME_BASED',1100,'Silver Time',6,null)">
+      <div class="pkg-badge">Berasaskan Masa</div>
+      <div class="pkg-name">Silver Time</div>
+      <div class="pkg-desc">Sesuai untuk event sederhana. Perkhidmatan 6 jam, cawan tanpa had.</div>
+      <div class="pkg-price">RM 1,100</div>
+    </div>
+    <div class="pkg-card" id="p-gold-time" onclick="pickPkg('gold-time','TIME_BASED',1400,'Gold Time',8,null)">
+      <div class="pkg-badge">Berasaskan Masa</div>
+      <div class="pkg-name">Gold Time</div>
+      <div class="pkg-desc">Sesuai untuk event seharian. Perkhidmatan 8 jam, cawan tanpa had.</div>
+      <div class="pkg-price">RM 1,400</div>
+    </div>
+  </div>
+
+  <div id="pkgs-cups" style="display:none;">
+    <div class="pkg-card" id="p-starter-cups" onclick="pickPkg('starter-cups','CUPS_BASED',400,'Starter Cups',null,100)">
+      <div class="pkg-badge">Berasaskan Cawan</div>
+      <div class="pkg-name">Starter Cups</div>
+      <div class="pkg-desc">Untuk gathering kecil. Termasuk 100 cawan.</div>
+      <div class="pkg-price">RM 400</div>
+    </div>
+    <div class="pkg-card" id="p-standard-cups" onclick="pickPkg('standard-cups','CUPS_BASED',900,'Standard Cups',null,300)">
+      <div class="pkg-badge">Berasaskan Cawan</div>
+      <div class="pkg-name">Standard Cups</div>
+      <div class="pkg-desc">Nilai terbaik untuk event sederhana. Termasuk 300 cawan.</div>
+      <div class="pkg-price">RM 900</div>
+    </div>
+    <div class="pkg-card" id="p-premium-cups" onclick="pickPkg('premium-cups','CUPS_BASED',1300,'Premium Cups',null,500)">
+      <div class="pkg-badge">Berasaskan Cawan</div>
+      <div class="pkg-name">Premium Cups</div>
+      <div class="pkg-desc">Untuk event besar. Termasuk 500 cawan.</div>
+      <div class="pkg-price">RM 1,300</div>
+    </div>
+  </div>
+
+  <div class="nav-row">
+    <button class="btn btn-outline" onclick="goTo(2)">← Kembali</button>
+    <button class="btn btn-black" id="btn3next" disabled onclick="goTo(4)">Seterusnya →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PAGE 4 — ADD-ONS
+══════════════════════════════════════ -->
+<div class="page" id="page-4">
+  <div class="eyebrow">Langkah 3 dari 6</div>
+  <h1 class="page-title">Add-ons & Perkhidmatan</h1>
+  <p class="page-sub">Semua pilihan adalah pilihan. Tambah mengikut keperluan event anda.</p>
+
+  <!-- Tambah Masa — Cups-Based only -->
+  <div class="addon-card" id="acard-time">
+    <div class="addon-top">
+      <div class="addon-info">
+        <div class="addon-name">Tambah Masa</div>
+        <div class="addon-price-label">RM 100.00 / jam</div>
+        <div class="addon-desc">Tambahan masa perkhidmatan barista di lokasi event anda.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+        <div class="qty-wrap">
+          <button class="qty-btn" onclick="adjQty('time',-1)">−</button>
+          <input class="qty-input" id="qi-time" value="0" oninput="onQtyInput('time',this)" onblur="onQtyBlur('time',this)">
+          <button class="qty-btn" onclick="adjQty('time',1)">+</button>
+        </div>
+        <div class="addon-subtotal" id="sub-time">RM 0</div>
+      </div>
+    </div>
+    <div class="err-msg" id="err-qi-time">⚠ Sila masukkan nombor sahaja.</div>
+  </div>
+
+  <!-- Tambah Cups — Time-Based only -->
+  <div class="addon-card" id="acard-cups">
+    <div class="addon-top">
+      <div class="addon-info">
+        <div class="addon-name">Tambah Cawan</div>
+        <div class="addon-price-label">RM 3.00 / cawan</div>
+        <div class="addon-desc">Tambahan bilangan cawan minuman untuk tetamu event anda.</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+        <div class="qty-wrap">
+          <button class="qty-btn" onclick="adjQty('cups',-1)">−</button>
+          <input class="qty-input" id="qi-cups" value="0" oninput="onQtyInput('cups',this)" onblur="onQtyBlur('cups',this)">
+          <button class="qty-btn" onclick="adjQty('cups',1)">+</button>
+        </div>
+        <div class="addon-subtotal" id="sub-cups">RM 0</div>
+      </div>
+    </div>
+    <div class="err-msg" id="err-qi-cups">⚠ Sila masukkan nombor sahaja.</div>
+  </div>
+
+  <!-- Canopy — checkbox -->
+  <div class="addon-card" id="acard-canopy" onclick="toggleCheck('canopy')" style="cursor:pointer;">
+    <div class="addon-checkbox-wrap">
+      <div class="addon-check" id="check-canopy"></div>
+      <div class="addon-info">
+        <div class="addon-name">Canopy &nbsp;<span style="font-size:12px;font-weight:400;color:var(--grey-400)">— RM 50.00</span></div>
+        <div class="addon-desc">Untuk tempat yang tiada tempat teduh dan ada risiko hujan.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Perkhidmatan Pembersihan — checkbox -->
+  <div class="addon-card" id="acard-cleanup" onclick="toggleCheck('cleanup')" style="cursor:pointer;">
+    <div class="addon-checkbox-wrap">
+      <div class="addon-check" id="check-cleanup"></div>
+      <div class="addon-info">
+        <div class="addon-name">Perkhidmatan Pembersihan &nbsp;<span style="font-size:12px;font-weight:400;color:var(--grey-400)">— RM 50.00</span></div>
+        <div class="addon-desc">Servis kutip sampah daripada Petre Coffee, kemas kawasan booth dan sampah dibawa balik.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="running-total">
+    <div>
+      <div class="rt-label">Jumlah Pakej + Add-ons</div>
+    </div>
+    <div class="rt-amount" id="runTotal">RM 0</div>
+  </div>
+
+  <div class="nav-row">
+    <button class="btn btn-outline" onclick="goTo(3)">← Kembali</button>
+    <button class="btn btn-black" onclick="goTo(5)">Seterusnya →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PAGE 5 — CUSTOMER INFO
+══════════════════════════════════════ -->
+<div class="page" id="page-5">
+  <div class="eyebrow">Langkah 4 dari 6</div>
+  <h1 class="page-title">Maklumat Pelanggan & Event</h1>
+  <p class="page-sub">Isi maklumat anda dan butiran event dengan lengkap dan tepat.</p>
+
+  <!-- MAKLUMAT PELANGGAN -->
+  <div class="section-label">Maklumat Pelanggan</div>
+
+  <div class="form-group">
+    <label class="form-label">Nama Penuh <span class="req">*</span></label>
+    <input type="text" class="form-input" id="f-name" placeholder="cth: Ahmad bin Abdullah">
+    <div class="err-msg" id="e-name">⚠ Sila masukkan nama penuh anda.</div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">No. Telefon <span class="req">*</span></label>
+    <div class="phone-row">
+      <div class="phone-prefix-wrap">
+        <input list="prefix-list" class="phone-prefix-input" id="f-prefix" placeholder="019" oninput="validatePhonePrefix()">
+        <datalist id="prefix-list">
+          <option value="010"><option value="011"><option value="012">
+          <option value="013"><option value="014"><option value="016">
+          <option value="017"><option value="018"><option value="019">
+          <option value="03"><option value="06"><option value="1800">
+        </datalist>
+      </div>
+      <div style="flex:1;position:relative;">
+        <input type="text" class="form-input" id="f-phone" placeholder="12345678" oninput="validatePhoneNum()" style="margin:0;">
+      </div>
+    </div>
+    <div class="err-msg" id="e-phone">⚠ Sila masukkan nombor telefon yang sah (nombor sahaja).</div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Alamat E-mel <span class="req">*</span></label>
+    <input type="email" class="form-input" id="f-email" placeholder="cth: nama@email.com">
+    <div class="err-msg" id="e-email">⚠ Format e-mel tidak sah. Contoh: nama@email.com</div>
+  </div>
+
+  <!-- MAKLUMAT EVENT -->
+  <div class="section-label">Maklumat Event</div>
+
+  <div class="form-group">
+    <label class="form-label">Jenis Event <span class="req">*</span></label>
+    <div class="form-select-wrap">
+      <select class="form-select" id="f-evcat" onchange="onCatChange()">
+        <option value="">-- Pilih Jenis Event --</option>
+        <option>Corporate Events</option>
+        <option>Government Events</option>
+        <option>Private Events</option>
+        <option>Pop-up & Public Events</option>
+        <option>Wedding & Romantic Events</option>
+        <option>Lifestyle & Community Events</option>
+        <option>Education Events</option>
+        <option>Creative & Media Events</option>
+        <option>Others</option>
+      </select>
+    </div>
+    <div class="err-msg" id="e-evcat">⚠ Sila pilih jenis event.</div>
+  </div>
+
+  <div class="form-group" id="evtype-group">
+    <label class="form-label">Apa Event? <span class="req">*</span></label>
+    <div class="form-select-wrap" id="evtype-select-wrap">
+      <select class="form-select" id="f-evtype" onchange="onTypeChange()">
+        <option value="">-- Pilih Event --</option>
+      </select>
+    </div>
+    <input type="text" class="form-input" id="f-evtype-other" placeholder="Nyatakan jenis event anda..." style="display:none;">
+    <div class="err-msg" id="e-evtype">⚠ Sila pilih atau nyatakan jenis event.</div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Nama Event <span class="req">*</span></label>
+    <input type="text" class="form-input" id="f-evname" placeholder="cth: Majlis Perkahwinan Alia & Hafiz, Annual Dinner Syarikat ABC">
+    <div class="err-msg" id="e-evname">⚠ Sila masukkan nama event.</div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Alamat Penuh <span class="req">*</span></label>
+    <input type="text" class="form-input" id="f-addr" placeholder="cth: No. 12, Jalan Setia 3, Taman Setia">
+    <div class="err-msg" id="e-addr">⚠ Sila masukkan alamat penuh.</div>
+  </div>
+
+  <div class="addr-grid">
+    <div class="form-group">
+      <label class="form-label">Poskod <span class="req">*</span></label>
+      <input type="text" class="form-input" id="f-postcode" placeholder="cth: 47100" maxlength="5" oninput="this.value=this.value.replace(/\D/g,'')">
+      <div class="err-msg" id="e-postcode">⚠ Sila masukkan poskod yang sah.</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Bandar <span class="req">*</span></label>
+      <input type="text" class="form-input" id="f-city" placeholder="cth: Puchong">
+      <div class="err-msg" id="e-city">⚠ Sila masukkan bandar.</div>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Negeri <span class="req">*</span></label>
+    <div class="form-select-wrap">
+      <select class="form-select" id="f-state">
+        <option value="">-- Pilih Negeri --</option>
+        <option>W.P. Kuala Lumpur</option>
+        <option>W.P. Putrajaya</option>
+        <option>Selangor</option>
+        <option>Negeri Sembilan</option>
+      </select>
+    </div>
+    <div class="err-msg" id="e-state">⚠ Sila pilih negeri.</div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Adakah lokasi event di Lembah Klang? <span class="req">*</span></label>
+    <div class="radio-row">
+      <label class="radio-opt" id="r-klang-y" onclick="pickKlang(true)"><input type="radio" name="klang">Ya — Lembah Klang</label>
+      <label class="radio-opt" id="r-klang-n" onclick="pickKlang(false)"><input type="radio" name="klang">Tidak</label>
+    </div>
+    <div class="err-msg" id="e-klang">⚠ Sila pilih kawasan event.</div>
+  </div>
+
+  <div id="zone-wrap" style="display:none; margin-top: 10px;">
+    <div class="form-select-wrap">
+      <select class="form-select" id="f-zone" onchange="onZoneChange()">
+        <option value="">-- Pilih Kawasan --</option>
+        <option value="selangor-luar">Selangor Luar Lembah Klang — RM 80.00</option>
+        <option value="n9">Negeri Sembilan — RM 120.00</option>
+      </select>
+    </div>
+    <div class="err-msg" id="e-zone">⚠ Sila pilih kawasan.</div>
+  </div>
+
+  <div class="form-group" style="margin-top:18px;">
+    <label class="form-label">Pin Lokasi di Maps</label>
+    <div class="map-pin-btn" onclick="toast('Integrasi Google Maps akan diaktifkan selepas deployment.')">
+      <div class="map-pin-icon">📍</div>
+      <span>Klik untuk pin lokasi event</span>
+      <span style="font-size:11px;color:var(--grey-400)">Pilihan — membantu kami merancang logistik</span>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Jenis Lokasi <span class="req">*</span></label>
+    <div class="form-select-wrap">
+      <select class="form-select" id="f-loctype">
+        <option value="">-- Pilih Jenis Lokasi --</option>
+        <option>Dewan</option><option>Rumah Landed</option>
+        <option>Apartment/Condo/Flat</option><option>Event Space</option>
+        <option>Rumah Kedai</option><option>Tempat Awam</option>
+        <option>Bangunan Kerajaan</option><option>Rumah Ibadat</option>
+        <option>Mall</option><option>Cafe</option><option>Others</option>
+      </select>
+    </div>
+    <div class="err-msg" id="e-loctype">⚠ Sila pilih jenis lokasi.</div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Anggaran Bilangan Tetamu <span class="req">*</span></label>
+    <div class="form-select-wrap">
+      <select class="form-select" id="f-pax">
+        <option value="">-- Pilih Anggaran Pax --</option>
+        <option>0–50</option><option>50–100</option>
+        <option>100–200</option><option>200–300</option>
+        <option>300–500</option><option>500–700</option>
+        <option>700–1,000</option><option>Lebih 1,000</option>
+      </select>
+    </div>
+    <div class="err-msg" id="e-pax">⚠ Sila pilih anggaran bilangan tetamu.</div>
+  </div>
+
+  <div class="nav-row">
+    <button class="btn btn-outline" onclick="goTo(4)">← Kembali</button>
+    <button class="btn btn-black" onclick="validateP5()">Seterusnya →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PAGE 6 — SPECIAL REQUEST
+══════════════════════════════════════ -->
+<div class="page" id="page-6">
+  <div class="eyebrow">Langkah 5 dari 6</div>
+  <h1 class="page-title">Permintaan Khas</h1>
+  <p class="page-sub">Semua bahagian di bawah adalah pilihan. Tinggalkan kosong jika tiada.</p>
+
+  <div class="section-label">Permintaan Khas</div>
+
+  <div id="reqRows">
+    <div class="req-row" id="rr-1">
+      <input type="text" class="form-input" id="rr-inp-1" placeholder="cth: Sediakan sudut demo live brewing">
+      <button class="del-btn" onclick="delReq(1)" style="display:none;">✕</button>
+    </div>
+  </div>
+  <button class="add-req-btn" onclick="addReq()">+ Tambah Permintaan</button>
+
+  <div class="divider"></div>
+
+  <div class="section-label">Keperluan Diet & Alahan</div>
+  <p style="font-size:13px;color:var(--grey-600);margin-bottom:14px;">Adakah terdapat keperluan diet atau alahan makanan dalam kalangan tetamu?</p>
+
+  <div class="radio-row">
+    <label class="radio-opt" id="r-diet-y" onclick="pickDiet(true)"><input type="radio" name="diet">Ya, ada</label>
+    <label class="radio-opt" id="r-diet-n" onclick="pickDiet(false)"><input type="radio" name="diet">Tidak</label>
+  </div>
+
+  <div id="diet-detail" style="display:none;margin-top:14px;">
+    <textarea class="form-textarea" id="f-diet" placeholder="cth: Sesetengah tetamu alahan kepada susu lembu — sila sediakan pilihan oat milk atau soy milk"></textarea>
+  </div>
+
+  <div class="nav-row">
+    <button class="btn btn-outline" onclick="goTo(5)">← Kembali</button>
+    <button class="btn btn-black" onclick="goTo(7)">Seterusnya →</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PAGE 7 — SUMMARY
+══════════════════════════════════════ -->
+<div class="page" id="page-7">
+  <div class="eyebrow">Langkah 6 dari 6</div>
+  <h1 class="page-title">Semak & Sahkan</h1>
+  <p class="page-sub">Sila semak semula semua butiran sebelum menghantar tempahan.</p>
+
+  <div class="sum-block">
+    <div class="sum-block-head">Butiran Event</div>
+    <div class="sum-row"><span class="sum-key">Tarikh</span><span class="sum-val" id="s-date">—</span></div>
+    <div class="sum-row"><span class="sum-key">Slot Masa</span><span class="sum-val" id="s-slot">—</span></div>
+    <div class="sum-row"><span class="sum-key">Jenis Event</span><span class="sum-val" id="s-evcat">—</span></div>
+    <div class="sum-row"><span class="sum-key">Event</span><span class="sum-val" id="s-evtype">—</span></div>
+    <div class="sum-row"><span class="sum-key">Nama Event</span><span class="sum-val" id="s-evname">—</span></div>
+    <div class="sum-row"><span class="sum-key">Alamat</span><span class="sum-val" id="s-addr">—</span></div>
+    <div class="sum-row"><span class="sum-key">Kawasan</span><span class="sum-val" id="s-zone">—</span></div>
+    <div class="sum-row"><span class="sum-key">Jenis Lokasi</span><span class="sum-val" id="s-loctype">—</span></div>
+    <div class="sum-row"><span class="sum-key">Anggaran Pax</span><span class="sum-val" id="s-pax">—</span></div>
+  </div>
+
+  <div class="sum-block">
+    <div class="sum-block-head">Pakej</div>
+    <div class="sum-row"><span class="sum-key">Nama Pakej</span><span class="sum-val" id="s-pkg">—</span></div>
+    <div class="sum-row"><span class="sum-key">Jenis</span><span class="sum-val" id="s-pkgtype">—</span></div>
+    <div class="sum-row"><span class="sum-key">Harga</span><span class="sum-val" id="s-pkgprice">—</span></div>
+  </div>
+
+  <div class="sum-block" id="s-addons-block" style="display:none;">
+    <div class="sum-block-head">Add-ons</div>
+    <div id="s-addons-list"></div>
+  </div>
+
+  <div class="sum-block" id="s-req-block" style="display:none;">
+    <div class="sum-block-head">Permintaan Khas</div>
+    <div id="s-req-list"></div>
+  </div>
+
+  <div class="sum-block" id="s-diet-block" style="display:none;">
+    <div class="sum-block-head">Keperluan Diet</div>
+    <div id="s-diet-info"></div>
+  </div>
+
+  <div class="sum-block">
+    <div class="sum-block-head">Ringkasan Bil</div>
+    <div class="sum-row"><span class="sum-key">Harga Pakej</span><span class="sum-val" id="b-pkg">RM 0.00</span></div>
+    <div class="sum-row" id="b-addon-row" style="display:none;"><span class="sum-key">Add-ons</span><span class="sum-val" id="b-addons">RM 0.00</span></div>
+    <div class="sum-row"><span class="sum-key">Kos Pengangkutan</span><span class="sum-val" id="b-transport">RM 0.00</span></div>
+  </div>
+
+  <div class="total-bar">
+    <span class="total-bar-label">Jumlah</span>
+    <span class="total-bar-val" id="b-total">RM 0.00</span>
+  </div>
+
+  <div class="tnc-row" id="tncRow" onclick="toggleTnc()">
+    <div class="tnc-box" id="tncBox"></div>
+    <div class="tnc-text">Saya telah membaca dan bersetuju dengan <a href="#" onclick="return false;">Terma & Syarat</a> Petre Coffee. Saya faham tempahan ini tertakluk kepada pengesahan pihak Petre Coffee.</div>
+  </div>
+
+  <div class="nav-row">
+    <button class="btn btn-outline" onclick="goTo(6)">← Kembali</button>
+    <button class="btn btn-black" id="submitBtn" disabled onclick="submitBooking()">Hantar Tempahan</button>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     PAGE 8 — SUCCESS
+══════════════════════════════════════ -->
+<div class="page" id="page-8">
+  <div class="success-center">
+    <div class="success-ring">✓</div>
+    <div class="eyebrow">Berjaya!</div>
+    <h1 class="page-title">Tempahan Telah Dihantar</h1>
+    <p class="page-sub">Terima kasih kerana memilih Petre Coffee. Kami akan menghubungi anda dalam masa 1–2 hari bekerja untuk pengesahan.</p>
+
+    <div class="ref-box">
+      <div class="ref-label">Nombor Rujukan</div>
+      <div class="ref-num" id="suc-ref">PCO-2026-0001</div>
+    </div>
+
+    <p style="font-size:12px;color:var(--grey-600);margin-bottom:8px;">Pantau status tempahan melalui pautan di bawah:</p>
+
+    <div class="link-box">
+      <div class="link-url" id="suc-link">petrecoffee.com/order?token=...</div>
+      <button class="copy-btn" onclick="copyLink()">Salin</button>
+    </div>
+
+    <div class="info-chips">
+      <div class="chip">📧 E-mel pengesahan dihantar</div>
+      <div class="chip">💬 WhatsApp dihantar</div>
+    </div>
+
+    <div class="divider"></div>
+    <button class="btn btn-outline btn-full" onclick="resetAll()">Buat Tempahan Baru</button>
+  </div>
+</div>
+
+</main>
+
+<!-- Loading -->
+<div class="loading-overlay" id="loadOverlay">
+  <div class="spinner"></div>
+  <div class="loading-txt">Menghantar tempahan...</div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toastEl"></div>
+
+<script>
+// ════════════════════════════
+// SUPABASE
+// ════════════════════════════
+const SB_URL = 'https://dfdgfujgygslhgkgujsr.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmZGdmdWpneWdzbGhna2d1anNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MDM4NjQsImV4cCI6MjA5MzQ3OTg2NH0.L6z152YBOKgSY6eJbAFeJ9XN2U93yyQgBgFfXYf608s';
+
+const H = { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json' };
+
+async function sbGet(table, qs = '') {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}${qs ? '?' + qs : ''}`, { headers: H });
+  return r.json();
+}
+
+async function sbPost(table, data) {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}`, {
+    method: 'POST', headers: { ...H, 'Prefer': 'return=representation' },
+    body: JSON.stringify(data)
+  });
+  return r.json();
+}
+
+// ════════════════════════════
+// STATE
+// ════════════════════════════
+let S = {
+  page: 1,
+  date: null, slot: null,
+  pkg: null,
+  addons: { time: 0, cups: 0, canopy: false, cleanup: false },
+  klang: null, transportCost: 0, transportZone: null,
+  tnc: false,
+  reqCount: 1,
+  dietYes: null,
+  blocked: [], existing: [],
+  magicLink: ''
+};
+
+const PRICES = { time: 100, cups: 3, canopy: 50, cleanup: 50 };
+
+// Event types map
+const EVENT_TYPES = {
+  'Corporate Events': ['Company Meeting / Townhall','Training & Workshop','Product Launch','Client Meeting / Client Visit','Networking Session','Team Building','Office Celebration (Birthday Staff, Farewell, Achievement)','Conference / Seminar'],
+  'Government Events': ['Official Meeting (Mesyuarat Jabatan / Agensi)','Government Seminar / Kursus','Training Program (Kursus Penjawat Awam)','Majlis Rasmi (Pelancaran, Perasmian)','Community Program (Program Komuniti Anjuran Kerajaan)','Hari Terbuka Jabatan','Conference / Forum Kerajaan','CSR / Outreach Program','Election-Related Events (Non-Political Catering)'],
+  'Private Events': ['Birthday Party','Engagement (Tunangan)','Wedding (Nikah / Sanding / Reception Kecil)','Anniversary Celebration','Baby Shower','Aqiqah','Family Gathering','Housewarming'],
+  'Pop-up & Public Events': ['Bazaar / Weekend Market','Festival / Carnival','Mall Activation','Pop-up Store Collaboration','Brand Activation Event','Roadshow'],
+  'Wedding & Romantic Events': ['Wedding Reception','Nikah Ceremony','Engagement Event','Anniversary Dinner','Proposal Event'],
+  'Lifestyle & Community Events': ['Fun Run / Marathon','Fitness / Gym Event','Cycling Event','Yoga / Wellness Session','Community Gathering','Charity Event'],
+  'Education Events': ['University / College Event','Orientation Week','Graduation Day','Student Festival','School Event'],
+  'Creative & Media Events': ['Photoshoot','Video Production / Filming','Influencer Event','Content Creation Event','Podcast Session']
+};
+
+// ════════════════════════════
+// NAVIGATION
+// ════════════════════════════
+function goTo(n) {
+  document.getElementById(`page-${S.page}`).classList.remove('active');
+  S.page = n;
+  document.getElementById(`page-${n}`).classList.add('active');
+  updateProg();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (n === 7) buildSummary();
+}
+
+function updateProg() {
+  document.querySelectorAll('.prog-dot').forEach((d, i) => {
+    d.classList.remove('active', 'done');
+    const s = i + 1;
+    if (s < S.page) d.classList.add('done');
+    else if (s === S.page) d.classList.add('active');
+  });
+  document.getElementById('progressWrap').style.display = S.page === 8 ? 'none' : 'flex';
+}
+
+// ════════════════════════════
+// CALENDAR
+// ════════════════════════════
+let CY, CM;
+const MONTHS = ['Januari','Februari','Mac','April','Mei','Jun','Julai','Ogos','September','Oktober','November','Disember'];
+
+function initCal() {
+  const t = new Date();
+  CY = t.getFullYear(); CM = t.getMonth();
+  renderCal();
+}
+
+function renderCal() {
+  document.getElementById('calLabel').textContent = `${MONTHS[CM]} ${CY}`;
+  const first = new Date(CY, CM, 1).getDay();
+  const days = new Date(CY, CM + 1, 0).getDate();
+  const today = new Date(); today.setHours(0,0,0,0);
+  const minD = new Date(today); minD.setDate(minD.getDate() + 14);
+  let h = '';
+  for (let i = 0; i < first; i++) h += '<div class="cal-cell cal-empty"></div>';
+  for (let d = 1; d <= days; d++) {
+    const dt = new Date(CY, CM, d);
+    const ds = fmtDate(dt);
+    const disabled = dt < minD;
+    const isToday = dt.toDateString() === today.toDateString();
+    const isSel = S.date === ds;
+    let cls = 'cal-cell';
+    if (disabled) cls += ' cal-disabled';
+    else if (isSel) cls += ' cal-selected';
+    else if (isToday) cls += ' cal-today';
+    const cb = disabled ? '' : `onclick="pickDate('${ds}')"`;
+    h += `<div class="${cls}" ${cb}>${d}</div>`;
+  }
+  document.getElementById('calGrid').innerHTML = h;
+}
+
+function prevMonth() { CM--; if (CM < 0) { CM = 11; CY--; } renderCal(); }
+function nextMonth() { CM++; if (CM > 11) { CM = 0; CY++; } renderCal(); }
+
+function pickDate(ds) {
+  S.date = ds; S.slot = null;
+  document.getElementById('btn2next').disabled = true;
+  renderCal();
+  renderSlots(ds);
+  document.getElementById('slotSection').style.display = 'block';
+}
+
+function fmtDate(d) { return d.toISOString().split('T')[0]; }
+
+function fmtDateDisplay(ds) {
+  const d = new Date(ds + 'T00:00:00');
+  const days = ['Ahad','Isnin','Selasa','Rabu','Khamis','Jumaat','Sabtu'];
+  return `${days[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+function renderSlots(ds) {
+  const SH = { '8AM': 8, '2PM': 14, '8PM': 20 };
+  ['8AM','2PM','8PM'].forEach(sl => {
+    const btn = document.getElementById(`slot-${sl}`);
+    btn.classList.remove('selected');
+    btn.disabled = false;
+    const blocked = S.blocked.some(b => b.blocked_date === ds && b.slot_time === sl);
+    if (blocked) { btn.disabled = true; return; }
+    const booked = S.existing.some(b => {
+      if (b.event_date !== ds) return false;
+      const bs = SH[b.slot_time], be = bs + b.duration_hours;
+      return SH[sl] >= bs && SH[sl] < be;
+    });
+    if (booked) btn.disabled = true;
+  });
+}
+
+function pickSlot(sl) {
+  S.slot = sl;
+  document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById(`slot-${sl}`).classList.add('selected');
+  document.getElementById('btn2next').disabled = false;
+}
+
+// ════════════════════════════
+// PAGE 3 — PACKAGE
+// ════════════════════════════
+function switchTab(t) {
+  document.getElementById('pkgs-time').style.display = t === 'time' ? 'block' : 'none';
+  document.getElementById('pkgs-cups').style.display = t === 'cups' ? 'block' : 'none';
+  document.getElementById('tab-time').classList.toggle('active', t === 'time');
+  document.getElementById('tab-cups').classList.toggle('active', t === 'cups');
+  S.pkg = null;
+  document.querySelectorAll('.pkg-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById('btn3next').disabled = true;
+}
+
+function pickPkg(id, type, price, name, hours, cups) {
+  document.querySelectorAll('.pkg-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById(`p-${id}`).classList.add('selected');
+  S.pkg = { id, type, price, name, hours, cups };
+  document.getElementById('btn3next').disabled = false;
+  // Control addon visibility
+  document.getElementById('acard-time').classList.toggle('hidden', type === 'TIME_BASED');
+  document.getElementById('acard-cups').classList.toggle('hidden', type === 'CUPS_BASED');
+  if (type === 'TIME_BASED') { S.addons.time = 0; refreshQty('time'); }
+  if (type === 'CUPS_BASED') { S.addons.cups = 0; refreshQty('cups'); }
+  updateRT();
+}
+
+// ════════════════════════════
+// PAGE 4 — ADD-ONS
+// ════════════════════════════
+function adjQty(type, delta) {
+  S.addons[type] = Math.max(0, S.addons[type] + delta);
+  document.getElementById(`qi-${type}`).value = S.addons[type];
+  refreshQty(type);
+  updateRT();
+}
+
+function onQtyInput(type, el) {
+  const v = el.value;
+  const err = document.getElementById(`err-qi-${type}`);
+  if (v !== '' && !/^\d+$/.test(v)) {
+    el.classList.add('error');
+    err.classList.add('show');
+  } else {
+    el.classList.remove('error');
+    err.classList.remove('show');
+    S.addons[type] = parseInt(v) || 0;
+    refreshQty(type);
+    updateRT();
+  }
+}
+
+function onQtyBlur(type, el) {
+  if (!/^\d+$/.test(el.value)) { el.value = S.addons[type]; }
+  el.classList.remove('error');
+  document.getElementById(`err-qi-${type}`).classList.remove('show');
+}
+
+function refreshQty(type) {
+  const q = S.addons[type];
+  if (document.getElementById(`qi-${type}`)) document.getElementById(`qi-${type}`).value = q;
+  document.getElementById(`sub-${type}`).textContent = `RM ${(q * PRICES[type]).toLocaleString()}`;
+}
+
+function toggleCheck(type) {
+  S.addons[type] = !S.addons[type];
+  document.getElementById(`check-${type}`).classList.toggle('checked', S.addons[type]);
+  document.getElementById(`check-${type}`).textContent = S.addons[type] ? '✓' : '';
+  updateRT();
+}
+
+function updateRT() {
+  const base = S.pkg ? S.pkg.price : 0;
+  const at = (S.addons.time * PRICES.time) + (S.addons.cups * PRICES.cups) +
+             (S.addons.canopy ? PRICES.canopy : 0) + (S.addons.cleanup ? PRICES.cleanup : 0);
+  document.getElementById('runTotal').textContent = `RM ${(base + at).toLocaleString()}`;
+}
+
+// ════════════════════════════
+// PAGE 5 — EVENT TYPES
+// ════════════════════════════
+function onCatChange() {
+  const cat = document.getElementById('f-evcat').value;
+  const sel = document.getElementById('f-evtype');
+  const other = document.getElementById('f-evtype-other');
+  const selWrap = document.getElementById('evtype-select-wrap');
+
+  if (!cat || cat === 'Others') {
+    selWrap.style.display = 'none';
+    other.style.display = 'block';
+    other.placeholder = 'Nyatakan jenis event anda...';
+  } else {
+    selWrap.style.display = 'block';
+    other.style.display = 'none';
+    const types = EVENT_TYPES[cat] || [];
+    sel.innerHTML = '<option value="">-- Pilih Event --</option>' +
+      types.map(t => `<option>${t}</option>`).join('') +
+      '<option value="others">Others</option>';
+  }
+}
+
+function onTypeChange() {
+  const val = document.getElementById('f-evtype').value;
+  const other = document.getElementById('f-evtype-other');
+  const selWrap = document.getElementById('evtype-select-wrap');
+  if (val === 'others') {
+    other.style.display = 'block';
+    other.placeholder = 'Nyatakan jenis event anda...';
+  } else {
+    other.style.display = 'none';
+  }
+}
+
+// ════════════════════════════
+// PHONE VALIDATION
+// ════════════════════════════
+function validatePhonePrefix() {
+  const el = document.getElementById('f-prefix');
+  if (el.value && !/^[\d+]+$/.test(el.value)) {
+    el.classList.add('has-error');
+    document.getElementById('e-phone').classList.add('show');
+  } else {
+    el.classList.remove('has-error');
+  }
+}
+
+function validatePhoneNum() {
+  const el = document.getElementById('f-phone');
+  if (el.value && !/^\d+$/.test(el.value)) {
+    el.classList.add('has-error');
+    document.getElementById('e-phone').classList.add('show');
+  } else {
+    el.classList.remove('has-error');
+    document.getElementById('e-phone').classList.remove('show');
+  }
+}
+
+// ════════════════════════════
+// KLANG / ZONE
+// ════════════════════════════
+function pickKlang(y) {
+  S.klang = y;
+  document.getElementById('r-klang-y').classList.toggle('selected', y);
+  document.getElementById('r-klang-n').classList.toggle('selected', !y);
+  document.getElementById('zone-wrap').style.display = y ? 'none' : 'block';
+  if (y) { S.transportCost = 30; S.transportZone = 'Lembah Klang'; }
+  else { S.transportCost = 0; S.transportZone = null; }
+  document.getElementById('e-klang').classList.remove('show');
+}
+
+function onZoneChange() {
+  const v = document.getElementById('f-zone').value;
+  if (v === 'selangor-luar') { S.transportCost = 80; S.transportZone = 'Selangor Luar Lembah Klang'; }
+  else if (v === 'n9') { S.transportCost = 120; S.transportZone = 'Negeri Sembilan'; }
+  else { S.transportCost = 0; S.transportZone = null; }
+}
+
+// ════════════════════════════
+// PAGE 5 VALIDATION
+// ════════════════════════════
+function validateP5() {
+  let ok = true;
+
+  function chk(id, errId, test) {
+    const el = document.getElementById(id);
+    const v = el.value.trim();
+    const err = document.getElementById(errId);
+    if (!test(v)) { el.classList.add('has-error'); err.classList.add('show'); ok = false; }
+    else { el.classList.remove('has-error'); err.classList.remove('show'); }
+  }
+
+  chk('f-name', 'e-name', v => v.length > 1);
+  chk('f-email', 'e-email', v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v));
+  chk('f-addr', 'e-addr', v => v.length > 3);
+  chk('f-postcode', 'e-postcode', v => /^\d{5}$/.test(v));
+  chk('f-city', 'e-city', v => v.length > 1);
+  chk('f-state', 'e-state', v => v !== '');
+  chk('f-evcat', 'e-evcat', v => v !== '');
+  chk('f-loctype', 'e-loctype', v => v !== '');
+  chk('f-pax', 'e-pax', v => v !== '');
+  chk('f-evname', 'e-evname', v => v.length > 1);
+
+  // Phone
+  const prefix = document.getElementById('f-prefix').value.trim();
+  const phone = document.getElementById('f-phone').value.trim();
+  const phoneErr = document.getElementById('e-phone');
+  if (!prefix || !phone || !/^\d+$/.test(phone)) {
+    document.getElementById('f-phone').classList.add('has-error');
+    phoneErr.classList.add('show'); ok = false;
+  } else {
+    document.getElementById('f-phone').classList.remove('has-error');
+    phoneErr.classList.remove('show');
+  }
+
+  // Event type
+  const cat = document.getElementById('f-evcat').value;
+  if (cat && cat !== 'Others') {
+    const typeVal = document.getElementById('f-evtype').value;
+    const otherVal = document.getElementById('f-evtype-other').value.trim();
+    const evtErr = document.getElementById('e-evtype');
+    if (!typeVal && !otherVal) { evtErr.classList.add('show'); ok = false; }
+    else evtErr.classList.remove('show');
+  }
+
+  // Klang
+  if (S.klang === null) { document.getElementById('e-klang').classList.add('show'); ok = false; }
+  else document.getElementById('e-klang').classList.remove('show');
+
+  if (!S.klang && S.klang !== null) {
+    const zv = document.getElementById('f-zone').value;
+    if (!zv) { document.getElementById('e-zone').classList.add('show'); ok = false; }
+    else document.getElementById('e-zone').classList.remove('show');
+  }
+
+  if (ok) goTo(6);
+  else window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ════════════════════════════
+// PAGE 6 — REQUESTS
+// ════════════════════════════
+function addReq() {
+  S.reqCount++;
+  const n = S.reqCount;
+  const div = document.createElement('div');
+  div.className = 'req-row'; div.id = `rr-${n}`;
+  div.innerHTML = `<input type="text" class="form-input" id="rr-inp-${n}" placeholder="Permintaan khas anda...">
+    <button class="del-btn" onclick="delReq(${n})">✕</button>`;
+  document.getElementById('reqRows').appendChild(div);
+  if (S.reqCount > 1) document.querySelector('#rr-1 .del-btn').style.display = 'flex';
+}
+
+function delReq(n) {
+  const el = document.getElementById(`rr-${n}`);
+  if (el) el.remove();
+  const rows = document.querySelectorAll('.req-row');
+  if (rows.length === 1) rows[0].querySelector('.del-btn').style.display = 'none';
+}
+
+function pickDiet(y) {
+  S.dietYes = y;
+  document.getElementById('r-diet-y').classList.toggle('selected', y);
+  document.getElementById('r-diet-n').classList.toggle('selected', !y);
+  document.getElementById('diet-detail').style.display = y ? 'block' : 'none';
+}
+
+// ════════════════════════════
+// PAGE 7 — SUMMARY
+// ════════════════════════════
+function buildSummary() {
+  document.getElementById('s-date').textContent = S.date ? fmtDateDisplay(S.date) : '—';
+  document.getElementById('s-slot').textContent = S.slot ? `${S.slot} (4 jam)` : '—';
+  document.getElementById('s-evcat').textContent = document.getElementById('f-evcat').value || '—';
+
+  // Event type
+  const cat = document.getElementById('f-evcat').value;
+  let evtype = '—';
+  if (cat === 'Others') {
+    evtype = document.getElementById('f-evtype-other').value || '—';
+  } else {
+    const tv = document.getElementById('f-evtype').value;
+    if (tv === 'others') evtype = document.getElementById('f-evtype-other').value || '—';
+    else evtype = tv || '—';
+  }
+  document.getElementById('s-evtype').textContent = evtype;
+  document.getElementById('s-evname').textContent = document.getElementById('f-evname').value || '—';
+
+  const addr = [document.getElementById('f-addr').value, document.getElementById('f-city').value, document.getElementById('f-postcode').value, document.getElementById('f-state').value].filter(Boolean).join(', ');
+  document.getElementById('s-addr').textContent = addr || '—';
+  document.getElementById('s-zone').textContent = S.transportZone || '—';
+  document.getElementById('s-loctype').textContent = document.getElementById('f-loctype').value || '—';
+  document.getElementById('s-pax').textContent = document.getElementById('f-pax').value || '—';
+
+  const pkg = S.pkg;
+  if (pkg) {
+    document.getElementById('s-pkg').textContent = pkg.name;
+    document.getElementById('s-pkgtype').textContent = pkg.type === 'TIME_BASED' ? 'Berasaskan Masa' : 'Berasaskan Cawan';
+    document.getElementById('s-pkgprice').textContent = `RM ${pkg.price.toLocaleString()}.00`;
+  }
+
+  // Add-ons
+  const aNames = { time: 'Tambah Masa', cups: 'Tambah Cawan', canopy: 'Canopy', cleanup: 'Perkhidmatan Pembersihan' };
+  const aUnits = { time: 'jam', cups: 'cawan', canopy: 'unit', cleanup: 'unit' };
+  let aHtml = ''; let aTotal = 0;
+  Object.entries(S.addons).forEach(([t, v]) => {
+    if (t === 'canopy' || t === 'cleanup') {
+      if (v) { aTotal += PRICES[t]; aHtml += `<div class="sum-row"><span class="sum-key">${aNames[t]}</span><span class="sum-val">RM ${PRICES[t]}.00</span></div>`; }
+    } else {
+      if (v > 0) { const sub = v * PRICES[t]; aTotal += sub; aHtml += `<div class="sum-row"><span class="sum-key">${aNames[t]} (${v} ${aUnits[t]})</span><span class="sum-val">RM ${sub.toLocaleString()}.00</span></div>`; }
+    }
+  });
+  const ab = document.getElementById('s-addons-block');
+  if (aTotal > 0) { document.getElementById('s-addons-list').innerHTML = aHtml; ab.style.display = 'block'; document.getElementById('b-addon-row').style.display = 'flex'; document.getElementById('b-addons').textContent = `RM ${aTotal.toLocaleString()}.00`; }
+  else { ab.style.display = 'none'; document.getElementById('b-addon-row').style.display = 'none'; }
+
+  // Requests
+  const reqs = [...document.querySelectorAll('.req-row input')].map(i => i.value.trim()).filter(Boolean);
+  const rb = document.getElementById('s-req-block');
+  if (reqs.length) { document.getElementById('s-req-list').innerHTML = reqs.map((r,i) => `<div class="sum-row"><span class="sum-key">${i+1}.</span><span class="sum-val">${r}</span></div>`).join(''); rb.style.display = 'block'; }
+  else rb.style.display = 'none';
+
+  // Dietary
+  const db = document.getElementById('s-diet-block');
+  if (S.dietYes !== null) {
+    const dd = S.dietYes ? (document.getElementById('f-diet').value || 'Ada keperluan diet') : 'Tiada keperluan diet';
+    document.getElementById('s-diet-info').innerHTML = `<div class="sum-row"><span class="sum-key">Maklumat</span><span class="sum-val">${dd}</span></div>`;
+    db.style.display = 'block';
+  } else db.style.display = 'none';
+
+  const base = pkg ? pkg.price : 0;
+  const total = base + aTotal + S.transportCost;
+  document.getElementById('b-pkg').textContent = `RM ${base.toLocaleString()}.00`;
+  document.getElementById('b-transport').textContent = `RM ${S.transportCost}.00`;
+  document.getElementById('b-total').textContent = `RM ${total.toLocaleString()}.00`;
+}
+
+function toggleTnc() {
+  S.tnc = !S.tnc;
+  document.getElementById('tncRow').classList.toggle('checked', S.tnc);
+  document.getElementById('tncBox').textContent = S.tnc ? '✓' : '';
+  document.getElementById('submitBtn').disabled = !S.tnc;
+}
+
+// ════════════════════════════
+// SUBMIT
+// ════════════════════════════
+async function submitBooking() {
+  if (!S.tnc) return;
+  document.getElementById('loadOverlay').classList.add('show');
+
+  try {
+    const token = genToken();
+    const pkg = S.pkg;
+    const aTotal = (S.addons.time * PRICES.time) + (S.addons.cups * PRICES.cups) + (S.addons.canopy ? PRICES.canopy : 0) + (S.addons.cleanup ? PRICES.cleanup : 0);
+    const subtotal = pkg.price + aTotal;
+    const total = subtotal + S.transportCost;
+
+    const cat = document.getElementById('f-evcat').value;
+    let evtype = cat === 'Others' ? document.getElementById('f-evtype-other').value :
+      (document.getElementById('f-evtype').value === 'others' ? document.getElementById('f-evtype-other').value : document.getElementById('f-evtype').value);
+
+    const zones = await sbGet('transport_zones', `zone_name=eq.${encodeURIComponent(S.transportZone || 'Lembah Klang')}`);
+    const pkgs = await sbGet('packages', `name=eq.${encodeURIComponent(pkg.name)}`);
+
+    const bData = {
+      order_token: token,
+      customer_name: document.getElementById('f-name').value.trim(),
+      customer_phone: document.getElementById('f-prefix').value.trim() + document.getElementById('f-phone').value.trim(),
+      customer_email: document.getElementById('f-email').value.trim(),
+      event_address: document.getElementById('f-addr').value.trim(),
+      postcode: document.getElementById('f-postcode').value.trim(),
+      city: document.getElementById('f-city').value.trim(),
+      state: document.getElementById('f-state').value,
+      location_type: document.getElementById('f-loctype').value,
+      pax_count: document.getElementById('f-pax').value,
+      event_category: cat,
+      event_type: evtype,
+      event_name: document.getElementById('f-evname').value.trim(),
+      phone_prefix: document.getElementById('f-prefix').value.trim(),
+      phone_number: document.getElementById('f-phone').value.trim(),
+      transport_zone_id: zones[0]?.id,
+      package_id: pkgs[0]?.id,
+      event_date: S.date,
+      slot_time: S.slot,
+      duration_hours: pkg.type === 'TIME_BASED' ? (pkg.hours + S.addons.time) : (4 + S.addons.time),
+      transport_cost: S.transportCost,
+      subtotal, total_amount: total,
+      status: 'SUBMITTED', tnc_accepted: true
+    };
+
+    const res = await sbPost('bookings', bData);
+    const bid = res[0]?.id;
+    if (!bid) throw new Error('Insert failed');
+
+    // Addons
+    const aTypes = { time: 'TIME', cups: 'CUPS', canopy: 'CANOPY', cleanup: 'CLEANUP' };
+    for (const [t, v] of Object.entries(S.addons)) {
+      const qty = (t === 'canopy' || t === 'cleanup') ? (v ? 1 : 0) : v;
+      if (qty > 0) {
+        const ads = await sbGet('addons', `addon_type=eq.${aTypes[t]}`);
+        if (ads[0]) await sbPost('booking_addons', { booking_id: bid, addon_id: ads[0].id, quantity: qty, unit_price: PRICES[t], subtotal: qty * PRICES[t] });
+      }
+    }
+
+    // Special requests
+    let oi = 1;
+    for (const inp of document.querySelectorAll('.req-row input')) {
+      const txt = inp.value.trim();
+      if (txt) await sbPost('special_requests', { booking_id: bid, request_text: txt, order_index: oi++ });
+    }
+
+    // Dietary
+    if (S.dietYes !== null) await sbPost('dietary_info', { booking_id: bid, has_dietary_req: S.dietYes, dietary_details: S.dietYes ? document.getElementById('f-diet').value.trim() : null });
+
+    // Status log
+    await sbPost('status_logs', { booking_id: bid, old_status: null, new_status: 'SUBMITTED', changed_by: 'system', note: 'Booking submitted by customer' });
+
+    // Notification log
+    await sbPost('notifications', { booking_id: bid, channel: 'EMAIL', trigger_event: 'ORDER_SUBMITTED', message: `Tempahan ${token} telah diterima.`, status: 'SENT' });
+
+    document.getElementById('loadOverlay').classList.remove('show');
+    S.magicLink = `petrecoffee.com/order?token=${token}`;
+    document.getElementById('suc-ref').textContent = token;
+    document.getElementById('suc-link').textContent = S.magicLink;
+    goTo(8);
+
+  } catch(e) {
+    document.getElementById('loadOverlay').classList.remove('show');
+    console.error(e);
+    toast('Ralat berlaku. Sila cuba semula.');
+  }
+}
+
+function genToken() {
+  const y = new Date().getFullYear();
+  const r = Math.floor(Math.random() * 9000 + 1000);
+  return `PCO-${y}-${r}`;
+}
+
+// ════════════════════════════
+// UTILS
+// ════════════════════════════
+function copyLink() {
+  navigator.clipboard.writeText(S.magicLink);
+  toast('Pautan disalin!');
+}
+
+function toast(msg) {
+  const el = document.getElementById('toastEl');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2400);
+}
+
+function resetAll() {
+  S = { page:1, date:null, slot:null, pkg:null, addons:{time:0,cups:0,canopy:false,cleanup:false}, klang:null, transportCost:0, transportZone:null, tnc:false, reqCount:1, dietYes:null, blocked:S.blocked, existing:S.existing, magicLink:'' };
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-1').classList.add('active');
+  updateProg();
+}
+
+// ════════════════════════════
+// INIT
+// ════════════════════════════
+async function init() {
+  try {
+    const [bl, ex] = await Promise.all([
+      sbGet('blocked_dates', 'select=blocked_date,slot_time'),
+      sbGet('bookings', 'select=event_date,slot_time,duration_hours,status&status=in.(SUBMITTED,CONFIRMED)')
+    ]);
+    S.blocked = bl || [];
+    S.existing = ex || [];
+  } catch(e) { console.warn('Could not load availability:', e); }
+  initCal();
+}
+
+init();
+</script>
+</body>
+</html>
