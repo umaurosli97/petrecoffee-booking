@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Petre Coffee — Tempahan</title>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAz00fztT3-qxc8lN_zC6xByYWnu64EOeE&libraries=places&callback=initMaps" async defer></script>
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -18,17 +19,13 @@
   --grey-300: #bdbdbd;
   --grey-400: #9e9e9e;
   --grey-600: #5c5c5c;
-  --grey-700: #3d3d3d;
   --accent: #c8a97e;
   --accent-light: #f7f0e6;
   --accent-dark: #9a7a50;
   --error: #d32f2f;
-  --success: #388e3c;
   --radius: 14px;
   --radius-sm: 8px;
   --radius-xs: 6px;
-  --shadow-sm: 0 1px 8px rgba(0,0,0,0.06);
-  --shadow: 0 4px 24px rgba(0,0,0,0.08);
   --shadow-lg: 0 12px 48px rgba(0,0,0,0.14);
   --transition: all 0.22s cubic-bezier(0.4,0,0.2,1);
   --max-width: 660px;
@@ -51,58 +48,31 @@ body {
   height: 60px;
   background: rgba(255,255,255,0.94);
   backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--grey-100);
   display: flex; align-items: center;
   justify-content: space-between;
   padding: 0 20px;
 }
 
-.logo {
-  display: flex; align-items: center; gap: 9px;
-  text-decoration: none;
-}
-
+.logo { display: flex; align-items: center; gap: 9px; text-decoration: none; }
 .logo-mark {
-  width: 32px; height: 32px;
-  background: var(--black);
-  border-radius: 7px;
-  display: flex; align-items: center; justify-content: center;
-  font-family: 'Syne', sans-serif;
-  font-weight: 800; font-size: 12px;
+  width: 32px; height: 32px; background: var(--black);
+  border-radius: 7px; display: flex; align-items: center; justify-content: center;
+  font-family: 'Syne', sans-serif; font-weight: 800; font-size: 12px;
   color: var(--white); letter-spacing: 0.5px;
 }
+.logo-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; color: var(--black); }
 
-.logo-name {
-  font-family: 'Syne', sans-serif;
-  font-weight: 700; font-size: 15px;
-  color: var(--black); letter-spacing: -0.2px;
-}
-
-.progress-wrap {
-  display: flex; align-items: center; gap: 5px;
-}
-
-.prog-dot {
-  width: 24px; height: 3px;
-  border-radius: 2px;
-  background: var(--grey-200);
-  transition: var(--transition);
-}
+.progress-wrap { display: flex; align-items: center; gap: 5px; }
+.prog-dot { width: 24px; height: 3px; border-radius: 2px; background: var(--grey-200); transition: var(--transition); }
 .prog-dot.active { background: var(--black); width: 32px; }
 .prog-dot.done { background: var(--grey-300); }
 
 /* ── MAIN ── */
-.main {
-  padding-top: 60px;
-  min-height: 100vh;
-  display: flex; justify-content: center;
-}
+.main { padding-top: 60px; min-height: 100vh; display: flex; justify-content: center; }
 
-/* ── PAGES ── */
 .page {
-  display: none;
-  width: 100%; max-width: var(--max-width);
+  display: none; width: 100%; max-width: var(--max-width);
   padding: 44px 24px 100px;
   animation: slideUp 0.35s cubic-bezier(0.4,0,0.2,1);
 }
@@ -114,672 +84,223 @@ body {
 }
 
 /* ── TYPOGRAPHY ── */
-.eyebrow {
-  font-size: 10px; font-weight: 500;
-  letter-spacing: 2.5px; text-transform: uppercase;
-  color: var(--grey-400); margin-bottom: 10px;
-}
-
-.page-title {
-  font-family: 'Syne', sans-serif;
-  font-size: clamp(26px, 5.5vw, 38px);
-  font-weight: 800; line-height: 1.1;
-  letter-spacing: -1px; color: var(--black);
-  margin-bottom: 8px;
-}
-
-.page-sub {
-  font-size: 14px; color: var(--grey-600);
-  line-height: 1.65; margin-bottom: 36px;
-  font-weight: 300;
-}
+.eyebrow { font-size: 10px; font-weight: 500; letter-spacing: 2.5px; text-transform: uppercase; color: var(--grey-400); margin-bottom: 10px; }
+.page-title { font-family: 'Syne', sans-serif; font-size: clamp(26px, 5.5vw, 38px); font-weight: 800; line-height: 1.1; letter-spacing: -1px; color: var(--black); margin-bottom: 8px; }
+.page-sub { font-size: 14px; color: var(--grey-600); line-height: 1.65; margin-bottom: 36px; font-weight: 300; }
 
 .section-label {
-  font-family: 'Syne', sans-serif;
-  font-weight: 700; font-size: 13px;
-  letter-spacing: 0.5px; color: var(--black);
-  margin-bottom: 14px; margin-top: 28px;
+  font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px;
+  letter-spacing: 0.5px; color: var(--black); margin-bottom: 14px; margin-top: 28px;
   display: flex; align-items: center; gap: 8px;
 }
-
-.section-label::after {
-  content: '';
-  flex: 1; height: 1px;
-  background: var(--grey-100);
-}
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--grey-100); }
 
 /* ── GUIDELINE LIST ── */
 .guide-list { list-style: none; }
-
-.guide-item {
-  display: flex; gap: 14px;
-  padding: 14px 0;
-  border-bottom: 1px solid var(--grey-100);
-}
+.guide-item { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--grey-100); }
 .guide-item:last-child { border-bottom: none; }
-
-.guide-icon {
-  width: 32px; height: 32px; flex-shrink: 0;
-  background: var(--grey-50);
-  border-radius: var(--radius-xs);
-  display: flex; align-items: center; justify-content: center;
-  font-size: 15px; margin-top: 1px;
-}
-
-.guide-strong {
-  font-weight: 600; font-size: 13px;
-  color: var(--black); margin-bottom: 3px;
-  display: block;
-}
-
+.guide-icon { width: 32px; height: 32px; flex-shrink: 0; background: var(--grey-50); border-radius: var(--radius-xs); display: flex; align-items: center; justify-content: center; font-size: 15px; margin-top: 1px; }
+.guide-strong { font-weight: 600; font-size: 13px; color: var(--black); margin-bottom: 3px; display: block; }
 .guide-text { font-size: 13px; color: var(--grey-600); line-height: 1.5; }
 
 /* ── CALENDAR ── */
-.cal-shell {
-  border: 1.5px solid var(--grey-200);
-  border-radius: var(--radius);
-  overflow: hidden;
-}
-
-.cal-header {
-  display: flex; align-items: center;
-  justify-content: space-between;
-  padding: 14px 18px;
-  background: var(--grey-50);
-  border-bottom: 1.5px solid var(--grey-100);
-}
-
-.cal-nav {
-  width: 34px; height: 34px;
-  border: 1.5px solid var(--grey-200);
-  border-radius: var(--radius-xs);
-  background: var(--white);
-  cursor: pointer; font-size: 14px;
-  display: flex; align-items: center; justify-content: center;
-  transition: var(--transition); color: var(--black);
-}
+.cal-shell { border: 1.5px solid var(--grey-200); border-radius: var(--radius); overflow: hidden; }
+.cal-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; background: var(--grey-50); border-bottom: 1.5px solid var(--grey-100); }
+.cal-nav { width: 34px; height: 34px; border: 1.5px solid var(--grey-200); border-radius: var(--radius-xs); background: var(--white); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: var(--transition); color: var(--black); }
 .cal-nav:hover { border-color: var(--black); }
-
-.cal-month-label {
-  font-family: 'Syne', sans-serif;
-  font-weight: 700; font-size: 15px;
-}
-
+.cal-month-label { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; }
 .cal-body { padding: 10px 12px 12px; }
-
-.cal-weekdays {
-  display: grid; grid-template-columns: repeat(7,1fr);
-  margin-bottom: 2px;
-}
-
-.cal-wd {
-  text-align: center;
-  font-size: 10px; font-weight: 500;
-  letter-spacing: 1px; text-transform: uppercase;
-  color: var(--grey-400); padding: 6px 0;
-}
-
-.cal-grid {
-  display: grid; grid-template-columns: repeat(7,1fr); gap: 2px;
-}
-
-.cal-cell {
-  aspect-ratio: 1;
-  display: flex; align-items: center; justify-content: center;
-  border-radius: var(--radius-xs);
-  font-size: 13px; font-weight: 500;
-  cursor: pointer;
-  transition: var(--transition);
-  border: 1.5px solid transparent;
-  position: relative;
-}
-
-.cal-cell:hover:not(.cal-disabled):not(.cal-empty) {
-  background: var(--grey-100);
-}
-.cal-cell.cal-today {
-  border-color: var(--accent);
-  color: var(--accent-dark);
-  font-weight: 700;
-}
-.cal-cell.cal-selected {
-  background: var(--black);
-  color: var(--white);
-  border-color: var(--black);
-}
-.cal-cell.cal-disabled {
-  color: var(--grey-200);
-  cursor: not-allowed;
-}
+.cal-weekdays { display: grid; grid-template-columns: repeat(7,1fr); margin-bottom: 2px; }
+.cal-wd { text-align: center; font-size: 10px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: var(--grey-400); padding: 6px 0; }
+.cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 2px; }
+.cal-cell { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-xs); font-size: 13px; font-weight: 500; cursor: pointer; transition: var(--transition); border: 1.5px solid transparent; }
+.cal-cell:hover:not(.cal-disabled):not(.cal-empty) { background: var(--grey-100); }
+.cal-cell.cal-today { border-color: var(--accent); color: var(--accent-dark); font-weight: 700; }
+.cal-cell.cal-selected { background: var(--black); color: var(--white); border-color: var(--black); }
+.cal-cell.cal-disabled { color: var(--grey-200); cursor: not-allowed; }
 .cal-cell.cal-empty { cursor: default; }
 
-/* ── SLOT BUTTONS ── */
+/* ── SLOTS ── */
 .slot-section { margin-top: 22px; }
-
-.slot-grid {
-  display: grid;
-  grid-template-columns: repeat(3,1fr);
-  gap: 10px; margin-top: 10px;
-}
-
-.slot-btn {
-  padding: 14px 6px;
-  border: 1.5px solid var(--grey-200);
-  border-radius: var(--radius-sm);
-  background: var(--white);
-  font-family: 'Syne', sans-serif;
-  font-weight: 700; font-size: 14px;
-  color: var(--black); cursor: pointer;
-  transition: var(--transition); text-align: center;
-}
+.slot-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-top: 10px; }
+.slot-btn { padding: 14px 6px; border: 1.5px solid var(--grey-200); border-radius: var(--radius-sm); background: var(--white); font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; color: var(--black); cursor: pointer; transition: var(--transition); text-align: center; }
 .slot-btn:hover:not(:disabled) { border-color: var(--black); }
 .slot-btn.selected { background: var(--black); color: var(--white); border-color: var(--black); }
-.slot-btn:disabled {
-  background: var(--grey-50); color: var(--grey-300);
-  cursor: not-allowed; border-color: var(--grey-100);
-  text-decoration: line-through;
-}
-
-.slot-note {
-  font-size: 11px; color: var(--grey-400);
-  margin-top: 8px; display: flex; align-items: center; gap: 5px;
-}
+.slot-btn:disabled { background: var(--grey-50); color: var(--grey-300); cursor: not-allowed; border-color: var(--grey-100); text-decoration: line-through; }
+.slot-note { font-size: 11px; color: var(--grey-400); margin-top: 8px; }
 
 /* ── PACKAGE TABS ── */
-.pkg-tabs {
-  display: flex;
-  background: var(--grey-100);
-  border-radius: var(--radius-sm);
-  padding: 3px; gap: 3px;
-  margin-bottom: 18px;
-}
-
-.pkg-tab {
-  flex: 1; padding: 10px;
-  text-align: center;
-  font-family: 'Syne', sans-serif;
-  font-weight: 600; font-size: 12px;
-  letter-spacing: 0.3px;
-  border-radius: 6px; cursor: pointer;
-  transition: var(--transition);
-  color: var(--grey-600); border: none; background: none;
-}
-.pkg-tab.active {
-  background: var(--white); color: var(--black);
-  box-shadow: 0 1px 6px rgba(0,0,0,0.1);
-}
+.pkg-tabs { display: flex; background: var(--grey-100); border-radius: var(--radius-sm); padding: 3px; gap: 3px; margin-bottom: 18px; }
+.pkg-tab { flex: 1; padding: 10px; text-align: center; font-family: 'Syne', sans-serif; font-weight: 600; font-size: 12px; border-radius: 6px; cursor: pointer; transition: var(--transition); color: var(--grey-600); border: none; background: none; }
+.pkg-tab.active { background: var(--white); color: var(--black); box-shadow: 0 1px 6px rgba(0,0,0,0.1); }
 
 /* ── PACKAGE CARDS ── */
-.pkg-card {
-  border: 1.5px solid var(--grey-200);
-  border-radius: var(--radius);
-  padding: 18px 20px;
-  margin-bottom: 10px;
-  cursor: pointer;
-  transition: var(--transition);
-  position: relative; overflow: hidden;
-}
+.pkg-card { border: 1.5px solid var(--grey-200); border-radius: var(--radius); padding: 18px 20px; margin-bottom: 10px; cursor: pointer; transition: var(--transition); position: relative; overflow: hidden; }
 .pkg-card:hover { border-color: var(--grey-400); }
 .pkg-card.selected { border-color: var(--black); background: var(--off-white); }
-
-.pkg-card.selected::after {
-  content: '✓';
-  position: absolute; top: 14px; right: 14px;
-  width: 22px; height: 22px;
-  background: var(--black); color: var(--white);
-  border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 11px; font-weight: 700;
-}
-
-.pkg-badge {
-  display: inline-block;
-  font-size: 10px; font-weight: 600;
-  letter-spacing: 1px; text-transform: uppercase;
-  padding: 3px 8px; border-radius: 4px;
-  background: var(--accent-light);
-  color: var(--accent-dark);
-  margin-bottom: 8px;
-}
-
-.pkg-name {
-  font-family: 'Syne', sans-serif;
-  font-weight: 700; font-size: 16px;
-  margin-bottom: 3px;
-}
-
+.pkg-card.selected::after { content: '✓'; position: absolute; top: 14px; right: 14px; width: 22px; height: 22px; background: var(--black); color: var(--white); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; }
+.pkg-badge { display: inline-block; font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; background: var(--accent-light); color: var(--accent-dark); margin-bottom: 8px; }
+.pkg-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; margin-bottom: 3px; }
 .pkg-desc { font-size: 12px; color: var(--grey-600); margin-bottom: 10px; }
-
-.pkg-price {
-  font-family: 'Syne', sans-serif;
-  font-weight: 800; font-size: 22px;
-  letter-spacing: -0.5px;
-}
+.pkg-price { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 22px; letter-spacing: -0.5px; }
 
 /* ── ADD-ONS ── */
-.addon-card {
-  border: 1.5px solid var(--grey-200);
-  border-radius: var(--radius-sm);
-  padding: 16px 18px;
-  margin-bottom: 10px;
-  transition: var(--transition);
-}
+.addon-card { border: 1.5px solid var(--grey-200); border-radius: var(--radius-sm); padding: 16px 18px; margin-bottom: 10px; transition: var(--transition); }
 .addon-card.hidden { display: none; }
-.addon-card:has(.addon-active) { border-color: var(--black); }
-
-.addon-top {
-  display: flex; align-items: flex-start;
-  justify-content: space-between; gap: 12px;
-}
-
+.addon-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
 .addon-info { flex: 1; }
-
-.addon-name {
-  font-family: 'Syne', sans-serif;
-  font-weight: 700; font-size: 14px; margin-bottom: 2px;
-}
-
+.addon-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; margin-bottom: 2px; }
 .addon-price-label { font-size: 12px; color: var(--grey-600); }
 .addon-desc { font-size: 12px; color: var(--grey-400); margin-top: 6px; line-height: 1.5; }
 
-/* Qty input style */
-.qty-wrap {
-  display: flex; align-items: center; gap: 8px; flex-shrink: 0;
-}
-
-.qty-btn {
-  width: 30px; height: 30px;
-  border: 1.5px solid var(--grey-200);
-  border-radius: 6px; background: var(--white);
-  font-size: 16px; cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  transition: var(--transition); color: var(--black);
-  font-weight: 400; line-height: 1;
-}
+.qty-wrap { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.qty-btn { width: 30px; height: 30px; border: 1.5px solid var(--grey-200); border-radius: 6px; background: var(--white); font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: var(--transition); color: var(--black); line-height: 1; }
 .qty-btn:hover { border-color: var(--black); }
-
-.qty-input {
-  width: 52px; height: 30px;
-  border: 1.5px solid var(--grey-200);
-  border-radius: 6px;
-  text-align: center;
-  font-family: 'Syne', sans-serif;
-  font-weight: 700; font-size: 14px;
-  color: var(--black); outline: none;
-  transition: var(--transition);
-}
+.qty-input { width: 52px; height: 30px; border: 1.5px solid var(--grey-200); border-radius: 6px; text-align: center; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; color: var(--black); outline: none; transition: var(--transition); }
 .qty-input:focus { border-color: var(--black); }
 .qty-input.error { border-color: var(--error); }
+.addon-subtotal { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px; color: var(--black); min-width: 64px; text-align: right; flex-shrink: 0; margin-top: 2px; }
 
-.addon-subtotal {
-  font-family: 'Syne', sans-serif;
-  font-weight: 700; font-size: 13px;
-  color: var(--black); min-width: 64px;
-  text-align: right; flex-shrink: 0;
-  margin-top: 2px;
-}
-
-/* Checkbox addons */
-.addon-checkbox-wrap {
-  display: flex; align-items: flex-start;
-  gap: 14px; cursor: pointer;
-}
-
-.addon-check {
-  width: 20px; height: 20px; flex-shrink: 0;
-  border: 2px solid var(--grey-200);
-  border-radius: 5px; margin-top: 2px;
-  display: flex; align-items: center; justify-content: center;
-  transition: var(--transition); font-size: 11px; color: var(--white);
-}
+.addon-checkbox-wrap { display: flex; align-items: flex-start; gap: 14px; cursor: pointer; }
+.addon-check { width: 20px; height: 20px; flex-shrink: 0; border: 2px solid var(--grey-200); border-radius: 5px; margin-top: 2px; display: flex; align-items: center; justify-content: center; transition: var(--transition); font-size: 11px; color: var(--white); }
 .addon-check.checked { background: var(--black); border-color: var(--black); }
 
-/* Running total */
-.running-total {
-  position: sticky; bottom: 20px;
-  background: var(--black); color: var(--white);
-  border-radius: var(--radius);
-  padding: 14px 20px;
-  display: flex; justify-content: space-between; align-items: center;
-  margin-top: 20px;
-  box-shadow: var(--shadow-lg);
-}
+.running-total { position: sticky; bottom: 20px; background: var(--black); color: var(--white); border-radius: var(--radius); padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; margin-top: 20px; box-shadow: var(--shadow-lg); }
 .rt-label { font-size: 12px; opacity: 0.65; }
-.rt-amount {
-  font-family: 'Syne', sans-serif;
-  font-weight: 800; font-size: 22px; letter-spacing: -0.5px;
-}
+.rt-amount { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 22px; letter-spacing: -0.5px; }
 
-/* ── FORM ELEMENTS ── */
+/* ── FORM ── */
 .form-group { margin-bottom: 18px; }
-
-.form-label {
-  display: block; font-size: 12px; font-weight: 500;
-  color: var(--black); margin-bottom: 7px; letter-spacing: 0.2px;
-}
+.form-label { display: block; font-size: 12px; font-weight: 500; color: var(--black); margin-bottom: 7px; }
 .form-label .req { color: var(--error); margin-left: 2px; }
-
-.form-input, .form-select, .form-textarea {
-  width: 100%; padding: 11px 14px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 14px; color: var(--black);
-  background: var(--white);
-  border: 1.5px solid var(--grey-200);
-  border-radius: var(--radius-sm);
-  outline: none; transition: var(--transition);
-  appearance: none; -webkit-appearance: none;
-}
+.form-input, .form-select, .form-textarea { width: 100%; padding: 11px 14px; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--black); background: var(--white); border: 1.5px solid var(--grey-200); border-radius: var(--radius-sm); outline: none; transition: var(--transition); appearance: none; -webkit-appearance: none; }
 .form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--black); }
 .form-input.has-error, .form-select.has-error { border-color: var(--error); }
-
 .form-select-wrap { position: relative; }
-.form-select-wrap::after {
-  content: '↓'; position: absolute;
-  right: 12px; top: 50%;
-  transform: translateY(-50%);
-  color: var(--grey-400); pointer-events: none;
-  font-size: 12px;
-}
-
+.form-select-wrap::after { content: '↓'; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--grey-400); pointer-events: none; font-size: 12px; }
 .form-textarea { resize: vertical; min-height: 90px; line-height: 1.6; }
-
-.err-msg {
-  font-size: 11px; color: var(--error);
-  margin-top: 4px; display: none; align-items: center; gap: 4px;
-}
+.err-msg { font-size: 11px; color: var(--error); margin-top: 4px; display: none; align-items: center; gap: 4px; }
 .err-msg.show { display: flex; }
 
-/* Phone row */
 .phone-row { display: flex; gap: 8px; }
 .phone-prefix-wrap { width: 130px; flex-shrink: 0; position: relative; }
-.phone-prefix-wrap::after {
-  content: '↓'; position: absolute;
-  right: 10px; top: 50%;
-  transform: translateY(-50%);
-  color: var(--grey-400); pointer-events: none; font-size: 12px;
-}
-.phone-prefix-input {
-  width: 100%; padding: 11px 28px 11px 14px;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 14px; color: var(--black);
-  background: var(--white);
-  border: 1.5px solid var(--grey-200);
-  border-radius: var(--radius-sm);
-  outline: none; transition: var(--transition);
-  appearance: none; -webkit-appearance: none;
-}
+.phone-prefix-wrap::after { content: '↓'; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--grey-400); pointer-events: none; font-size: 12px; }
+.phone-prefix-input { width: 100%; padding: 11px 28px 11px 14px; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--black); background: var(--white); border: 1.5px solid var(--grey-200); border-radius: var(--radius-sm); outline: none; transition: var(--transition); appearance: none; -webkit-appearance: none; }
 .phone-prefix-input:focus { border-color: var(--black); }
 .phone-prefix-input.has-error { border-color: var(--error); }
 
-/* Address grid */
 .addr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-@media (max-width: 480px) { .addr-grid { grid-template-columns: 1fr; } }
 
-/* Radio toggle */
 .radio-row { display: flex; gap: 8px; }
-.radio-opt {
-  flex: 1; padding: 11px 14px;
-  border: 1.5px solid var(--grey-200);
-  border-radius: var(--radius-sm);
-  cursor: pointer; transition: var(--transition);
-  text-align: center; font-size: 13px; font-weight: 500;
-}
+.radio-opt { flex: 1; padding: 11px 14px; border: 1.5px solid var(--grey-200); border-radius: var(--radius-sm); cursor: pointer; transition: var(--transition); text-align: center; font-size: 13px; font-weight: 500; }
 .radio-opt:hover { border-color: var(--grey-400); }
 .radio-opt.selected { background: var(--black); color: var(--white); border-color: var(--black); }
 .radio-opt input { display: none; }
 
-/* Map pin */
-.map-pin-btn {
-  width: 100%; height: 150px;
-  background: var(--grey-50);
-  border: 1.5px dashed var(--grey-200);
-  border-radius: var(--radius-sm);
-  display: flex; flex-direction: column;
-  align-items: center; justify-content: center; gap: 6px;
-  cursor: pointer; transition: var(--transition);
-  color: var(--grey-400); font-size: 13px;
-}
-.map-pin-btn:hover { border-color: var(--black); color: var(--black); }
-.map-pin-icon { font-size: 24px; }
+/* ── GOOGLE MAPS ── */
+.map-search-wrap { position: relative; margin-bottom: 10px; }
+.map-search-input { width: 100%; padding: 11px 14px 11px 38px; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--black); background: var(--white); border: 1.5px solid var(--grey-200); border-radius: var(--radius-sm); outline: none; transition: var(--transition); }
+.map-search-input:focus { border-color: var(--black); }
+.map-search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 15px; pointer-events: none; }
+#map-container { width: 100%; height: 220px; border-radius: var(--radius-sm); border: 1.5px solid var(--grey-200); overflow: hidden; margin-bottom: 8px; }
+.map-coords { font-size: 11px; color: var(--grey-400); text-align: center; display: none; }
+.map-coords.show { display: block; }
 
 /* ── SPECIAL REQUESTS ── */
-.req-row {
-  display: flex; gap: 8px; margin-bottom: 8px; align-items: center;
-}
+.req-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
 .req-row .form-input { flex: 1; margin: 0; }
-
-.del-btn {
-  width: 34px; height: 34px; flex-shrink: 0;
-  border: 1.5px solid var(--grey-200);
-  border-radius: var(--radius-xs);
-  background: var(--white); cursor: pointer;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 13px; color: var(--grey-400);
-  transition: var(--transition);
-}
+.del-btn { width: 34px; height: 34px; flex-shrink: 0; border: 1.5px solid var(--grey-200); border-radius: var(--radius-xs); background: var(--white); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; color: var(--grey-400); transition: var(--transition); }
 .del-btn:hover { border-color: var(--error); color: var(--error); }
-
-.add-req-btn {
-  width: 100%; padding: 10px;
-  border: 1.5px dashed var(--grey-200);
-  border-radius: var(--radius-sm);
-  background: none; cursor: pointer;
-  font-family: 'DM Sans', sans-serif;
-  font-size: 13px; color: var(--grey-400);
-  transition: var(--transition);
-  display: flex; align-items: center; justify-content: center; gap: 6px;
-}
+.add-req-btn { width: 100%; padding: 10px; border: 1.5px dashed var(--grey-200); border-radius: var(--radius-sm); background: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--grey-400); transition: var(--transition); display: flex; align-items: center; justify-content: center; gap: 6px; }
 .add-req-btn:hover { border-color: var(--black); color: var(--black); }
 
 /* ── SUMMARY ── */
-.sum-block {
-  border: 1.5px solid var(--grey-100);
-  border-radius: var(--radius);
-  overflow: hidden; margin-bottom: 12px;
-}
-
-.sum-block-head {
-  padding: 12px 16px;
-  background: var(--grey-50);
-  border-bottom: 1.5px solid var(--grey-100);
-  font-size: 10px; font-weight: 600;
-  letter-spacing: 2px; text-transform: uppercase;
-  color: var(--grey-400);
-}
-
-.sum-row {
-  display: flex; justify-content: space-between;
-  align-items: flex-start; gap: 12px;
-  padding: 10px 16px;
-  border-bottom: 1px solid var(--grey-100);
-  font-size: 13px;
-}
+.sum-block { border: 1.5px solid var(--grey-100); border-radius: var(--radius); overflow: hidden; margin-bottom: 12px; }
+.sum-block-head { padding: 12px 16px; background: var(--grey-50); border-bottom: 1.5px solid var(--grey-100); font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--grey-400); }
+.sum-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--grey-100); font-size: 13px; }
 .sum-row:last-child { border-bottom: none; }
 .sum-key { color: var(--grey-600); flex-shrink: 0; }
 .sum-val { font-weight: 500; text-align: right; }
 
-.total-bar {
-  background: var(--black); color: var(--white);
-  border-radius: var(--radius-sm);
-  padding: 16px 20px;
-  display: flex; justify-content: space-between; align-items: center;
-  margin: 4px 0 16px;
-}
-.total-bar-label {
-  font-family: 'Syne', sans-serif;
-  font-weight: 700; font-size: 12px;
-  letter-spacing: 1.5px; text-transform: uppercase; opacity: 0.7;
-}
-.total-bar-val {
-  font-family: 'Syne', sans-serif;
-  font-weight: 800; font-size: 26px; letter-spacing: -0.5px;
-}
+.total-bar { background: var(--black); color: var(--white); border-radius: var(--radius-sm); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; margin: 4px 0 16px; }
+.total-bar-label { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; opacity: 0.7; }
+.total-bar-val { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 26px; letter-spacing: -0.5px; }
 
-/* TNC */
-.tnc-row {
-  display: flex; align-items: flex-start; gap: 12px;
-  padding: 14px 16px;
-  border: 1.5px solid var(--grey-200);
-  border-radius: var(--radius-sm);
-  cursor: pointer; transition: var(--transition);
-  margin-top: 16px;
-}
+.tnc-row { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; border: 1.5px solid var(--grey-200); border-radius: var(--radius-sm); cursor: pointer; transition: var(--transition); margin-top: 16px; }
 .tnc-row:hover { border-color: var(--grey-400); }
 .tnc-row.checked { border-color: var(--black); background: var(--off-white); }
-
-.tnc-box {
-  width: 18px; height: 18px; flex-shrink: 0;
-  border: 2px solid var(--grey-200);
-  border-radius: 4px; margin-top: 2px;
-  display: flex; align-items: center; justify-content: center;
-  transition: var(--transition); font-size: 10px; color: var(--white);
-}
+.tnc-box { width: 18px; height: 18px; flex-shrink: 0; border: 2px solid var(--grey-200); border-radius: 4px; margin-top: 2px; display: flex; align-items: center; justify-content: center; transition: var(--transition); font-size: 10px; color: var(--white); }
 .tnc-row.checked .tnc-box { background: var(--black); border-color: var(--black); }
 .tnc-text { font-size: 12px; color: var(--grey-600); line-height: 1.6; }
 .tnc-text a { color: var(--black); font-weight: 500; }
 
 /* ── BUTTONS ── */
-.btn {
-  display: inline-flex; align-items: center;
-  justify-content: center; gap: 7px;
-  padding: 13px 24px;
-  font-family: 'Syne', sans-serif;
-  font-size: 14px; font-weight: 700;
-  border-radius: var(--radius-sm);
-  cursor: pointer; transition: var(--transition);
-  border: none; text-decoration: none;
-  letter-spacing: 0.2px;
-}
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 13px 24px; font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; border-radius: var(--radius-sm); cursor: pointer; transition: var(--transition); border: none; text-decoration: none; letter-spacing: 0.2px; }
 .btn-black { background: var(--black); color: var(--white); }
 .btn-black:hover:not(:disabled) { opacity: 0.82; transform: translateY(-1px); }
 .btn-black:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
-.btn-outline {
-  background: var(--white); color: var(--black);
-  border: 1.5px solid var(--grey-200);
-}
+.btn-outline { background: var(--white); color: var(--black); border: 1.5px solid var(--grey-200); }
 .btn-outline:hover { border-color: var(--black); }
 .btn-full { width: 100%; }
-
-.nav-row {
-  display: flex; gap: 10px; margin-top: 36px;
-}
+.nav-row { display: flex; gap: 10px; margin-top: 36px; }
 .nav-row .btn-black { flex: 1; }
 
 /* ── HERO ── */
-.hero-img {
-  width: calc(100% + 48px); margin-left: -24px;
-  height: 220px; object-fit: cover; display: block;
-  margin-top: -44px; margin-bottom: 32px;
-}
-@media (max-width: 480px) { .hero-img { height: 160px; } }
+.hero-img { width: calc(100% + 48px); margin-left: -24px; height: 220px; object-fit: cover; display: block; margin-top: -44px; margin-bottom: 32px; }
 
 /* ── DIVIDER ── */
 .divider { height: 1px; background: var(--grey-100); margin: 24px 0; }
 
 /* ── SUCCESS ── */
 .success-center { text-align: center; padding: 32px 0; }
-.success-ring {
-  width: 72px; height: 72px;
-  background: var(--black); border-radius: 50%;
-  display: flex; align-items: center; justify-content: center;
-  margin: 0 auto 20px; font-size: 30px;
-  animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-}
-@keyframes popIn {
-  from { transform: scale(0); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
+.success-ring { width: 72px; height: 72px; background: var(--black); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 30px; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+@keyframes popIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
 
-.ref-box {
-  background: var(--grey-50);
-  border: 1.5px solid var(--grey-100);
-  border-radius: var(--radius);
-  padding: 18px; margin: 20px 0;
-}
+.ref-box { background: var(--grey-50); border: 1.5px solid var(--grey-100); border-radius: var(--radius); padding: 18px; margin: 20px 0; }
 .ref-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--grey-400); margin-bottom: 5px; }
-.ref-num {
-  font-family: 'Syne', sans-serif;
-  font-weight: 800; font-size: 26px; letter-spacing: -0.5px;
-}
+.ref-num { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 26px; letter-spacing: -0.5px; }
 
-.link-box {
-  background: var(--black); border-radius: var(--radius-sm);
-  padding: 12px 14px;
-  display: flex; align-items: center; justify-content: space-between;
-  gap: 10px; margin: 12px 0;
-}
+.link-box { background: var(--black); border-radius: var(--radius-sm); padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 12px 0; }
 .link-url { font-size: 12px; color: var(--grey-400); word-break: break-all; text-align: left; }
-.copy-btn {
-  background: rgba(255,255,255,0.1);
-  border: none; border-radius: 5px;
-  padding: 5px 10px; color: var(--white);
-  font-size: 11px; font-weight: 500;
-  cursor: pointer; flex-shrink: 0;
-  transition: var(--transition);
-  font-family: 'DM Sans', sans-serif;
-}
+.copy-btn { background: rgba(255,255,255,0.1); border: none; border-radius: 5px; padding: 5px 10px; color: var(--white); font-size: 11px; font-weight: 500; cursor: pointer; flex-shrink: 0; transition: var(--transition); font-family: 'DM Sans', sans-serif; }
 .copy-btn:hover { background: rgba(255,255,255,0.2); }
 
 .info-chips { margin: 14px 0; display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
-.chip {
-  display: inline-flex; align-items: center; gap: 5px;
-  padding: 6px 12px; background: var(--grey-50);
-  border-radius: 20px; font-size: 12px; color: var(--grey-600);
-}
+.chip { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; background: var(--grey-50); border-radius: 20px; font-size: 12px; color: var(--grey-600); }
 
 /* ── LOADING ── */
-.loading-overlay {
-  display: none; position: fixed; inset: 0;
-  background: rgba(255,255,255,0.88);
-  z-index: 999; flex-direction: column;
-  align-items: center; justify-content: center; gap: 14px;
-}
+.loading-overlay { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.88); z-index: 999; flex-direction: column; align-items: center; justify-content: center; gap: 14px; }
 .loading-overlay.show { display: flex; }
-.spinner {
-  width: 36px; height: 36px;
-  border: 2.5px solid var(--grey-200);
-  border-top-color: var(--black);
-  border-radius: 50%;
-  animation: spin 0.75s linear infinite;
-}
+.spinner { width: 36px; height: 36px; border: 2.5px solid var(--grey-200); border-top-color: var(--black); border-radius: 50%; animation: spin 0.75s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
-.loading-txt {
-  font-family: 'Syne', sans-serif;
-  font-weight: 600; font-size: 14px; color: var(--black);
-}
+.loading-txt { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 14px; color: var(--black); }
 
 /* ── TOAST ── */
-.toast {
-  position: fixed; bottom: 24px; left: 50%;
-  transform: translateX(-50%) translateY(70px);
-  background: var(--black); color: var(--white);
-  padding: 10px 18px; border-radius: 100px;
-  font-size: 12px; font-weight: 500; z-index: 9999;
-  transition: transform 0.28s cubic-bezier(0.4,0,0.2,1);
-  white-space: nowrap; pointer-events: none;
-}
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(70px); background: var(--black); color: var(--white); padding: 10px 18px; border-radius: 100px; font-size: 12px; font-weight: 500; z-index: 9999; transition: transform 0.28s cubic-bezier(0.4,0,0.2,1); white-space: nowrap; pointer-events: none; }
 .toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ── SMART BLOCK NOTICE ── */
+.smart-block-notice { background: var(--accent-light); border: 1.5px solid var(--accent); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 12px; color: var(--accent-dark); margin-bottom: 10px; display: none; }
+.smart-block-notice.show { display: block; }
 
 /* ── RESPONSIVE ── */
 @media (max-width: 768px) {
   .page { padding: 32px 18px 90px; }
   .nav-row { flex-direction: column-reverse; }
   .nav-row .btn-outline { width: 100%; }
-  .slot-grid { gap: 8px; }
 }
 @media (max-width: 480px) {
   .header { padding: 0 14px; }
   .page { padding: 24px 14px 90px; }
-  .prog-dot { width: 18px; }
-  .prog-dot.active { width: 26px; }
+  .prog-dot { width: 18px; } .prog-dot.active { width: 26px; }
   .phone-prefix-wrap { width: 110px; }
   .addr-grid { grid-template-columns: 1fr; gap: 0; }
+  .hero-img { height: 160px; }
 }
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
 <header class="header">
   <div class="logo">
     <div class="logo-mark">PC</div>
@@ -798,64 +319,29 @@ body {
 
 <main class="main">
 
-<!-- ══════════════════════════════════════
-     PAGE 1 — INTRODUCTION
-══════════════════════════════════════ -->
+<!-- PAGE 1 — INTRO -->
 <div class="page active" id="page-1">
   <img src="https://images.unsplash.com/photo-1610889556528-9a770e32642f?w=800&q=80&fit=crop" class="hero-img" alt="Petre Coffee">
   <div class="eyebrow">Selamat Datang</div>
   <h1 class="page-title">Tempah Petre Coffee untuk Event Anda</h1>
   <p class="page-sub">Popup coffee booth premium untuk setiap majlis. Sila baca panduan berikut sebelum membuat tempahan.</p>
   <ul class="guide-list">
-    <li class="guide-item">
-      <div class="guide-icon">📅</div>
-      <div>
-        <span class="guide-strong">Lead Time Minimum 2 Minggu</span>
-        <span class="guide-text">Tempahan perlu dibuat sekurang-kurangnya 14 hari sebelum tarikh event.</span>
-      </div>
-    </li>
-    <li class="guide-item">
-      <div class="guide-icon">⏱️</div>
-      <div>
-        <span class="guide-strong">Slot Perkhidmatan 4 Jam</span>
-        <span class="guide-text">Setiap slot lalai adalah 4 jam. Masa boleh ditambah melalui add-on.</span>
-      </div>
-    </li>
-    <li class="guide-item">
-      <div class="guide-icon">✅</div>
-      <div>
-        <span class="guide-strong">Tertakluk kepada Pengesahan Admin</span>
-        <span class="guide-text">Setiap tempahan akan disemak oleh pasukan kami dalam masa 1–2 hari bekerja.</span>
-      </div>
-    </li>
-    <li class="guide-item">
-      <div class="guide-icon">💳</div>
-      <div>
-        <span class="guide-strong">Pembayaran Deposit atau Penuh</span>
-        <span class="guide-text">Pilih bayar 50% deposit atau bayaran penuh selepas tempahan disahkan.</span>
-      </div>
-    </li>
-    <li class="guide-item">
-      <div class="guide-icon">🔄</div>
-      <div>
-        <span class="guide-strong">Polisi Pembatalan</span>
-        <span class="guide-text">&gt;30 hari: Refund penuh &nbsp;|&nbsp; 14–30 hari: 50% &nbsp;|&nbsp; 7–14 hari: 25%</span>
-      </div>
-    </li>
+    <li class="guide-item"><div class="guide-icon">📅</div><div><span class="guide-strong">Lead Time Minimum 2 Minggu</span><span class="guide-text">Tempahan perlu dibuat sekurang-kurangnya 14 hari sebelum tarikh event.</span></div></li>
+    <li class="guide-item"><div class="guide-icon">⏱️</div><div><span class="guide-strong">Slot Perkhidmatan 4 Jam</span><span class="guide-text">Setiap slot lalai adalah 4 jam. Masa boleh ditambah melalui add-on.</span></div></li>
+    <li class="guide-item"><div class="guide-icon">✅</div><div><span class="guide-strong">Tertakluk kepada Pengesahan Admin</span><span class="guide-text">Setiap tempahan akan disemak oleh pasukan kami dalam masa 1–2 hari bekerja.</span></div></li>
+    <li class="guide-item"><div class="guide-icon">💳</div><div><span class="guide-strong">Pembayaran Deposit atau Penuh</span><span class="guide-text">Pilih bayar 50% deposit atau bayaran penuh selepas tempahan disahkan.</span></div></li>
+    <li class="guide-item"><div class="guide-icon">🔄</div><div><span class="guide-strong">Polisi Pembatalan</span><span class="guide-text">&gt;30 hari: Refund penuh &nbsp;|&nbsp; 14–30 hari: 50% &nbsp;|&nbsp; 7–14 hari: 25%</span></div></li>
   </ul>
-  <div class="nav-row" style="margin-top: 28px;">
+  <div class="nav-row" style="margin-top:28px;">
     <button class="btn btn-black btn-full" onclick="goTo(2)">Mula Tempahan →</button>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
-     PAGE 2 — DATE & SLOT
-══════════════════════════════════════ -->
+<!-- PAGE 2 — DATE & SLOT -->
 <div class="page" id="page-2">
   <div class="eyebrow">Langkah 1 dari 6</div>
   <h1 class="page-title">Tarikh & Slot Masa</h1>
   <p class="page-sub">Pilih tarikh event anda. Tarikh minimum adalah 14 hari dari hari ini.</p>
-
   <div class="cal-shell">
     <div class="cal-header">
       <button class="cal-nav" onclick="prevMonth()">←</button>
@@ -864,15 +350,12 @@ body {
     </div>
     <div class="cal-body">
       <div class="cal-weekdays">
-        <div class="cal-wd">Ah</div><div class="cal-wd">Is</div>
-        <div class="cal-wd">Se</div><div class="cal-wd">Ra</div>
-        <div class="cal-wd">Kh</div><div class="cal-wd">Ju</div>
-        <div class="cal-wd">Sa</div>
+        <div class="cal-wd">Ah</div><div class="cal-wd">Is</div><div class="cal-wd">Se</div>
+        <div class="cal-wd">Ra</div><div class="cal-wd">Kh</div><div class="cal-wd">Ju</div><div class="cal-wd">Sa</div>
       </div>
       <div class="cal-grid" id="calGrid"></div>
     </div>
   </div>
-
   <div class="slot-section" id="slotSection" style="display:none;">
     <div class="section-label">Pilih Slot Masa</div>
     <div class="slot-grid">
@@ -882,26 +365,21 @@ body {
     </div>
     <div class="slot-note">⏱ Tempoh lalai setiap slot adalah 4 jam</div>
   </div>
-
   <div class="nav-row">
     <button class="btn btn-outline" onclick="goTo(1)">← Kembali</button>
     <button class="btn btn-black" id="btn2next" disabled onclick="goTo(3)">Seterusnya →</button>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
-     PAGE 3 — PACKAGE
-══════════════════════════════════════ -->
+<!-- PAGE 3 — PACKAGE -->
 <div class="page" id="page-3">
   <div class="eyebrow">Langkah 2 dari 6</div>
   <h1 class="page-title">Pilih Pakej Asas</h1>
   <p class="page-sub">Pilih pakej yang sesuai dengan keperluan event anda.</p>
-
   <div class="pkg-tabs">
     <button class="pkg-tab active" id="tab-time" onclick="switchTab('time')">Berasaskan Masa</button>
     <button class="pkg-tab" id="tab-cups" onclick="switchTab('cups')">Berasaskan Cawan</button>
   </div>
-
   <div id="pkgs-time">
     <div class="pkg-card" id="p-bronze-time" onclick="pickPkg('bronze-time','TIME_BASED',800,'Bronze Time',4,null)">
       <div class="pkg-badge">Berasaskan Masa</div>
@@ -922,7 +400,6 @@ body {
       <div class="pkg-price">RM 1,400</div>
     </div>
   </div>
-
   <div id="pkgs-cups" style="display:none;">
     <div class="pkg-card" id="p-starter-cups" onclick="pickPkg('starter-cups','CUPS_BASED',400,'Starter Cups',null,100)">
       <div class="pkg-badge">Berasaskan Cawan</div>
@@ -943,28 +420,31 @@ body {
       <div class="pkg-price">RM 1,300</div>
     </div>
   </div>
-
   <div class="nav-row">
     <button class="btn btn-outline" onclick="goTo(2)">← Kembali</button>
     <button class="btn btn-black" id="btn3next" disabled onclick="goTo(4)">Seterusnya →</button>
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
-     PAGE 4 — ADD-ONS
-══════════════════════════════════════ -->
+<!-- PAGE 4 — ADD-ONS -->
 <div class="page" id="page-4">
   <div class="eyebrow">Langkah 3 dari 6</div>
   <h1 class="page-title">Add-ons & Perkhidmatan</h1>
   <p class="page-sub">Semua pilihan adalah pilihan. Tambah mengikut keperluan event anda.</p>
 
-  <!-- Tambah Masa — Cups-Based only -->
+  <!-- Smart block notice -->
+  <div class="smart-block-notice" id="smartBlockNotice">
+    ⚠️ Add-on Tambah Masa tidak tersedia kerana slot seterusnya pada hari yang sama telah ditempah.
+  </div>
+
+  <!-- Tambah Masa — Both packages, hidden if smart blocked -->
   <div class="addon-card" id="acard-time">
     <div class="addon-top">
       <div class="addon-info">
         <div class="addon-name">Tambah Masa</div>
-        <div class="addon-price-label">RM 100.00 / jam</div>
+        <div class="addon-price-label" id="time-price-label">RM 100.00 / jam</div>
         <div class="addon-desc">Tambahan masa perkhidmatan barista di lokasi event anda.</div>
+        <div class="addon-desc" id="time-max-notice" style="display:none;color:var(--accent-dark);margin-top:4px;"></div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
         <div class="qty-wrap">
@@ -978,8 +458,8 @@ body {
     <div class="err-msg" id="err-qi-time">⚠ Sila masukkan nombor sahaja.</div>
   </div>
 
-  <!-- Tambah Cups — Time-Based only -->
-  <div class="addon-card" id="acard-cups">
+  <!-- Tambah Cawan — Cups-Based only -->
+  <div class="addon-card hidden" id="acard-cups">
     <div class="addon-top">
       <div class="addon-info">
         <div class="addon-name">Tambah Cawan</div>
@@ -998,7 +478,7 @@ body {
     <div class="err-msg" id="err-qi-cups">⚠ Sila masukkan nombor sahaja.</div>
   </div>
 
-  <!-- Canopy — checkbox -->
+  <!-- Canopy -->
   <div class="addon-card" id="acard-canopy" onclick="toggleCheck('canopy')" style="cursor:pointer;">
     <div class="addon-checkbox-wrap">
       <div class="addon-check" id="check-canopy"></div>
@@ -1009,7 +489,7 @@ body {
     </div>
   </div>
 
-  <!-- Perkhidmatan Pembersihan — checkbox -->
+  <!-- Perkhidmatan Pembersihan -->
   <div class="addon-card" id="acard-cleanup" onclick="toggleCheck('cleanup')" style="cursor:pointer;">
     <div class="addon-checkbox-wrap">
       <div class="addon-check" id="check-cleanup"></div>
@@ -1021,9 +501,7 @@ body {
   </div>
 
   <div class="running-total">
-    <div>
-      <div class="rt-label">Jumlah Pakej + Add-ons</div>
-    </div>
+    <div><div class="rt-label">Jumlah Pakej + Add-ons</div></div>
     <div class="rt-amount" id="runTotal">RM 0</div>
   </div>
 
@@ -1033,15 +511,12 @@ body {
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
-     PAGE 5 — CUSTOMER INFO
-══════════════════════════════════════ -->
+<!-- PAGE 5 — CUSTOMER INFO -->
 <div class="page" id="page-5">
   <div class="eyebrow">Langkah 4 dari 6</div>
   <h1 class="page-title">Maklumat Pelanggan & Event</h1>
   <p class="page-sub">Isi maklumat anda dan butiran event dengan lengkap dan tepat.</p>
 
-  <!-- MAKLUMAT PELANGGAN -->
   <div class="section-label">Maklumat Pelanggan</div>
 
   <div class="form-group">
@@ -1062,7 +537,7 @@ body {
           <option value="03"><option value="06"><option value="1800">
         </datalist>
       </div>
-      <div style="flex:1;position:relative;">
+      <div style="flex:1;">
         <input type="text" class="form-input" id="f-phone" placeholder="12345678" oninput="validatePhoneNum()" style="margin:0;">
       </div>
     </div>
@@ -1075,7 +550,6 @@ body {
     <div class="err-msg" id="e-email">⚠ Format e-mel tidak sah. Contoh: nama@email.com</div>
   </div>
 
-  <!-- MAKLUMAT EVENT -->
   <div class="section-label">Maklumat Event</div>
 
   <div class="form-group">
@@ -1097,11 +571,11 @@ body {
     <div class="err-msg" id="e-evcat">⚠ Sila pilih jenis event.</div>
   </div>
 
-  <div class="form-group" id="evtype-group">
+  <div class="form-group">
     <label class="form-label">Apa Event? <span class="req">*</span></label>
     <div class="form-select-wrap" id="evtype-select-wrap">
       <select class="form-select" id="f-evtype" onchange="onTypeChange()">
-        <option value="">-- Pilih Event --</option>
+        <option value="">-- Pilih dahulu Jenis Event --</option>
       </select>
     </div>
     <input type="text" class="form-input" id="f-evtype-other" placeholder="Nyatakan jenis event anda..." style="display:none;">
@@ -1123,8 +597,8 @@ body {
   <div class="addr-grid">
     <div class="form-group">
       <label class="form-label">Poskod <span class="req">*</span></label>
-      <input type="text" class="form-input" id="f-postcode" placeholder="cth: 47100" maxlength="5" oninput="this.value=this.value.replace(/\D/g,'')">
-      <div class="err-msg" id="e-postcode">⚠ Sila masukkan poskod yang sah.</div>
+      <input type="text" class="form-input" id="f-postcode" placeholder="47100" maxlength="5" oninput="this.value=this.value.replace(/\D/g,'')">
+      <div class="err-msg" id="e-postcode">⚠ Sila masukkan poskod 5 digit.</div>
     </div>
     <div class="form-group">
       <label class="form-label">Bandar <span class="req">*</span></label>
@@ -1156,7 +630,7 @@ body {
     <div class="err-msg" id="e-klang">⚠ Sila pilih kawasan event.</div>
   </div>
 
-  <div id="zone-wrap" style="display:none; margin-top: 10px;">
+  <div id="zone-wrap" style="display:none;margin-top:10px;">
     <div class="form-select-wrap">
       <select class="form-select" id="f-zone" onchange="onZoneChange()">
         <option value="">-- Pilih Kawasan --</option>
@@ -1167,13 +641,15 @@ body {
     <div class="err-msg" id="e-zone">⚠ Sila pilih kawasan.</div>
   </div>
 
+  <!-- Google Maps -->
   <div class="form-group" style="margin-top:18px;">
-    <label class="form-label">Pin Lokasi di Maps</label>
-    <div class="map-pin-btn" onclick="toast('Integrasi Google Maps akan diaktifkan selepas deployment.')">
-      <div class="map-pin-icon">📍</div>
-      <span>Klik untuk pin lokasi event</span>
-      <span style="font-size:11px;color:var(--grey-400)">Pilihan — membantu kami merancang logistik</span>
+    <label class="form-label">Pin Lokasi Event <span style="color:var(--grey-400);font-weight:300;">(pilihan)</span></label>
+    <div class="map-search-wrap">
+      <span class="map-search-icon">📍</span>
+      <input type="text" class="map-search-input" id="map-search" placeholder="Cari alamat atau nama tempat...">
     </div>
+    <div id="map-container"></div>
+    <div class="map-coords" id="map-coords">📍 Koordinat disimpan</div>
   </div>
 
   <div class="form-group">
@@ -1211,16 +687,13 @@ body {
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
-     PAGE 6 — SPECIAL REQUEST
-══════════════════════════════════════ -->
+<!-- PAGE 6 — SPECIAL REQUEST -->
 <div class="page" id="page-6">
   <div class="eyebrow">Langkah 5 dari 6</div>
   <h1 class="page-title">Permintaan Khas</h1>
   <p class="page-sub">Semua bahagian di bawah adalah pilihan. Tinggalkan kosong jika tiada.</p>
 
   <div class="section-label">Permintaan Khas</div>
-
   <div id="reqRows">
     <div class="req-row" id="rr-1">
       <input type="text" class="form-input" id="rr-inp-1" placeholder="cth: Sediakan sudut demo live brewing">
@@ -1233,12 +706,10 @@ body {
 
   <div class="section-label">Keperluan Diet & Alahan</div>
   <p style="font-size:13px;color:var(--grey-600);margin-bottom:14px;">Adakah terdapat keperluan diet atau alahan makanan dalam kalangan tetamu?</p>
-
   <div class="radio-row">
     <label class="radio-opt" id="r-diet-y" onclick="pickDiet(true)"><input type="radio" name="diet">Ya, ada</label>
     <label class="radio-opt" id="r-diet-n" onclick="pickDiet(false)"><input type="radio" name="diet">Tidak</label>
   </div>
-
   <div id="diet-detail" style="display:none;margin-top:14px;">
     <textarea class="form-textarea" id="f-diet" placeholder="cth: Sesetengah tetamu alahan kepada susu lembu — sila sediakan pilihan oat milk atau soy milk"></textarea>
   </div>
@@ -1249,9 +720,7 @@ body {
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
-     PAGE 7 — SUMMARY
-══════════════════════════════════════ -->
+<!-- PAGE 7 — SUMMARY -->
 <div class="page" id="page-7">
   <div class="eyebrow">Langkah 6 dari 6</div>
   <h1 class="page-title">Semak & Sahkan</h1>
@@ -1262,7 +731,7 @@ body {
     <div class="sum-row"><span class="sum-key">Tarikh</span><span class="sum-val" id="s-date">—</span></div>
     <div class="sum-row"><span class="sum-key">Slot Masa</span><span class="sum-val" id="s-slot">—</span></div>
     <div class="sum-row"><span class="sum-key">Jenis Event</span><span class="sum-val" id="s-evcat">—</span></div>
-    <div class="sum-row"><span class="sum-key">Event</span><span class="sum-val" id="s-evtype">—</span></div>
+    <div class="sum-row"><span class="sum-key">Apa Event</span><span class="sum-val" id="s-evtype">—</span></div>
     <div class="sum-row"><span class="sum-key">Nama Event</span><span class="sum-val" id="s-evname">—</span></div>
     <div class="sum-row"><span class="sum-key">Alamat</span><span class="sum-val" id="s-addr">—</span></div>
     <div class="sum-row"><span class="sum-key">Kawasan</span><span class="sum-val" id="s-zone">—</span></div>
@@ -1315,33 +784,26 @@ body {
   </div>
 </div>
 
-<!-- ══════════════════════════════════════
-     PAGE 8 — SUCCESS
-══════════════════════════════════════ -->
+<!-- PAGE 8 — SUCCESS -->
 <div class="page" id="page-8">
   <div class="success-center">
     <div class="success-ring">✓</div>
     <div class="eyebrow">Berjaya!</div>
     <h1 class="page-title">Tempahan Telah Dihantar</h1>
     <p class="page-sub">Terima kasih kerana memilih Petre Coffee. Kami akan menghubungi anda dalam masa 1–2 hari bekerja untuk pengesahan.</p>
-
     <div class="ref-box">
       <div class="ref-label">Nombor Rujukan</div>
       <div class="ref-num" id="suc-ref">PCO-2026-0001</div>
     </div>
-
     <p style="font-size:12px;color:var(--grey-600);margin-bottom:8px;">Pantau status tempahan melalui pautan di bawah:</p>
-
     <div class="link-box">
       <div class="link-url" id="suc-link">petrecoffee.com/order?token=...</div>
       <button class="copy-btn" onclick="copyLink()">Salin</button>
     </div>
-
     <div class="info-chips">
       <div class="chip">📧 E-mel pengesahan dihantar</div>
-      <div class="chip">💬 WhatsApp dihantar</div>
+      <div class="chip">📧 Notifikasi admin dihantar</div>
     </div>
-
     <div class="divider"></div>
     <button class="btn btn-outline btn-full" onclick="resetAll()">Buat Tempahan Baru</button>
   </div>
@@ -1349,21 +811,20 @@ body {
 
 </main>
 
-<!-- Loading -->
 <div class="loading-overlay" id="loadOverlay">
   <div class="spinner"></div>
   <div class="loading-txt">Menghantar tempahan...</div>
 </div>
 
-<!-- Toast -->
 <div class="toast" id="toastEl"></div>
 
 <script>
-// ════════════════════════════
-// SUPABASE
-// ════════════════════════════
+// ═══════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════
 const SB_URL = 'https://dfdgfujgygslhgkgujsr.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmZGdmdWpneWdzbGhna2d1anNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MDM4NjQsImV4cCI6MjA5MzQ3OTg2NH0.L6z152YBOKgSY6eJbAFeJ9XN2U93yyQgBgFfXYf608s';
+const SB_EDGE = `${SB_URL}/functions/v1/send-booking-emails`;
 
 const H = { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json' };
 
@@ -1380,25 +841,25 @@ async function sbPost(table, data) {
   return r.json();
 }
 
-// ════════════════════════════
+// ═══════════════════════════════════
 // STATE
-// ════════════════════════════
+// ═══════════════════════════════════
 let S = {
   page: 1,
   date: null, slot: null,
   pkg: null,
   addons: { time: 0, cups: 0, canopy: false, cleanup: false },
   klang: null, transportCost: 0, transportZone: null,
-  tnc: false,
-  reqCount: 1,
-  dietYes: null,
+  tnc: false, reqCount: 1, dietYes: null,
   blocked: [], existing: [],
-  magicLink: ''
+  mapLat: null, mapLng: null,
+  magicLink: '',
+  timeAddonBlocked: false, maxTimeAddon: null
 };
 
 const PRICES = { time: 100, cups: 3, canopy: 50, cleanup: 50 };
+const PRICES_CUPS = { time: 50 }; // Cups-Based Tambah Masa harga berbeza
 
-// Event types map
 const EVENT_TYPES = {
   'Corporate Events': ['Company Meeting / Townhall','Training & Workshop','Product Launch','Client Meeting / Client Visit','Networking Session','Team Building','Office Celebration (Birthday Staff, Farewell, Achievement)','Conference / Seminar'],
   'Government Events': ['Official Meeting (Mesyuarat Jabatan / Agensi)','Government Seminar / Kursus','Training Program (Kursus Penjawat Awam)','Majlis Rasmi (Pelancaran, Perasmian)','Community Program (Program Komuniti Anjuran Kerajaan)','Hari Terbuka Jabatan','Conference / Forum Kerajaan','CSR / Outreach Program','Election-Related Events (Non-Political Catering)'],
@@ -1410,15 +871,16 @@ const EVENT_TYPES = {
   'Creative & Media Events': ['Photoshoot','Video Production / Filming','Influencer Event','Content Creation Event','Podcast Session']
 };
 
-// ════════════════════════════
+// ═══════════════════════════════════
 // NAVIGATION
-// ════════════════════════════
+// ═══════════════════════════════════
 function goTo(n) {
   document.getElementById(`page-${S.page}`).classList.remove('active');
   S.page = n;
   document.getElementById(`page-${n}`).classList.add('active');
   updateProg();
   window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (n === 4) setupAddons();
   if (n === 7) buildSummary();
 }
 
@@ -1432,15 +894,14 @@ function updateProg() {
   document.getElementById('progressWrap').style.display = S.page === 8 ? 'none' : 'flex';
 }
 
-// ════════════════════════════
+// ═══════════════════════════════════
 // CALENDAR
-// ════════════════════════════
+// ═══════════════════════════════════
 let CY, CM;
 const MONTHS = ['Januari','Februari','Mac','April','Mei','Jun','Julai','Ogos','September','Oktober','November','Disember'];
 
 function initCal() {
-  const t = new Date();
-  CY = t.getFullYear(); CM = t.getMonth();
+  const t = new Date(); CY = t.getFullYear(); CM = t.getMonth();
   renderCal();
 }
 
@@ -1491,8 +952,7 @@ function renderSlots(ds) {
   const SH = { '8AM': 8, '2PM': 14, '8PM': 20 };
   ['8AM','2PM','8PM'].forEach(sl => {
     const btn = document.getElementById(`slot-${sl}`);
-    btn.classList.remove('selected');
-    btn.disabled = false;
+    btn.classList.remove('selected'); btn.disabled = false;
     const blocked = S.blocked.some(b => b.blocked_date === ds && b.slot_time === sl);
     if (blocked) { btn.disabled = true; return; }
     const booked = S.existing.some(b => {
@@ -1509,11 +969,39 @@ function pickSlot(sl) {
   document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
   document.getElementById(`slot-${sl}`).classList.add('selected');
   document.getElementById('btn2next').disabled = false;
+  checkSmartBlock(sl);
 }
 
-// ════════════════════════════
+// Smart block check untuk Tambah Masa
+function checkSmartBlock(sl) {
+  const SH = { '8AM': 8, '2PM': 14, '8PM': 20 };
+  const nextSlot = { '8AM': '2PM', '2PM': '8PM', '8PM': null };
+  const next = nextSlot[sl];
+
+  if (!next) {
+    // 8PM — no next slot, no limit
+    S.timeAddonBlocked = false;
+    S.maxTimeAddon = null;
+    return;
+  }
+
+  // Check if next slot is unavailable
+  const nextBtn = document.getElementById(`slot-${next}`);
+  if (nextBtn && nextBtn.disabled) {
+    S.timeAddonBlocked = true;
+    S.maxTimeAddon = null;
+  } else {
+    S.timeAddonBlocked = false;
+    // Calculate max hours: gap between current slot end and next slot start
+    const curEnd = SH[sl] + 4; // default 4 jam
+    const nextStart = SH[next];
+    S.maxTimeAddon = Math.max(0, nextStart - curEnd);
+  }
+}
+
+// ═══════════════════════════════════
 // PAGE 3 — PACKAGE
-// ════════════════════════════
+// ═══════════════════════════════════
 function switchTab(t) {
   document.getElementById('pkgs-time').style.display = t === 'time' ? 'block' : 'none';
   document.getElementById('pkgs-cups').style.display = t === 'cups' ? 'block' : 'none';
@@ -1529,19 +1017,66 @@ function pickPkg(id, type, price, name, hours, cups) {
   document.getElementById(`p-${id}`).classList.add('selected');
   S.pkg = { id, type, price, name, hours, cups };
   document.getElementById('btn3next').disabled = false;
-  // Control addon visibility
-  document.getElementById('acard-time').classList.toggle('hidden', type === 'TIME_BASED');
-  document.getElementById('acard-cups').classList.toggle('hidden', type === 'CUPS_BASED');
-  if (type === 'TIME_BASED') { S.addons.time = 0; refreshQty('time'); }
-  if (type === 'CUPS_BASED') { S.addons.cups = 0; refreshQty('cups'); }
+}
+
+// ═══════════════════════════════════
+// PAGE 4 — ADD-ONS SETUP
+// ═══════════════════════════════════
+function setupAddons() {
+  if (!S.pkg) return;
+  const isCups = S.pkg.type === 'CUPS_BASED';
+  const isTime = S.pkg.type === 'TIME_BASED';
+
+  // Tambah Cawan — Cups-Based only
+  document.getElementById('acard-cups').classList.toggle('hidden', !isCups);
+
+  // Tambah Masa price label
+  const timePrice = isCups ? PRICES_CUPS.time : PRICES.time;
+  document.getElementById('time-price-label').textContent = `RM ${timePrice}.00 / jam`;
+
+  // Smart block — hide Tambah Masa if blocked
+  const timeCard = document.getElementById('acard-time');
+  const notice = document.getElementById('smartBlockNotice');
+
+  if (S.timeAddonBlocked) {
+    timeCard.classList.add('hidden');
+    notice.classList.add('show');
+    S.addons.time = 0;
+    refreshQty('time');
+  } else {
+    timeCard.classList.remove('hidden');
+    notice.classList.remove('show');
+
+    // Show max notice if applicable
+    const maxNotice = document.getElementById('time-max-notice');
+    if (S.maxTimeAddon !== null && S.maxTimeAddon > 0) {
+      maxNotice.style.display = 'block';
+      maxNotice.textContent = `⚠ Maksimum ${S.maxTimeAddon} jam tambahan (berdasarkan slot seterusnya)`;
+    } else if (S.maxTimeAddon === 0) {
+      timeCard.classList.add('hidden');
+      notice.classList.add('show');
+      document.getElementById('smartBlockNotice').textContent = '⚠ Tambah Masa tidak tersedia kerana tiada masa mencukupi sebelum slot seterusnya.';
+    } else {
+      maxNotice.style.display = 'none';
+    }
+  }
+
   updateRT();
 }
 
-// ════════════════════════════
-// PAGE 4 — ADD-ONS
-// ════════════════════════════
+// ═══════════════════════════════════
+// PAGE 4 — ADD-ON CONTROLS
+// ═══════════════════════════════════
 function adjQty(type, delta) {
-  S.addons[type] = Math.max(0, S.addons[type] + delta);
+  const isCups = S.pkg?.type === 'CUPS_BASED';
+  let newVal = S.addons[type] + delta;
+
+  // Enforce max for time addon
+  if (type === 'time' && S.maxTimeAddon !== null) {
+    newVal = Math.min(newVal, S.maxTimeAddon);
+  }
+
+  S.addons[type] = Math.max(0, newVal);
   document.getElementById(`qi-${type}`).value = S.addons[type];
   refreshQty(type);
   updateRT();
@@ -1551,14 +1086,14 @@ function onQtyInput(type, el) {
   const v = el.value;
   const err = document.getElementById(`err-qi-${type}`);
   if (v !== '' && !/^\d+$/.test(v)) {
-    el.classList.add('error');
-    err.classList.add('show');
+    el.classList.add('error'); err.classList.add('show');
   } else {
-    el.classList.remove('error');
-    err.classList.remove('show');
-    S.addons[type] = parseInt(v) || 0;
-    refreshQty(type);
-    updateRT();
+    el.classList.remove('error'); err.classList.remove('show');
+    let val = parseInt(v) || 0;
+    // Enforce max
+    if (type === 'time' && S.maxTimeAddon !== null) val = Math.min(val, S.maxTimeAddon);
+    S.addons[type] = val;
+    refreshQty(type); updateRT();
   }
 }
 
@@ -1569,9 +1104,11 @@ function onQtyBlur(type, el) {
 }
 
 function refreshQty(type) {
+  const isCups = S.pkg?.type === 'CUPS_BASED';
+  const price = (type === 'time' && isCups) ? PRICES_CUPS.time : PRICES[type];
   const q = S.addons[type];
   if (document.getElementById(`qi-${type}`)) document.getElementById(`qi-${type}`).value = q;
-  document.getElementById(`sub-${type}`).textContent = `RM ${(q * PRICES[type]).toLocaleString()}`;
+  if (document.getElementById(`sub-${type}`)) document.getElementById(`sub-${type}`).textContent = `RM ${(q * price).toLocaleString()}`;
 }
 
 function toggleCheck(type) {
@@ -1581,16 +1118,23 @@ function toggleCheck(type) {
   updateRT();
 }
 
-function updateRT() {
-  const base = S.pkg ? S.pkg.price : 0;
-  const at = (S.addons.time * PRICES.time) + (S.addons.cups * PRICES.cups) +
-             (S.addons.canopy ? PRICES.canopy : 0) + (S.addons.cleanup ? PRICES.cleanup : 0);
-  document.getElementById('runTotal').textContent = `RM ${(base + at).toLocaleString()}`;
+function getAddonTotal() {
+  const isCups = S.pkg?.type === 'CUPS_BASED';
+  const timePrice = isCups ? PRICES_CUPS.time : PRICES.time;
+  return (S.addons.time * timePrice) +
+         (S.addons.cups * PRICES.cups) +
+         (S.addons.canopy ? PRICES.canopy : 0) +
+         (S.addons.cleanup ? PRICES.cleanup : 0);
 }
 
-// ════════════════════════════
+function updateRT() {
+  const base = S.pkg ? S.pkg.price : 0;
+  document.getElementById('runTotal').textContent = `RM ${(base + getAddonTotal()).toLocaleString()}`;
+}
+
+// ═══════════════════════════════════
 // PAGE 5 — EVENT TYPES
-// ════════════════════════════
+// ═══════════════════════════════════
 function onCatChange() {
   const cat = document.getElementById('f-evcat').value;
   const sel = document.getElementById('f-evtype');
@@ -1614,26 +1158,17 @@ function onCatChange() {
 function onTypeChange() {
   const val = document.getElementById('f-evtype').value;
   const other = document.getElementById('f-evtype-other');
-  const selWrap = document.getElementById('evtype-select-wrap');
-  if (val === 'others') {
-    other.style.display = 'block';
-    other.placeholder = 'Nyatakan jenis event anda...';
-  } else {
-    other.style.display = 'none';
-  }
+  other.style.display = val === 'others' ? 'block' : 'none';
+  if (val === 'others') other.placeholder = 'Nyatakan jenis event anda...';
 }
 
-// ════════════════════════════
+// ═══════════════════════════════════
 // PHONE VALIDATION
-// ════════════════════════════
+// ═══════════════════════════════════
 function validatePhonePrefix() {
   const el = document.getElementById('f-prefix');
-  if (el.value && !/^[\d+]+$/.test(el.value)) {
-    el.classList.add('has-error');
-    document.getElementById('e-phone').classList.add('show');
-  } else {
-    el.classList.remove('has-error');
-  }
+  if (el.value && !/^[\d+]+$/.test(el.value)) el.classList.add('has-error');
+  else el.classList.remove('has-error');
 }
 
 function validatePhoneNum() {
@@ -1647,9 +1182,9 @@ function validatePhoneNum() {
   }
 }
 
-// ════════════════════════════
+// ═══════════════════════════════════
 // KLANG / ZONE
-// ════════════════════════════
+// ═══════════════════════════════════
 function pickKlang(y) {
   S.klang = y;
   document.getElementById('r-klang-y').classList.toggle('selected', y);
@@ -1667,9 +1202,91 @@ function onZoneChange() {
   else { S.transportCost = 0; S.transportZone = null; }
 }
 
-// ════════════════════════════
+// ═══════════════════════════════════
+// GOOGLE MAPS
+// ═══════════════════════════════════
+let map, marker, autocomplete;
+
+function initMaps() {
+  // Will be called when user reaches page 5
+  window.mapsReady = true;
+}
+
+function initMapOnPage5() {
+  if (!window.mapsReady || window.mapInitialized) return;
+  window.mapInitialized = true;
+
+  const defaultPos = { lat: 3.1390, lng: 101.6869 }; // KL default
+
+  map = new google.maps.Map(document.getElementById('map-container'), {
+    center: defaultPos,
+    zoom: 12,
+    mapTypeControl: false,
+    streetViewControl: false,
+    fullscreenControl: false,
+    styles: [
+      { featureType: 'poi', elementType: 'labels', stylers: [{ visibility: 'off' }] }
+    ]
+  });
+
+  marker = new google.maps.Marker({
+    map,
+    draggable: true,
+    position: defaultPos,
+    visible: false
+  });
+
+  // Places autocomplete
+  autocomplete = new google.maps.places.Autocomplete(
+    document.getElementById('map-search'),
+    { componentRestrictions: { country: 'my' } }
+  );
+
+  autocomplete.addListener('place_changed', () => {
+    const place = autocomplete.getPlace();
+    if (!place.geometry) return;
+
+    map.setCenter(place.geometry.location);
+    map.setZoom(16);
+    marker.setPosition(place.geometry.location);
+    marker.setVisible(true);
+
+    S.mapLat = place.geometry.location.lat();
+    S.mapLng = place.geometry.location.lng();
+    showCoords();
+
+    // Auto-fill address if empty
+    if (!document.getElementById('f-addr').value) {
+      document.getElementById('f-addr').value = place.formatted_address || '';
+    }
+  });
+
+  // Click on map to pin
+  map.addListener('click', (e) => {
+    marker.setPosition(e.latLng);
+    marker.setVisible(true);
+    S.mapLat = e.latLng.lat();
+    S.mapLng = e.latLng.lng();
+    showCoords();
+  });
+
+  // Drag marker
+  marker.addListener('dragend', (e) => {
+    S.mapLat = e.latLng.lat();
+    S.mapLng = e.latLng.lng();
+    showCoords();
+  });
+}
+
+function showCoords() {
+  const el = document.getElementById('map-coords');
+  el.textContent = `📍 ${S.mapLat.toFixed(6)}, ${S.mapLng.toFixed(6)}`;
+  el.classList.add('show');
+}
+
+// ═══════════════════════════════════
 // PAGE 5 VALIDATION
-// ════════════════════════════
+// ═══════════════════════════════════
 function validateP5() {
   let ok = true;
 
@@ -1707,10 +1324,10 @@ function validateP5() {
   // Event type
   const cat = document.getElementById('f-evcat').value;
   if (cat && cat !== 'Others') {
-    const typeVal = document.getElementById('f-evtype').value;
-    const otherVal = document.getElementById('f-evtype-other').value.trim();
+    const tv = document.getElementById('f-evtype').value;
+    const ov = document.getElementById('f-evtype-other').value.trim();
     const evtErr = document.getElementById('e-evtype');
-    if (!typeVal && !otherVal) { evtErr.classList.add('show'); ok = false; }
+    if (!tv && !ov) { evtErr.classList.add('show'); ok = false; }
     else evtErr.classList.remove('show');
   }
 
@@ -1718,19 +1335,22 @@ function validateP5() {
   if (S.klang === null) { document.getElementById('e-klang').classList.add('show'); ok = false; }
   else document.getElementById('e-klang').classList.remove('show');
 
-  if (!S.klang && S.klang !== null) {
+  if (S.klang === false) {
     const zv = document.getElementById('f-zone').value;
     if (!zv) { document.getElementById('e-zone').classList.add('show'); ok = false; }
     else document.getElementById('e-zone').classList.remove('show');
   }
 
-  if (ok) goTo(6);
-  else window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (ok) {
+    goTo(6);
+  } else {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
 }
 
-// ════════════════════════════
+// ═══════════════════════════════════
 // PAGE 6 — REQUESTS
-// ════════════════════════════
+// ═══════════════════════════════════
 function addReq() {
   S.reqCount++;
   const n = S.reqCount;
@@ -1756,23 +1376,20 @@ function pickDiet(y) {
   document.getElementById('diet-detail').style.display = y ? 'block' : 'none';
 }
 
-// ════════════════════════════
+// ═══════════════════════════════════
 // PAGE 7 — SUMMARY
-// ════════════════════════════
+// ═══════════════════════════════════
 function buildSummary() {
   document.getElementById('s-date').textContent = S.date ? fmtDateDisplay(S.date) : '—';
   document.getElementById('s-slot').textContent = S.slot ? `${S.slot} (4 jam)` : '—';
   document.getElementById('s-evcat').textContent = document.getElementById('f-evcat').value || '—';
 
-  // Event type
   const cat = document.getElementById('f-evcat').value;
   let evtype = '—';
-  if (cat === 'Others') {
-    evtype = document.getElementById('f-evtype-other').value || '—';
-  } else {
+  if (cat === 'Others') evtype = document.getElementById('f-evtype-other').value || '—';
+  else {
     const tv = document.getElementById('f-evtype').value;
-    if (tv === 'others') evtype = document.getElementById('f-evtype-other').value || '—';
-    else evtype = tv || '—';
+    evtype = tv === 'others' ? document.getElementById('f-evtype-other').value : (tv || '—');
   }
   document.getElementById('s-evtype').textContent = evtype;
   document.getElementById('s-evname').textContent = document.getElementById('f-evname').value || '—';
@@ -1790,28 +1407,26 @@ function buildSummary() {
     document.getElementById('s-pkgprice').textContent = `RM ${pkg.price.toLocaleString()}.00`;
   }
 
-  // Add-ons
+  const isCups = pkg?.type === 'CUPS_BASED';
+  const timePrice = isCups ? PRICES_CUPS.time : PRICES.time;
   const aNames = { time: 'Tambah Masa', cups: 'Tambah Cawan', canopy: 'Canopy', cleanup: 'Perkhidmatan Pembersihan' };
-  const aUnits = { time: 'jam', cups: 'cawan', canopy: 'unit', cleanup: 'unit' };
+  const aUnits = { time: 'jam', cups: 'cawan' };
   let aHtml = ''; let aTotal = 0;
-  Object.entries(S.addons).forEach(([t, v]) => {
-    if (t === 'canopy' || t === 'cleanup') {
-      if (v) { aTotal += PRICES[t]; aHtml += `<div class="sum-row"><span class="sum-key">${aNames[t]}</span><span class="sum-val">RM ${PRICES[t]}.00</span></div>`; }
-    } else {
-      if (v > 0) { const sub = v * PRICES[t]; aTotal += sub; aHtml += `<div class="sum-row"><span class="sum-key">${aNames[t]} (${v} ${aUnits[t]})</span><span class="sum-val">RM ${sub.toLocaleString()}.00</span></div>`; }
-    }
-  });
+
+  if (S.addons.time > 0) { const s = S.addons.time * timePrice; aTotal += s; aHtml += `<div class="sum-row"><span class="sum-key">Tambah Masa (${S.addons.time} jam)</span><span class="sum-val">RM ${s.toLocaleString()}.00</span></div>`; }
+  if (S.addons.cups > 0) { const s = S.addons.cups * PRICES.cups; aTotal += s; aHtml += `<div class="sum-row"><span class="sum-key">Tambah Cawan (${S.addons.cups} cawan)</span><span class="sum-val">RM ${s.toLocaleString()}.00</span></div>`; }
+  if (S.addons.canopy) { aTotal += PRICES.canopy; aHtml += `<div class="sum-row"><span class="sum-key">Canopy</span><span class="sum-val">RM 50.00</span></div>`; }
+  if (S.addons.cleanup) { aTotal += PRICES.cleanup; aHtml += `<div class="sum-row"><span class="sum-key">Perkhidmatan Pembersihan</span><span class="sum-val">RM 50.00</span></div>`; }
+
   const ab = document.getElementById('s-addons-block');
   if (aTotal > 0) { document.getElementById('s-addons-list').innerHTML = aHtml; ab.style.display = 'block'; document.getElementById('b-addon-row').style.display = 'flex'; document.getElementById('b-addons').textContent = `RM ${aTotal.toLocaleString()}.00`; }
   else { ab.style.display = 'none'; document.getElementById('b-addon-row').style.display = 'none'; }
 
-  // Requests
   const reqs = [...document.querySelectorAll('.req-row input')].map(i => i.value.trim()).filter(Boolean);
   const rb = document.getElementById('s-req-block');
   if (reqs.length) { document.getElementById('s-req-list').innerHTML = reqs.map((r,i) => `<div class="sum-row"><span class="sum-key">${i+1}.</span><span class="sum-val">${r}</span></div>`).join(''); rb.style.display = 'block'; }
   else rb.style.display = 'none';
 
-  // Dietary
   const db = document.getElementById('s-diet-block');
   if (S.dietYes !== null) {
     const dd = S.dietYes ? (document.getElementById('f-diet').value || 'Ada keperluan diet') : 'Tiada keperluan diet';
@@ -1833,9 +1448,9 @@ function toggleTnc() {
   document.getElementById('submitBtn').disabled = !S.tnc;
 }
 
-// ════════════════════════════
+// ═══════════════════════════════════
 // SUBMIT
-// ════════════════════════════
+// ═══════════════════════════════════
 async function submitBooking() {
   if (!S.tnc) return;
   document.getElementById('loadOverlay').classList.add('show');
@@ -1843,7 +1458,9 @@ async function submitBooking() {
   try {
     const token = genToken();
     const pkg = S.pkg;
-    const aTotal = (S.addons.time * PRICES.time) + (S.addons.cups * PRICES.cups) + (S.addons.canopy ? PRICES.canopy : 0) + (S.addons.cleanup ? PRICES.cleanup : 0);
+    const isCups = pkg.type === 'CUPS_BASED';
+    const timePrice = isCups ? PRICES_CUPS.time : PRICES.time;
+    const aTotal = (S.addons.time * timePrice) + (S.addons.cups * PRICES.cups) + (S.addons.canopy ? PRICES.canopy : 0) + (S.addons.cleanup ? PRICES.cleanup : 0);
     const subtotal = pkg.price + aTotal;
     const total = subtotal + S.transportCost;
 
@@ -1851,6 +1468,7 @@ async function submitBooking() {
     let evtype = cat === 'Others' ? document.getElementById('f-evtype-other').value :
       (document.getElementById('f-evtype').value === 'others' ? document.getElementById('f-evtype-other').value : document.getElementById('f-evtype').value);
 
+    // Get zone & package IDs from Supabase
     const zones = await sbGet('transport_zones', `zone_name=eq.${encodeURIComponent(S.transportZone || 'Lembah Klang')}`);
     const pkgs = await sbGet('packages', `name=eq.${encodeURIComponent(pkg.name)}`);
 
@@ -1870,6 +1488,8 @@ async function submitBooking() {
       event_name: document.getElementById('f-evname').value.trim(),
       phone_prefix: document.getElementById('f-prefix').value.trim(),
       phone_number: document.getElementById('f-phone').value.trim(),
+      event_lat: S.mapLat,
+      event_lng: S.mapLng,
       transport_zone_id: zones[0]?.id,
       package_id: pkgs[0]?.id,
       event_date: S.date,
@@ -1877,38 +1497,68 @@ async function submitBooking() {
       duration_hours: pkg.type === 'TIME_BASED' ? (pkg.hours + S.addons.time) : (4 + S.addons.time),
       transport_cost: S.transportCost,
       subtotal, total_amount: total,
-      status: 'SUBMITTED', tnc_accepted: true
+      status: 'SUBMITTED', tnc_accepted: true,
+      time_addon_blocked: S.timeAddonBlocked
     };
 
     const res = await sbPost('bookings', bData);
     const bid = res[0]?.id;
-    if (!bid) throw new Error('Insert failed');
+    if (!bid) throw new Error('Booking insert failed');
 
-    // Addons
+    // Insert addons
     const aTypes = { time: 'TIME', cups: 'CUPS', canopy: 'CANOPY', cleanup: 'CLEANUP' };
+    const addonsInserted = [];
     for (const [t, v] of Object.entries(S.addons)) {
       const qty = (t === 'canopy' || t === 'cleanup') ? (v ? 1 : 0) : v;
       if (qty > 0) {
         const ads = await sbGet('addons', `addon_type=eq.${aTypes[t]}`);
-        if (ads[0]) await sbPost('booking_addons', { booking_id: bid, addon_id: ads[0].id, quantity: qty, unit_price: PRICES[t], subtotal: qty * PRICES[t] });
+        if (ads[0]) {
+          const unitPrice = (t === 'time' && isCups) ? PRICES_CUPS.time : PRICES[t];
+          await sbPost('booking_addons', { booking_id: bid, addon_id: ads[0].id, quantity: qty, unit_price: unitPrice, subtotal: qty * unitPrice });
+          addonsInserted.push({ name: ads[0].name, quantity: qty, subtotal: qty * unitPrice });
+        }
       }
     }
 
-    // Special requests
+    // Insert special requests
+    const reqsInserted = [];
     let oi = 1;
     for (const inp of document.querySelectorAll('.req-row input')) {
       const txt = inp.value.trim();
-      if (txt) await sbPost('special_requests', { booking_id: bid, request_text: txt, order_index: oi++ });
+      if (txt) { await sbPost('special_requests', { booking_id: bid, request_text: txt, order_index: oi++ }); reqsInserted.push({ request_text: txt }); }
     }
 
-    // Dietary
-    if (S.dietYes !== null) await sbPost('dietary_info', { booking_id: bid, has_dietary_req: S.dietYes, dietary_details: S.dietYes ? document.getElementById('f-diet').value.trim() : null });
+    // Insert dietary
+    const dietaryData = S.dietYes !== null ? { has_dietary_req: S.dietYes, dietary_details: S.dietYes ? document.getElementById('f-diet').value.trim() : null } : null;
+    if (dietaryData) await sbPost('dietary_info', { booking_id: bid, ...dietaryData });
 
     // Status log
     await sbPost('status_logs', { booking_id: bid, old_status: null, new_status: 'SUBMITTED', changed_by: 'system', note: 'Booking submitted by customer' });
 
+    // Send emails via Edge Function
+    try {
+      await fetch(SB_EDGE, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SB_KEY}` },
+        body: JSON.stringify({
+          booking: {
+            ...bData,
+            package_name: pkg.name,
+            package_price: pkg.price,
+            transport_zone: S.transportZone
+          },
+          addons: addonsInserted,
+          special_requests: reqsInserted,
+          dietary: dietaryData
+        })
+      });
+    } catch(emailErr) {
+      console.warn('Email send failed:', emailErr);
+      // Don't fail the whole booking if email fails
+    }
+
     // Notification log
-    await sbPost('notifications', { booking_id: bid, channel: 'EMAIL', trigger_event: 'ORDER_SUBMITTED', message: `Tempahan ${token} telah diterima.`, status: 'SENT' });
+    await sbPost('notifications', { booking_id: bid, channel: 'EMAIL', trigger_event: 'ORDER_SUBMITTED', message: `3 emails dihantar untuk tempahan ${token}`, status: 'SENT' });
 
     document.getElementById('loadOverlay').classList.remove('show');
     S.magicLink = `petrecoffee.com/order?token=${token}`;
@@ -1929,9 +1579,9 @@ function genToken() {
   return `PCO-${y}-${r}`;
 }
 
-// ════════════════════════════
+// ═══════════════════════════════════
 // UTILS
-// ════════════════════════════
+// ═══════════════════════════════════
 function copyLink() {
   navigator.clipboard.writeText(S.magicLink);
   toast('Pautan disalin!');
@@ -1944,15 +1594,29 @@ function toast(msg) {
 }
 
 function resetAll() {
-  S = { page:1, date:null, slot:null, pkg:null, addons:{time:0,cups:0,canopy:false,cleanup:false}, klang:null, transportCost:0, transportZone:null, tnc:false, reqCount:1, dietYes:null, blocked:S.blocked, existing:S.existing, magicLink:'' };
+  S = { page:1, date:null, slot:null, pkg:null, addons:{time:0,cups:0,canopy:false,cleanup:false}, klang:null, transportCost:0, transportZone:null, tnc:false, reqCount:1, dietYes:null, blocked:S.blocked, existing:S.existing, mapLat:null, mapLng:null, magicLink:'', timeAddonBlocked:false, maxTimeAddon:null };
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-1').classList.add('active');
   updateProg();
 }
 
-// ════════════════════════════
+// ═══════════════════════════════════
+// INIT MAP ON PAGE 5
+// ═══════════════════════════════════
+// Override goTo to init map when reaching page 5
+const _goTo = goTo;
+
+// Watch for page 5
+const observer = new MutationObserver(() => {
+  if (document.getElementById('page-5').classList.contains('active')) {
+    setTimeout(initMapOnPage5, 100);
+  }
+});
+observer.observe(document.getElementById('page-5'), { attributes: true, attributeFilter: ['class'] });
+
+// ═══════════════════════════════════
 // INIT
-// ════════════════════════════
+// ═══════════════════════════════════
 async function init() {
   try {
     const [bl, ex] = await Promise.all([
