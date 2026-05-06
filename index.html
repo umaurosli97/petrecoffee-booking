@@ -1,0 +1,1812 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Petre Coffee — Tempahan</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAz00fztT3-qxc8lN_zC6xByYWnu64EOeE&libraries=places,geometry&callback=initMaps" async defer></script>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --black: #0d0d0d;
+  --white: #ffffff;
+  --off-white: #fafafa;
+  --grey-50: #f5f5f5;
+  --grey-100: #ebebeb;
+  --grey-200: #d9d9d9;
+  --grey-300: #bdbdbd;
+  --grey-400: #9e9e9e;
+  --grey-600: #5c5c5c;
+  --accent: #c8a97e;
+  --accent-light: #f7f0e6;
+  --accent-dark: #9a7a50;
+  --error: #d32f2f;
+  --success: #2e7d32;
+  --radius: 14px;
+  --radius-sm: 8px;
+  --radius-xs: 6px;
+  --shadow-lg: 0 12px 48px rgba(0,0,0,0.14);
+  --transition: all 0.22s cubic-bezier(0.4,0,0.2,1);
+  --max-width: 660px;
+}
+
+html { scroll-behavior: smooth; }
+body { font-family: 'DM Sans', sans-serif; background: var(--white); color: var(--black); min-height: 100vh; -webkit-font-smoothing: antialiased; line-height: 1.6; }
+
+/* ── HEADER ── */
+.header { position: fixed; top: 0; left: 0; right: 0; z-index: 200; height: 60px; background: rgba(255,255,255,0.94); backdrop-filter: blur(16px); border-bottom: 1px solid var(--grey-100); display: flex; align-items: center; justify-content: space-between; padding: 0 20px; }
+.logo { display: flex; align-items: center; gap: 9px; text-decoration: none; }
+.logo-mark { width: 32px; height: 32px; background: var(--black); border-radius: 7px; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 12px; color: var(--white); letter-spacing: 0.5px; }
+.logo-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; color: var(--black); }
+.progress-wrap { display: flex; align-items: center; gap: 5px; }
+.prog-dot { width: 24px; height: 3px; border-radius: 2px; background: var(--grey-200); transition: var(--transition); }
+.prog-dot.active { background: var(--black); width: 32px; }
+.prog-dot.done { background: var(--grey-300); }
+
+/* ── MAIN ── */
+.main { padding-top: 60px; min-height: 100vh; display: flex; justify-content: center; }
+.page { display: none; width: 100%; max-width: var(--max-width); padding: 44px 24px 100px; animation: slideUp 0.35s cubic-bezier(0.4,0,0.2,1); }
+.page.active { display: block; }
+@keyframes slideUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ── TYPOGRAPHY ── */
+.eyebrow { font-size: 10px; font-weight: 500; letter-spacing: 2.5px; text-transform: uppercase; color: var(--grey-400); margin-bottom: 10px; }
+.page-title { font-family: 'Syne', sans-serif; font-size: clamp(26px, 5.5vw, 38px); font-weight: 800; line-height: 1.1; letter-spacing: -1px; color: var(--black); margin-bottom: 8px; }
+.page-sub { font-size: 14px; color: var(--grey-600); line-height: 1.65; margin-bottom: 36px; font-weight: 300; }
+.section-label { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px; letter-spacing: 0.5px; color: var(--black); margin-bottom: 14px; margin-top: 28px; display: flex; align-items: center; gap: 8px; }
+.section-label::after { content: ''; flex: 1; height: 1px; background: var(--grey-100); }
+
+/* ── HERO ── */
+.hero-img { width: calc(100% + 48px); margin-left: -24px; height: 220px; object-fit: cover; display: block; margin-top: -44px; margin-bottom: 32px; }
+
+/* ── GUIDE LIST ── */
+.guide-list { list-style: none; }
+.guide-item { display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--grey-100); }
+.guide-item:last-child { border-bottom: none; }
+.guide-icon { width: 32px; height: 32px; flex-shrink: 0; background: var(--grey-50); border-radius: var(--radius-xs); display: flex; align-items: center; justify-content: center; font-size: 15px; margin-top: 1px; }
+.guide-strong { font-weight: 600; font-size: 13px; color: var(--black); margin-bottom: 3px; display: block; }
+.guide-text { font-size: 13px; color: var(--grey-600); line-height: 1.5; }
+
+/* ── CALENDAR ── */
+.cal-shell { border: 1.5px solid var(--grey-200); border-radius: var(--radius); overflow: hidden; }
+.cal-header { display: flex; align-items: center; justify-content: space-between; padding: 14px 18px; background: var(--grey-50); border-bottom: 1.5px solid var(--grey-100); }
+.cal-nav { width: 34px; height: 34px; border: 1.5px solid var(--grey-200); border-radius: var(--radius-xs); background: var(--white); cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: var(--transition); color: var(--black); }
+.cal-nav:hover { border-color: var(--black); }
+.cal-month-label { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 15px; }
+.cal-body { padding: 10px 12px 12px; }
+.cal-weekdays { display: grid; grid-template-columns: repeat(7,1fr); margin-bottom: 2px; }
+.cal-wd { text-align: center; font-size: 10px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: var(--grey-400); padding: 6px 0; }
+.cal-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 2px; }
+.cal-cell { aspect-ratio: 1; display: flex; align-items: center; justify-content: center; border-radius: var(--radius-xs); font-size: 13px; font-weight: 500; cursor: pointer; transition: var(--transition); border: 1.5px solid transparent; }
+.cal-cell:hover:not(.cal-disabled):not(.cal-empty) { background: var(--grey-100); }
+.cal-cell.cal-today { border-color: var(--accent); color: var(--accent-dark); font-weight: 700; }
+.cal-cell.cal-selected { background: var(--black); color: var(--white); border-color: var(--black); }
+.cal-cell.cal-disabled { color: var(--grey-200); cursor: not-allowed; }
+.cal-cell.cal-empty { cursor: default; }
+
+/* ── SLOTS ── */
+.slot-section { margin-top: 22px; }
+.slot-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 10px; margin-top: 10px; }
+.slot-btn { padding: 14px 6px; border: 1.5px solid var(--grey-200); border-radius: var(--radius-sm); background: var(--white); font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; color: var(--black); cursor: pointer; transition: var(--transition); text-align: center; }
+.slot-btn:hover:not(:disabled) { border-color: var(--black); }
+.slot-btn.selected { background: var(--black); color: var(--white); border-color: var(--black); }
+.slot-btn:disabled { background: var(--grey-50); color: var(--grey-300); cursor: not-allowed; border-color: var(--grey-100); text-decoration: line-through; }
+.slot-note { font-size: 11px; color: var(--grey-400); margin-top: 8px; }
+
+/* ── PACKAGE CARDS ── */
+.pkg-card { border: 1.5px solid var(--grey-200); border-radius: var(--radius); padding: 20px; margin-bottom: 12px; cursor: pointer; transition: var(--transition); position: relative; overflow: hidden; }
+.pkg-card:hover { border-color: var(--grey-400); }
+.pkg-card.selected { border-color: var(--black); background: var(--off-white); }
+.pkg-card.selected::after { content: '✓'; position: absolute; top: 14px; right: 14px; width: 22px; height: 22px; background: var(--black); color: var(--white); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; }
+.pkg-badge { display: inline-block; font-size: 10px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; padding: 3px 8px; border-radius: 4px; background: var(--accent-light); color: var(--accent-dark); margin-bottom: 8px; }
+.pkg-name { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 20px; margin-bottom: 4px; }
+.pkg-price { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 24px; letter-spacing: -0.5px; margin-bottom: 8px; }
+.pkg-meta { font-size: 12px; color: var(--grey-600); margin-bottom: 4px; }
+.pkg-drinks { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 10px; }
+.pkg-drink-tag { font-size: 11px; padding: 3px 8px; background: var(--grey-100); border-radius: 20px; color: var(--grey-600); }
+
+/* ── CUP QUANTITY ── */
+.cup-qty-wrap { display: flex; align-items: center; gap: 0; border: 1.5px solid var(--grey-200); border-radius: var(--radius-sm); overflow: hidden; width: fit-content; }
+.cup-qty-btn { width: 44px; height: 44px; border: none; background: var(--grey-50); font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: var(--transition); color: var(--black); font-weight: 300; flex-shrink: 0; }
+.cup-qty-btn:hover { background: var(--grey-100); }
+.cup-qty-input { width: 80px; height: 44px; border: none; border-left: 1.5px solid var(--grey-200); border-right: 1.5px solid var(--grey-200); text-align: center; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 16px; color: var(--black); outline: none; }
+.cup-qty-note { font-size: 11px; color: var(--grey-400); margin-top: 6px; }
+
+/* ── DRINK SELECTION ── */
+.drink-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 10px; }
+.drink-option { border: 1.5px solid var(--grey-200); border-radius: var(--radius-sm); padding: 12px 14px; cursor: pointer; transition: var(--transition); display: flex; align-items: center; gap: 10px; }
+.drink-option:hover { border-color: var(--grey-400); }
+.drink-option.selected { border-color: var(--black); background: var(--off-white); }
+.drink-option.disabled { opacity: 0.4; cursor: not-allowed; }
+.drink-check { width: 18px; height: 18px; border: 2px solid var(--grey-200); border-radius: 4px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; transition: var(--transition); font-size: 10px; color: var(--white); }
+.drink-option.selected .drink-check { background: var(--black); border-color: var(--black); }
+.drink-name { font-size: 13px; font-weight: 500; }
+.drink-limit-note { font-size: 11px; color: var(--grey-400); margin-top: 6px; }
+
+/* ── COMPLIMENTARY BADGE ── */
+.complimentary-badge { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; background: var(--accent-light); border: 1px solid var(--accent); border-radius: 20px; font-size: 12px; color: var(--accent-dark); font-weight: 500; margin-bottom: 12px; }
+
+/* ── FLAVOUR SELECTION ── */
+.flavour-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; margin-top: 8px; }
+.flavour-option { border: 1.5px solid var(--grey-200); border-radius: var(--radius-sm); padding: 10px 12px; cursor: pointer; transition: var(--transition); font-size: 13px; font-weight: 500; text-align: center; }
+.flavour-option:hover { border-color: var(--grey-400); }
+.flavour-option.selected { border-color: var(--black); background: var(--off-white); }
+.flavour-option.addon-selected { border-color: var(--accent); background: var(--accent-light); color: var(--accent-dark); }
+
+/* ── ADDON ROWS ── */
+.addon-card { border: 1.5px solid var(--grey-200); border-radius: var(--radius-sm); padding: 16px 18px; margin-bottom: 10px; transition: var(--transition); }
+.addon-card.hidden { display: none; }
+.addon-top { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.addon-info { flex: 1; }
+.addon-name { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; margin-bottom: 2px; }
+.addon-price-label { font-size: 12px; color: var(--grey-600); }
+.addon-desc { font-size: 12px; color: var(--grey-400); margin-top: 5px; line-height: 1.5; }
+.qty-wrap { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+.qty-btn { width: 30px; height: 30px; border: 1.5px solid var(--grey-200); border-radius: 6px; background: var(--white); font-size: 16px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: var(--transition); color: var(--black); line-height: 1; }
+.qty-btn:hover { border-color: var(--black); }
+.qty-input { width: 52px; height: 30px; border: 1.5px solid var(--grey-200); border-radius: 6px; text-align: center; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 14px; color: var(--black); outline: none; transition: var(--transition); }
+.qty-input:focus { border-color: var(--black); }
+.qty-input.error { border-color: var(--error); }
+.addon-subtotal { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 13px; min-width: 64px; text-align: right; flex-shrink: 0; }
+.addon-checkbox-wrap { display: flex; align-items: flex-start; gap: 14px; cursor: pointer; }
+.addon-check { width: 20px; height: 20px; flex-shrink: 0; border: 2px solid var(--grey-200); border-radius: 5px; margin-top: 2px; display: flex; align-items: center; justify-content: center; transition: var(--transition); font-size: 11px; color: var(--white); }
+.addon-check.checked { background: var(--black); border-color: var(--black); }
+
+/* Canopy radio choice */
+.canopy-choices { display: flex; gap: 8px; margin-top: 12px; padding-top: 12px; border-top: 1px solid var(--grey-100); }
+.canopy-choice { flex: 1; padding: 8px 12px; border: 1.5px solid var(--grey-200); border-radius: var(--radius-xs); cursor: pointer; text-align: center; font-size: 12px; font-weight: 500; transition: var(--transition); }
+.canopy-choice:hover { border-color: var(--grey-400); }
+.canopy-choice.selected { background: var(--black); color: var(--white); border-color: var(--black); }
+
+/* Smart block notice */
+.smart-block-notice { background: var(--accent-light); border: 1.5px solid var(--accent); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 12px; color: var(--accent-dark); margin-bottom: 10px; display: none; }
+.smart-block-notice.show { display: block; }
+
+/* Running total */
+.running-total { position: sticky; bottom: 20px; background: var(--black); color: var(--white); border-radius: var(--radius); padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; margin-top: 20px; box-shadow: var(--shadow-lg); }
+.rt-label { font-size: 12px; opacity: 0.65; }
+.rt-amount { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 22px; letter-spacing: -0.5px; }
+
+/* ── FORM ── */
+.form-group { margin-bottom: 18px; }
+.form-label { display: block; font-size: 12px; font-weight: 500; color: var(--black); margin-bottom: 7px; }
+.form-label .req { color: var(--error); margin-left: 2px; }
+.form-label .opt { color: var(--grey-400); font-weight: 300; margin-left: 4px; }
+.form-input, .form-select, .form-textarea { width: 100%; padding: 11px 14px; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--black); background: var(--white); border: 1.5px solid var(--grey-200); border-radius: var(--radius-sm); outline: none; transition: var(--transition); appearance: none; -webkit-appearance: none; }
+.form-input:focus, .form-select:focus, .form-textarea:focus { border-color: var(--black); }
+.form-input.has-error, .form-select.has-error { border-color: var(--error); }
+.form-select-wrap { position: relative; }
+.form-select-wrap::after { content: '↓'; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--grey-400); pointer-events: none; font-size: 12px; }
+.form-textarea { resize: vertical; min-height: 90px; line-height: 1.6; }
+.err-msg { font-size: 11px; color: var(--error); margin-top: 4px; display: none; }
+.err-msg.show { display: block; }
+
+.phone-row { display: flex; gap: 8px; }
+.phone-prefix-wrap { width: 130px; flex-shrink: 0; position: relative; }
+.phone-prefix-wrap::after { content: '↓'; position: absolute; right: 10px; top: 50%; transform: translateY(-50%); color: var(--grey-400); pointer-events: none; font-size: 12px; }
+.phone-prefix-input { width: 100%; padding: 11px 28px 11px 14px; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--black); background: var(--white); border: 1.5px solid var(--grey-200); border-radius: var(--radius-sm); outline: none; transition: var(--transition); appearance: none; }
+.phone-prefix-input:focus { border-color: var(--black); }
+
+.addr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+
+.radio-row { display: flex; gap: 8px; }
+.radio-opt { flex: 1; padding: 11px 14px; border: 1.5px solid var(--grey-200); border-radius: var(--radius-sm); cursor: pointer; transition: var(--transition); text-align: center; font-size: 13px; font-weight: 500; }
+.radio-opt:hover { border-color: var(--grey-400); }
+.radio-opt.selected { background: var(--black); color: var(--white); border-color: var(--black); }
+.radio-opt input { display: none; }
+
+/* ── GOOGLE MAPS ── */
+.map-search-wrap { position: relative; margin-bottom: 10px; }
+.map-search-input { width: 100%; padding: 11px 14px 11px 38px; font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--black); background: var(--white); border: 1.5px solid var(--grey-200); border-radius: var(--radius-sm); outline: none; transition: var(--transition); }
+.map-search-input:focus { border-color: var(--black); }
+.map-search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); font-size: 15px; pointer-events: none; }
+#map-container { width: 100%; height: 220px; border-radius: var(--radius-sm); border: 1.5px solid var(--grey-200); overflow: hidden; margin-bottom: 8px; }
+.logistics-info { background: var(--grey-50); border: 1.5px solid var(--grey-100); border-radius: var(--radius-sm); padding: 14px 16px; display: none; }
+.logistics-info.show { display: block; }
+.logistics-row { display: flex; justify-content: space-between; font-size: 13px; padding: 4px 0; }
+.logistics-key { color: var(--grey-600); }
+.logistics-val { font-weight: 600; }
+.logistics-note { font-size: 11px; color: var(--grey-400); margin-top: 6px; font-style: italic; }
+
+/* ── SPECIAL REQUESTS ── */
+.req-row { display: flex; gap: 8px; margin-bottom: 8px; align-items: center; }
+.req-row .form-input { flex: 1; margin: 0; }
+.del-btn { width: 34px; height: 34px; flex-shrink: 0; border: 1.5px solid var(--grey-200); border-radius: var(--radius-xs); background: var(--white); cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 13px; color: var(--grey-400); transition: var(--transition); }
+.del-btn:hover { border-color: var(--error); color: var(--error); }
+.add-req-btn { width: 100%; padding: 10px; border: 1.5px dashed var(--grey-200); border-radius: var(--radius-sm); background: none; cursor: pointer; font-family: 'DM Sans', sans-serif; font-size: 13px; color: var(--grey-400); transition: var(--transition); display: flex; align-items: center; justify-content: center; gap: 6px; }
+.add-req-btn:hover { border-color: var(--black); color: var(--black); }
+
+/* ── SUMMARY ── */
+.sum-block { border: 1.5px solid var(--grey-100); border-radius: var(--radius); overflow: hidden; margin-bottom: 12px; }
+.sum-block-head { padding: 12px 16px; background: var(--grey-50); border-bottom: 1.5px solid var(--grey-100); font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--grey-400); }
+.sum-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 10px 16px; border-bottom: 1px solid var(--grey-100); font-size: 13px; }
+.sum-row:last-child { border-bottom: none; }
+.sum-key { color: var(--grey-600); flex-shrink: 0; max-width: 50%; }
+.sum-val { font-weight: 500; text-align: right; }
+.total-bar { background: var(--black); color: var(--white); border-radius: var(--radius-sm); padding: 16px 20px; display: flex; justify-content: space-between; align-items: center; margin: 4px 0 16px; }
+.total-bar-label { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 12px; letter-spacing: 1.5px; text-transform: uppercase; opacity: 0.7; }
+.total-bar-val { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 26px; letter-spacing: -0.5px; }
+
+.tnc-row { display: flex; align-items: flex-start; gap: 12px; padding: 14px 16px; border: 1.5px solid var(--grey-200); border-radius: var(--radius-sm); cursor: pointer; transition: var(--transition); margin-top: 16px; }
+.tnc-row:hover { border-color: var(--grey-400); }
+.tnc-row.checked { border-color: var(--black); background: var(--off-white); }
+.tnc-box { width: 18px; height: 18px; flex-shrink: 0; border: 2px solid var(--grey-200); border-radius: 4px; margin-top: 2px; display: flex; align-items: center; justify-content: center; transition: var(--transition); font-size: 10px; color: var(--white); }
+.tnc-row.checked .tnc-box { background: var(--black); border-color: var(--black); }
+.tnc-text { font-size: 12px; color: var(--grey-600); line-height: 1.6; }
+.tnc-text a { color: var(--black); font-weight: 500; }
+
+/* ── BUTTONS ── */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 13px 24px; font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 700; border-radius: var(--radius-sm); cursor: pointer; transition: var(--transition); border: none; text-decoration: none; letter-spacing: 0.2px; }
+.btn-black { background: var(--black); color: var(--white); }
+.btn-black:hover:not(:disabled) { opacity: 0.82; transform: translateY(-1px); }
+.btn-black:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+.btn-outline { background: var(--white); color: var(--black); border: 1.5px solid var(--grey-200); }
+.btn-outline:hover { border-color: var(--black); }
+.btn-full { width: 100%; }
+.nav-row { display: flex; gap: 10px; margin-top: 36px; }
+.nav-row .btn-black { flex: 1; }
+
+/* ── DIVIDER ── */
+.divider { height: 1px; background: var(--grey-100); margin: 24px 0; }
+
+/* ── SUCCESS ── */
+.success-center { text-align: center; padding: 32px 0; }
+.success-ring { width: 72px; height: 72px; background: var(--black); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 30px; animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+@keyframes popIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+.ref-box { background: var(--grey-50); border: 1.5px solid var(--grey-100); border-radius: var(--radius); padding: 18px; margin: 20px 0; }
+.ref-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--grey-400); margin-bottom: 5px; }
+.ref-num { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 26px; letter-spacing: -0.5px; }
+.link-box { background: var(--black); border-radius: var(--radius-sm); padding: 12px 14px; display: flex; align-items: center; justify-content: space-between; gap: 10px; margin: 12px 0; }
+.link-url { font-size: 12px; color: var(--grey-400); word-break: break-all; text-align: left; }
+.copy-btn { background: rgba(255,255,255,0.1); border: none; border-radius: 5px; padding: 5px 10px; color: var(--white); font-size: 11px; font-weight: 500; cursor: pointer; flex-shrink: 0; transition: var(--transition); font-family: 'DM Sans', sans-serif; }
+.copy-btn:hover { background: rgba(255,255,255,0.2); }
+.info-chips { margin: 14px 0; display: flex; flex-wrap: wrap; gap: 6px; justify-content: center; }
+.chip { display: inline-flex; align-items: center; gap: 5px; padding: 6px 12px; background: var(--grey-50); border-radius: 20px; font-size: 12px; color: var(--grey-600); }
+
+/* ── LOADING ── */
+.loading-overlay { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.88); z-index: 999; flex-direction: column; align-items: center; justify-content: center; gap: 14px; }
+.loading-overlay.show { display: flex; }
+.spinner { width: 36px; height: 36px; border: 2.5px solid var(--grey-200); border-top-color: var(--black); border-radius: 50%; animation: spin 0.75s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-txt { font-family: 'Syne', sans-serif; font-weight: 600; font-size: 14px; }
+
+/* ── TOAST ── */
+.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%) translateY(70px); background: var(--black); color: var(--white); padding: 10px 18px; border-radius: 100px; font-size: 12px; font-weight: 500; z-index: 9999; transition: transform 0.28s cubic-bezier(0.4,0,0.2,1); white-space: nowrap; pointer-events: none; }
+.toast.show { transform: translateX(-50%) translateY(0); }
+
+/* ── INFO BOX ── */
+.info-box { background: var(--accent-light); border: 1px solid var(--accent); border-radius: var(--radius-sm); padding: 12px 14px; font-size: 12px; color: var(--accent-dark); margin-top: 10px; line-height: 1.6; }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .page { padding: 32px 18px 90px; }
+  .nav-row { flex-direction: column-reverse; }
+  .nav-row .btn-outline { width: 100%; }
+  .drink-grid { grid-template-columns: 1fr; }
+}
+@media (max-width: 480px) {
+  .header { padding: 0 14px; }
+  .page { padding: 24px 14px 90px; }
+  .prog-dot { width: 18px; } .prog-dot.active { width: 26px; }
+  .phone-prefix-wrap { width: 110px; }
+  .addr-grid { grid-template-columns: 1fr; gap: 0; }
+  .hero-img { height: 160px; }
+  .flavour-grid { grid-template-columns: 1fr 1fr; }
+}
+</style>
+</head>
+<body>
+
+<header class="header">
+  <div class="logo">
+    <div class="logo-mark">PC</div>
+    <span class="logo-name">Petre Coffee</span>
+  </div>
+  <div class="progress-wrap" id="progressWrap">
+    <div class="prog-dot active" data-s="1"></div>
+    <div class="prog-dot" data-s="2"></div>
+    <div class="prog-dot" data-s="3"></div>
+    <div class="prog-dot" data-s="4"></div>
+    <div class="prog-dot" data-s="5"></div>
+    <div class="prog-dot" data-s="6"></div>
+    <div class="prog-dot" data-s="7"></div>
+  </div>
+</header>
+
+<main class="main">
+
+<!-- PAGE 1 — INTRO -->
+<div class="page active" id="page-1">
+  <img src="https://images.unsplash.com/photo-1610889556528-9a770e32642f?w=800&q=80&fit=crop" class="hero-img" alt="Petre Coffee">
+  <div class="eyebrow">Selamat Datang</div>
+  <h1 class="page-title">Tempah Petre Coffee untuk Event Anda</h1>
+  <p class="page-sub">Popup coffee booth premium untuk setiap majlis. Sila baca panduan berikut sebelum membuat tempahan.</p>
+  <ul class="guide-list">
+    <li class="guide-item"><div class="guide-icon">📅</div><div><span class="guide-strong">Lead Time Minimum 2 Minggu</span><span class="guide-text">Tempahan perlu dibuat sekurang-kurangnya 14 hari sebelum tarikh event.</span></div></li>
+    <li class="guide-item"><div class="guide-icon">⏱️</div><div><span class="guide-strong">Slot Perkhidmatan 4 Jam</span><span class="guide-text">Setiap slot lalai adalah 4 jam. Masa boleh ditambah melalui add-on (RM40/jam).</span></div></li>
+    <li class="guide-item"><div class="guide-icon">✅</div><div><span class="guide-strong">Tertakluk kepada Pengesahan Admin</span><span class="guide-text">Setiap tempahan akan disemak oleh pasukan kami dalam masa 1–2 hari bekerja.</span></div></li>
+    <li class="guide-item"><div class="guide-icon">💳</div><div><span class="guide-strong">Pembayaran Deposit atau Penuh</span><span class="guide-text">Pilih bayar 50% deposit atau bayaran penuh selepas tempahan disahkan.</span></div></li>
+    <li class="guide-item"><div class="guide-icon">🔄</div><div><span class="guide-strong">Polisi Pembatalan</span><span class="guide-text">&gt;30 hari: Refund penuh &nbsp;|&nbsp; 14–30 hari: 50% &nbsp;|&nbsp; 7–14 hari: 25%</span></div></li>
+  </ul>
+  <div class="nav-row" style="margin-top:28px;">
+    <button class="btn btn-black btn-full" onclick="goTo(2)">Mula Tempahan →</button>
+  </div>
+</div>
+
+<!-- PAGE 2 — DATE & SLOT -->
+<div class="page" id="page-2">
+  <div class="eyebrow">Langkah 1 dari 6</div>
+  <h1 class="page-title">Tarikh & Slot Masa</h1>
+  <p class="page-sub">Pilih tarikh event anda. Tarikh minimum adalah 14 hari dari hari ini.</p>
+  <div class="cal-shell">
+    <div class="cal-header">
+      <button class="cal-nav" onclick="prevMonth()">←</button>
+      <span class="cal-month-label" id="calLabel"></span>
+      <button class="cal-nav" onclick="nextMonth()">→</button>
+    </div>
+    <div class="cal-body">
+      <div class="cal-weekdays">
+        <div class="cal-wd">Ah</div><div class="cal-wd">Is</div><div class="cal-wd">Se</div>
+        <div class="cal-wd">Ra</div><div class="cal-wd">Kh</div><div class="cal-wd">Ju</div><div class="cal-wd">Sa</div>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+    </div>
+  </div>
+  <div class="slot-section" id="slotSection" style="display:none;">
+    <div class="section-label">Pilih Slot Masa</div>
+    <div class="slot-grid">
+      <button class="slot-btn" id="slot-8AM" onclick="pickSlot('8AM')">8:00 AM</button>
+      <button class="slot-btn" id="slot-2PM" onclick="pickSlot('2PM')">2:00 PM</button>
+      <button class="slot-btn" id="slot-8PM" onclick="pickSlot('8PM')">8:00 PM</button>
+    </div>
+    <div class="slot-note">⏱ Tempoh lalai setiap slot adalah 4 jam</div>
+  </div>
+  <div class="nav-row">
+    <button class="btn btn-outline" onclick="goTo(1)">← Kembali</button>
+    <button class="btn btn-black" id="btn2next" disabled onclick="goTo(3)">Seterusnya →</button>
+  </div>
+</div>
+
+<!-- PAGE 3 — PACKAGE + DRINKS -->
+<div class="page" id="page-3">
+  <div class="eyebrow">Langkah 2 dari 6</div>
+  <h1 class="page-title">Pilih Menu</h1>
+  <p class="page-sub">Pilih menu yang sesuai dengan event anda, tentukan kuantiti cawan dan pilihan minuman.</p>
+
+  <!-- Menu Cards -->
+  <div id="menu-cards">
+    <div class="pkg-card" id="p-menu-a" onclick="pickMenu('menu-a', 541, 'Menu A', 100, 3, 5.00)">
+      <div class="pkg-badge">100 Cawan</div>
+      <div class="pkg-name">Menu A</div>
+      <div class="pkg-price">RM 541</div>
+      <div class="pkg-meta">Add-on cawan: RM 5.00 / cawan</div>
+      <div class="pkg-drinks">
+        <span class="pkg-drink-tag">Americano</span>
+        <span class="pkg-drink-tag">Cafe Latte</span>
+        <span class="pkg-drink-tag">Chocolate</span>
+        <span class="pkg-drink-tag" style="background:var(--accent-light);color:var(--accent-dark);">Pilih sehingga 3</span>
+      </div>
+    </div>
+    <div class="pkg-card" id="p-menu-b" onclick="pickMenu('menu-b', 627, 'Menu B', 100, 4, 5.75)">
+      <div class="pkg-badge">100 Cawan</div>
+      <div class="pkg-name">Menu B</div>
+      <div class="pkg-price">RM 627</div>
+      <div class="pkg-meta">Add-on cawan: RM 5.75 / cawan</div>
+      <div class="pkg-drinks">
+        <span class="pkg-drink-tag">Americano</span>
+        <span class="pkg-drink-tag">Cafe Latte</span>
+        <span class="pkg-drink-tag">Chocolate</span>
+        <span class="pkg-drink-tag">Matcha</span>
+        <span class="pkg-drink-tag">Mocha</span>
+        <span class="pkg-drink-tag">Aussie Iced Coffee</span>
+        <span class="pkg-drink-tag" style="background:var(--accent-light);color:var(--accent-dark);">Pilih sehingga 4</span>
+      </div>
+    </div>
+    <div class="pkg-card" id="p-menu-c" onclick="pickMenu('menu-c', 675, 'Menu C', 100, 5, 6.12)">
+      <div class="pkg-badge">100 Cawan</div>
+      <div class="pkg-name">Menu C</div>
+      <div class="pkg-price">RM 675</div>
+      <div class="pkg-meta">Add-on cawan: RM 6.12 / cawan</div>
+      <div class="pkg-drinks">
+        <span class="pkg-drink-tag">Americano</span>
+        <span class="pkg-drink-tag">Cafe Latte</span>
+        <span class="pkg-drink-tag">Chocolate</span>
+        <span class="pkg-drink-tag">Matcha</span>
+        <span class="pkg-drink-tag">Fruity Matcha</span>
+        <span class="pkg-drink-tag">Mocha</span>
+        <span class="pkg-drink-tag">Aussie Iced Coffee</span>
+        <span class="pkg-drink-tag" style="background:var(--accent-light);color:var(--accent-dark);">Pilih sehingga 5</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cup Quantity (shown after menu selected) -->
+  <div id="cup-qty-section" style="display:none;">
+    <div class="section-label">Kuantiti Cawan</div>
+    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+      <div class="cup-qty-wrap">
+        <button class="cup-qty-btn" onclick="adjCups(-50)">−</button>
+        <input class="cup-qty-input" id="cups-input" value="100" oninput="onCupsInput(this)" onblur="onCupsBlur(this)">
+        <button class="cup-qty-btn" onclick="adjCups(50)">+</button>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:600;" id="cups-addon-cost">Add-on: RM 0.00</div>
+        <div class="cup-qty-note">Minimum 100 cawan. Tekan +/- untuk tambah/tolak 50.</div>
+      </div>
+    </div>
+
+    <!-- Complimentary drink for 200+ cups -->
+    <div id="complimentary-drink-section" style="display:none;margin-top:20px;">
+      <div class="complimentary-badge">🎁 Complimentary — 200+ cawan</div>
+      <p style="font-size:13px;color:var(--grey-600);margin-bottom:10px;">Anda layak mendapat 1 minuman percuma! Pilih satu:</p>
+      <div class="radio-row">
+        <label class="radio-opt" id="comp-iced-tea" onclick="pickCompDrink('Iced Tea')"><input type="radio" name="comp">Iced Tea</label>
+        <label class="radio-opt" id="comp-thai" onclick="pickCompDrink('Thai Milk Tea')"><input type="radio" name="comp">Thai Milk Tea</label>
+        <label class="radio-opt" id="comp-mocktail" onclick="pickCompDrink('Mocktails')"><input type="radio" name="comp">Mocktails</label>
+      </div>
+    </div>
+  </div>
+
+  <!-- Drink Selection (shown after menu selected) -->
+  <div id="drink-section" style="display:none;">
+    <div class="section-label">Pilihan Minuman</div>
+    <p class="drink-limit-note" id="drink-limit-note">Pilih sehingga <strong id="max-drinks-label">3</strong> jenis minuman.</p>
+    <div class="drink-grid" id="drink-options"></div>
+
+    <!-- Flavour Syrup (shown if Americano/Latte selected) -->
+    <div id="flavour-section" style="display:none;margin-top:20px;">
+      <div class="complimentary-badge">☕ Complimentary — Sugar Syrup + 1 Flavour Syrup</div>
+      <p style="font-size:13px;color:var(--grey-600);margin-bottom:10px;">Pilih 1 flavour syrup percuma untuk Cafe Latte anda. Flavour tambahan RM 70/flavour.</p>
+      <div class="flavour-grid" id="flavour-options"></div>
+    </div>
+
+    <!-- Fruit Puree (shown if Fruity Matcha selected) -->
+    <div id="puree-section" style="display:none;margin-top:20px;">
+      <div class="complimentary-badge">🍓 Complimentary — 1 Fruit Puree</div>
+      <p style="font-size:13px;color:var(--grey-600);margin-bottom:10px;">Pilih 1 fruit puree percuma untuk Fruity Matcha anda. Puree tambahan RM 70/puree.</p>
+      <div class="flavour-grid" id="puree-options"></div>
+    </div>
+  </div>
+
+  <div class="nav-row">
+    <button class="btn btn-outline" onclick="goTo(2)">← Kembali</button>
+    <button class="btn btn-black" id="btn3next" disabled onclick="goTo(4)">Seterusnya →</button>
+  </div>
+</div>
+
+<!-- PAGE 4 — ADD-ONS -->
+<div class="page" id="page-4">
+  <div class="eyebrow">Langkah 3 dari 6</div>
+  <h1 class="page-title">Add-ons & Perkhidmatan</h1>
+  <p class="page-sub">Semua pilihan adalah pilihan. Tambah mengikut keperluan event anda.</p>
+
+  <div class="smart-block-notice" id="smartBlockNotice">⚠️ Add-on Tambah Masa tidak tersedia kerana slot seterusnya pada hari yang sama telah ditempah.</div>
+
+  <!-- Tambah Masa -->
+  <div class="addon-card" id="acard-time">
+    <div class="addon-top">
+      <div class="addon-info">
+        <div class="addon-name">Tambah Masa</div>
+        <div class="addon-price-label">RM 40.00 / jam</div>
+        <div class="addon-desc" id="time-max-notice"></div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
+        <div class="qty-wrap">
+          <button class="qty-btn" onclick="adjQty('time',-1)">−</button>
+          <input class="qty-input" id="qi-time" value="0" oninput="onQtyInput('time',this)" onblur="onQtyBlur('time',this)">
+          <button class="qty-btn" onclick="adjQty('time',1)">+</button>
+        </div>
+        <div class="addon-subtotal" id="sub-time">RM 0</div>
+      </div>
+    </div>
+    <div class="err-msg" id="err-qi-time">⚠ Sila masukkan nombor sahaja.</div>
+  </div>
+
+  <!-- Canopy / Cart Umbrella -->
+  <div class="addon-card" id="acard-canopy">
+    <div class="addon-checkbox-wrap" onclick="toggleCanopy()">
+      <div class="addon-check" id="check-canopy"></div>
+      <div class="addon-info">
+        <div class="addon-name">Canopy / Cart Umbrella &nbsp;<span style="font-size:12px;font-weight:400;color:var(--grey-400)">— RM 50.00</span></div>
+        <div class="addon-desc">Pilihan teduhan untuk kawasan booth. Sesuai untuk lokasi terbuka atau berisiko hujan.</div>
+      </div>
+    </div>
+    <div class="canopy-choices" id="canopy-choices" style="display:none;">
+      <div class="canopy-choice" id="cc-canopy" onclick="pickCanopyType('CANOPY')">⛺ Canopy</div>
+      <div class="canopy-choice" id="cc-umbrella" onclick="pickCanopyType('CART_UMBRELLA')">☂️ Cart Umbrella</div>
+    </div>
+  </div>
+
+  <!-- Perkhidmatan Kebersihan -->
+  <div class="addon-card" onclick="toggleCheck('cleanup')" style="cursor:pointer;">
+    <div class="addon-checkbox-wrap">
+      <div class="addon-check" id="check-cleanup"></div>
+      <div class="addon-info">
+        <div class="addon-name">Perkhidmatan Kebersihan &nbsp;<span style="font-size:12px;font-weight:400;color:var(--grey-400)">— RM 150.00</span></div>
+        <div class="addon-desc">Servis kutip sampah daripada Petre Coffee, kemas kawasan booth dan sampah dibawa balik.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="running-total">
+    <div><div class="rt-label">Jumlah Menu + Add-ons</div></div>
+    <div class="rt-amount" id="runTotal">RM 0</div>
+  </div>
+
+  <div class="nav-row">
+    <button class="btn btn-outline" onclick="goTo(3)">← Kembali</button>
+    <button class="btn btn-black" onclick="goTo(5)">Seterusnya →</button>
+  </div>
+</div>
+
+<!-- PAGE 5 — CUSTOMER INFO -->
+<div class="page" id="page-5">
+  <div class="eyebrow">Langkah 4 dari 6</div>
+  <h1 class="page-title">Maklumat Pelanggan & Event</h1>
+  <p class="page-sub">Isi maklumat anda dan butiran event dengan lengkap dan tepat.</p>
+
+  <div class="section-label">Maklumat Pelanggan</div>
+
+  <div class="form-group">
+    <label class="form-label">Nama Penuh <span class="req">*</span></label>
+    <input type="text" class="form-input" id="f-name" placeholder="cth: Ahmad bin Abdullah">
+    <div class="err-msg" id="e-name">⚠ Sila masukkan nama penuh anda.</div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">No. Telefon <span class="req">*</span></label>
+    <div class="phone-row">
+      <div class="phone-prefix-wrap">
+        <input list="prefix-list" class="phone-prefix-input" id="f-prefix" placeholder="019" oninput="validatePhonePrefix()">
+        <datalist id="prefix-list">
+          <option value="010"><option value="011"><option value="012">
+          <option value="013"><option value="014"><option value="016">
+          <option value="017"><option value="018"><option value="019">
+          <option value="03"><option value="06"><option value="1800">
+        </datalist>
+      </div>
+      <div style="flex:1;">
+        <input type="text" class="form-input" id="f-phone" placeholder="12345678" oninput="validatePhoneNum()" style="margin:0;">
+      </div>
+    </div>
+    <div class="err-msg" id="e-phone">⚠ Sila masukkan nombor telefon yang sah (nombor sahaja).</div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Alamat E-mel <span class="req">*</span></label>
+    <input type="email" class="form-input" id="f-email" placeholder="cth: nama@email.com">
+    <div class="err-msg" id="e-email">⚠ Format e-mel tidak sah. Contoh: nama@email.com</div>
+  </div>
+
+  <div class="section-label">Maklumat Event</div>
+
+  <div class="form-group">
+    <label class="form-label">Jenis Event <span class="req">*</span></label>
+    <div class="form-select-wrap">
+      <select class="form-select" id="f-evcat" onchange="onCatChange()">
+        <option value="">-- Pilih Jenis Event --</option>
+        <option>Corporate Events</option>
+        <option>Government Events</option>
+        <option>Private Events</option>
+        <option>Pop-up & Public Events</option>
+        <option>Wedding & Romantic Events</option>
+        <option>Lifestyle & Community Events</option>
+        <option>Education Events</option>
+        <option>Creative & Media Events</option>
+        <option>Others</option>
+      </select>
+    </div>
+    <div class="err-msg" id="e-evcat">⚠ Sila pilih jenis event.</div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Apa Event? <span class="req">*</span></label>
+    <div class="form-select-wrap" id="evtype-select-wrap">
+      <select class="form-select" id="f-evtype" onchange="onTypeChange()">
+        <option value="">-- Pilih dahulu Jenis Event --</option>
+      </select>
+    </div>
+    <input type="text" class="form-input" id="f-evtype-other" placeholder="Nyatakan jenis event anda..." style="display:none;">
+    <div class="err-msg" id="e-evtype">⚠ Sila pilih atau nyatakan jenis event.</div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Nama Event <span class="opt">(pilihan)</span></label>
+    <input type="text" class="form-input" id="f-evname" placeholder="cth: Majlis Perkahwinan Alia & Hafiz, Annual Dinner Syarikat ABC">
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Alamat Penuh <span class="req">*</span></label>
+    <input type="text" class="form-input" id="f-addr" placeholder="cth: No. 12, Jalan Setia 3, Taman Setia">
+    <div class="err-msg" id="e-addr">⚠ Sila masukkan alamat penuh.</div>
+  </div>
+
+  <div class="addr-grid">
+    <div class="form-group">
+      <label class="form-label">Poskod <span class="req">*</span></label>
+      <input type="text" class="form-input" id="f-postcode" placeholder="47100" maxlength="5" oninput="this.value=this.value.replace(/\D/g,'')">
+      <div class="err-msg" id="e-postcode">⚠ Sila masukkan poskod 5 digit.</div>
+    </div>
+    <div class="form-group">
+      <label class="form-label">Bandar <span class="req">*</span></label>
+      <input type="text" class="form-input" id="f-city" placeholder="cth: Puchong">
+      <div class="err-msg" id="e-city">⚠ Sila masukkan bandar.</div>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Negeri <span class="req">*</span></label>
+    <div class="form-select-wrap">
+      <select class="form-select" id="f-state">
+        <option value="">-- Pilih Negeri --</option>
+        <option>Johor</option>
+        <option>Kedah</option>
+        <option>Kelantan</option>
+        <option>Melaka</option>
+        <option>Negeri Sembilan</option>
+        <option>Pahang</option>
+        <option>Perak</option>
+        <option>Perlis</option>
+        <option>Pulau Pinang</option>
+        <option>Selangor</option>
+        <option>Terengganu</option>
+        <option>W.P. Kuala Lumpur</option>
+        <option>W.P. Putrajaya</option>
+      </select>
+    </div>
+    <div class="err-msg" id="e-state">⚠ Sila pilih negeri.</div>
+  </div>
+
+  <!-- Google Maps Pin -->
+  <div class="form-group" style="margin-top:8px;">
+    <label class="form-label">Pin Lokasi Event <span class="req">*</span></label>
+    <p style="font-size:12px;color:var(--grey-600);margin-bottom:10px;">Cari dan pin lokasi event anda untuk pengiraan kos logistik yang tepat.</p>
+    <div class="map-search-wrap">
+      <span class="map-search-icon">🔍</span>
+      <input type="text" class="map-search-input" id="map-search" placeholder="Cari nama venue, alamat atau kawasan...">
+    </div>
+    <div id="map-container"></div>
+    <div class="logistics-info" id="logistics-info">
+      <div class="logistics-row">
+        <span class="logistics-key">📍 Jarak dari Petre Coffee</span>
+        <span class="logistics-val" id="l-distance">—</span>
+      </div>
+      <div class="logistics-row">
+        <span class="logistics-key">🚗 Kos logistik (RM1/km)</span>
+        <span class="logistics-val" id="l-km-cost">—</span>
+      </div>
+      <div class="logistics-row">
+        <span class="logistics-key">🏷️ Tol & Parking (anggaran)</span>
+        <span class="logistics-val">RM 50.00</span>
+      </div>
+      <div class="logistics-row" style="border-top:1px solid var(--grey-200);padding-top:8px;margin-top:4px;">
+        <span class="logistics-key" style="font-weight:600;color:var(--black);">Jumlah Logistik</span>
+        <span class="logistics-val" style="font-family:'Syne',sans-serif;font-size:15px;" id="l-total">—</span>
+      </div>
+      <div class="logistics-note">* Lebihan kos tol & parking akan dibayar balik selepas event.</div>
+    </div>
+    <div class="err-msg" id="e-map">⚠ Sila pin lokasi event pada peta.</div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Jenis Lokasi <span class="req">*</span></label>
+    <div class="form-select-wrap">
+      <select class="form-select" id="f-loctype">
+        <option value="">-- Pilih Jenis Lokasi --</option>
+        <option>Dewan</option><option>Rumah Landed</option>
+        <option>Apartment/Condo/Flat</option><option>Event Space</option>
+        <option>Rumah Kedai</option><option>Tempat Awam</option>
+        <option>Bangunan Kerajaan</option><option>Rumah Ibadat</option>
+        <option>Mall</option><option>Cafe</option><option>Others</option>
+      </select>
+    </div>
+    <div class="err-msg" id="e-loctype">⚠ Sila pilih jenis lokasi.</div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-label">Anggaran Bilangan Tetamu <span class="req">*</span></label>
+    <div class="form-select-wrap">
+      <select class="form-select" id="f-pax">
+        <option value="">-- Pilih Anggaran Pax --</option>
+        <option>0–50</option><option>50–100</option><option>100–200</option>
+        <option>200–300</option><option>300–500</option><option>500–700</option>
+        <option>700–1,000</option><option>Lebih 1,000</option>
+      </select>
+    </div>
+    <div class="err-msg" id="e-pax">⚠ Sila pilih anggaran bilangan tetamu.</div>
+  </div>
+
+  <div class="nav-row">
+    <button class="btn btn-outline" onclick="goTo(4)">← Kembali</button>
+    <button class="btn btn-black" onclick="validateP5()">Seterusnya →</button>
+  </div>
+</div>
+
+<!-- PAGE 6 — SPECIAL REQUEST -->
+<div class="page" id="page-6">
+  <div class="eyebrow">Langkah 5 dari 6</div>
+  <h1 class="page-title">Permintaan Khas</h1>
+  <p class="page-sub">Semua bahagian di bawah adalah pilihan. Tinggalkan kosong jika tiada.</p>
+  <div class="section-label">Permintaan Khas</div>
+  <div id="reqRows">
+    <div class="req-row" id="rr-1">
+      <input type="text" class="form-input" id="rr-inp-1" placeholder="cth: Sediakan sudut demo live brewing">
+      <button class="del-btn" onclick="delReq(1)" style="display:none;">✕</button>
+    </div>
+  </div>
+  <button class="add-req-btn" onclick="addReq()">+ Tambah Permintaan</button>
+  <div class="divider"></div>
+  <div class="section-label">Keperluan Diet & Alahan</div>
+  <p style="font-size:13px;color:var(--grey-600);margin-bottom:14px;">Adakah terdapat keperluan diet atau alahan makanan dalam kalangan tetamu?</p>
+  <div class="radio-row">
+    <label class="radio-opt" id="r-diet-y" onclick="pickDiet(true)"><input type="radio" name="diet">Ya, ada</label>
+    <label class="radio-opt" id="r-diet-n" onclick="pickDiet(false)"><input type="radio" name="diet">Tidak</label>
+  </div>
+  <div id="diet-detail" style="display:none;margin-top:14px;">
+    <textarea class="form-textarea" id="f-diet" placeholder="cth: Sesetengah tetamu alahan kepada susu lembu — sila sediakan pilihan oat milk atau soy milk"></textarea>
+  </div>
+  <div class="nav-row">
+    <button class="btn btn-outline" onclick="goTo(5)">← Kembali</button>
+    <button class="btn btn-black" onclick="goTo(7)">Seterusnya →</button>
+  </div>
+</div>
+
+<!-- PAGE 7 — SUMMARY -->
+<div class="page" id="page-7">
+  <div class="eyebrow">Langkah 6 dari 6</div>
+  <h1 class="page-title">Semak & Sahkan</h1>
+  <p class="page-sub">Sila semak semula semua butiran sebelum menghantar tempahan.</p>
+
+  <div class="sum-block">
+    <div class="sum-block-head">Butiran Event</div>
+    <div class="sum-row"><span class="sum-key">Tarikh</span><span class="sum-val" id="s-date">—</span></div>
+    <div class="sum-row"><span class="sum-key">Slot Masa</span><span class="sum-val" id="s-slot">—</span></div>
+    <div class="sum-row"><span class="sum-key">Jenis Event</span><span class="sum-val" id="s-evcat">—</span></div>
+    <div class="sum-row"><span class="sum-key">Apa Event</span><span class="sum-val" id="s-evtype">—</span></div>
+    <div class="sum-row" id="s-evname-row"><span class="sum-key">Nama Event</span><span class="sum-val" id="s-evname">—</span></div>
+    <div class="sum-row"><span class="sum-key">Alamat</span><span class="sum-val" id="s-addr">—</span></div>
+    <div class="sum-row"><span class="sum-key">Jenis Lokasi</span><span class="sum-val" id="s-loctype">—</span></div>
+    <div class="sum-row"><span class="sum-key">Anggaran Pax</span><span class="sum-val" id="s-pax">—</span></div>
+  </div>
+
+  <div class="sum-block">
+    <div class="sum-block-head">Menu & Minuman</div>
+    <div class="sum-row"><span class="sum-key">Menu</span><span class="sum-val" id="s-menu">—</span></div>
+    <div class="sum-row"><span class="sum-key">Kuantiti Cawan</span><span class="sum-val" id="s-cups">—</span></div>
+    <div class="sum-row"><span class="sum-key">Pilihan Minuman</span><span class="sum-val" id="s-drinks">—</span></div>
+    <div class="sum-row" id="s-flavour-row" style="display:none;"><span class="sum-key">Flavour Syrup</span><span class="sum-val" id="s-flavours">—</span></div>
+    <div class="sum-row" id="s-puree-row" style="display:none;"><span class="sum-key">Fruit Puree</span><span class="sum-val" id="s-purees">—</span></div>
+    <div class="sum-row" id="s-comp-row" style="display:none;"><span class="sum-key">🎁 Minuman Percuma</span><span class="sum-val" id="s-comp">—</span></div>
+  </div>
+
+  <div class="sum-block" id="s-addons-block" style="display:none;">
+    <div class="sum-block-head">Add-ons</div>
+    <div id="s-addons-list"></div>
+  </div>
+
+  <div class="sum-block" id="s-req-block" style="display:none;">
+    <div class="sum-block-head">Permintaan Khas</div>
+    <div id="s-req-list"></div>
+  </div>
+
+  <div class="sum-block" id="s-diet-block" style="display:none;">
+    <div class="sum-block-head">Keperluan Diet</div>
+    <div id="s-diet-info"></div>
+  </div>
+
+  <div class="sum-block">
+    <div class="sum-block-head">Ringkasan Bil</div>
+    <div class="sum-row"><span class="sum-key">Harga Menu</span><span class="sum-val" id="b-menu">RM 0.00</span></div>
+    <div class="sum-row" id="b-cups-row" style="display:none;"><span class="sum-key">Add-on Cawan</span><span class="sum-val" id="b-cups">RM 0.00</span></div>
+    <div class="sum-row" id="b-flavor-row" style="display:none;"><span class="sum-key">Add-on Flavour/Puree</span><span class="sum-val" id="b-flavor">RM 0.00</span></div>
+    <div class="sum-row" id="b-addon-row" style="display:none;"><span class="sum-key">Add-ons Lain</span><span class="sum-val" id="b-addons">RM 0.00</span></div>
+    <div class="sum-row"><span class="sum-key">Kos Logistik</span><span class="sum-val" id="b-logistics">RM 0.00</span></div>
+    <div class="sum-row" style="font-size:11px;"><span class="sum-key" style="color:var(--grey-400);">* Tol & parking RM50 anggaran, balance selepas event</span><span class="sum-val"></span></div>
+  </div>
+
+  <div class="total-bar">
+    <span class="total-bar-label">Jumlah</span>
+    <span class="total-bar-val" id="b-total">RM 0.00</span>
+  </div>
+
+  <div class="tnc-row" id="tncRow" onclick="toggleTnc()">
+    <div class="tnc-box" id="tncBox"></div>
+    <div class="tnc-text">Saya telah membaca dan bersetuju dengan <a href="#" onclick="return false;">Terma & Syarat</a> Petre Coffee. Saya faham tempahan ini tertakluk kepada pengesahan pihak Petre Coffee.</div>
+  </div>
+
+  <div class="nav-row">
+    <button class="btn btn-outline" onclick="goTo(6)">← Kembali</button>
+    <button class="btn btn-black" id="submitBtn" disabled onclick="submitBooking()">Hantar Tempahan</button>
+  </div>
+</div>
+
+<!-- PAGE 8 — SUCCESS -->
+<div class="page" id="page-8">
+  <div class="success-center">
+    <div class="success-ring">✓</div>
+    <div class="eyebrow">Berjaya!</div>
+    <h1 class="page-title">Tempahan Telah Dihantar</h1>
+    <p class="page-sub">Terima kasih kerana memilih Petre Coffee. Kami akan menghubungi anda dalam masa 1–2 hari bekerja untuk pengesahan.</p>
+    <div class="ref-box">
+      <div class="ref-label">Nombor Rujukan</div>
+      <div class="ref-num" id="suc-ref">PCO-2026-0001</div>
+    </div>
+    <p style="font-size:12px;color:var(--grey-600);margin-bottom:8px;">Pantau status tempahan melalui pautan di bawah:</p>
+    <div class="link-box">
+      <div class="link-url" id="suc-link">petrecoffee.com/order?token=...</div>
+      <button class="copy-btn" onclick="copyLink()">Salin</button>
+    </div>
+    <div class="info-chips">
+      <div class="chip">📧 E-mel pengesahan dihantar</div>
+      <div class="chip">📧 Notifikasi owner dihantar</div>
+    </div>
+    <div class="divider"></div>
+    <button class="btn btn-outline btn-full" onclick="resetAll()">Buat Tempahan Baru</button>
+  </div>
+</div>
+
+</main>
+
+<div class="loading-overlay" id="loadOverlay">
+  <div class="spinner"></div>
+  <div class="loading-txt">Menghantar tempahan...</div>
+</div>
+<div class="toast" id="toastEl"></div>
+
+<script>
+// ═══════════════════════════════════
+// CONFIG
+// ═══════════════════════════════════
+const SB_URL = 'https://dfdgfujgygslhgkgujsr.supabase.co';
+const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmZGdmdWpneWdzbGhna2d1anNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MDM4NjQsImV4cCI6MjA5MzQ3OTg2NH0.L6z152YBOKgSY6eJbAFeJ9XN2U93yyQgBgFfXYf608s';
+const SB_EDGE = `${SB_URL}/functions/v1/send-booking-emails`;
+
+// Petre Coffee base location — Opal Residence @ Puchong Intan
+const BASE_LAT = 3.0268;
+const BASE_LNG = 101.6195;
+
+const H = { 'apikey': SB_KEY, 'Authorization': `Bearer ${SB_KEY}`, 'Content-Type': 'application/json' };
+
+async function sbGet(table, qs = '') {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}${qs ? '?' + qs : ''}`, { headers: H });
+  return r.json();
+}
+
+async function sbPost(table, data) {
+  const r = await fetch(`${SB_URL}/rest/v1/${table}`, {
+    method: 'POST', headers: { ...H, 'Prefer': 'return=representation' },
+    body: JSON.stringify(data)
+  });
+  return r.json();
+}
+
+// ═══════════════════════════════════
+// MENU DATA
+// ═══════════════════════════════════
+const MENUS = {
+  'menu-a': { id: 'menu-a', name: 'Menu A', price: 541, cups: 100, maxDrinks: 3, addonCupPrice: 5.00,
+    drinks: ['Americano', 'Cafe Latte', 'Chocolate'] },
+  'menu-b': { id: 'menu-b', name: 'Menu B', price: 627, cups: 100, maxDrinks: 4, addonCupPrice: 5.75,
+    drinks: ['Americano', 'Cafe Latte', 'Chocolate', 'Matcha', 'Mocha', 'Aussie Iced Coffee'] },
+  'menu-c': { id: 'menu-c', name: 'Menu C', price: 675, cups: 100, maxDrinks: 5, addonCupPrice: 6.12,
+    drinks: ['Americano', 'Cafe Latte', 'Chocolate', 'Matcha', 'Fruity Matcha', 'Mocha', 'Aussie Iced Coffee'] }
+};
+
+const FLAVOUR_SYRUPS = ['Caramel', 'Salted Caramel', 'Vanilla', 'Hazelnut', 'Butterscotch', 'Gula Apong'];
+const FRUIT_PUREES = ['Strawberry', 'Raspberry', 'Peach', 'Mango'];
+const DRINKS_WITH_LATTE = ['Americano', 'Cafe Latte'];
+
+const EVENT_TYPES = {
+  'Corporate Events': ['Company Meeting / Townhall','Training & Workshop','Product Launch','Client Meeting / Client Visit','Networking Session','Team Building','Office Celebration (Birthday Staff, Farewell, Achievement)','Conference / Seminar'],
+  'Government Events': ['Official Meeting (Mesyuarat Jabatan / Agensi)','Government Seminar / Kursus','Training Program (Kursus Penjawat Awam)','Majlis Rasmi (Pelancaran, Perasmian)','Community Program (Program Komuniti Anjuran Kerajaan)','Hari Terbuka Jabatan','Conference / Forum Kerajaan','CSR / Outreach Program','Election-Related Events (Non-Political Catering)'],
+  'Private Events': ['Birthday Party','Engagement (Tunangan)','Wedding (Nikah / Sanding / Reception Kecil)','Anniversary Celebration','Baby Shower','Aqiqah','Family Gathering','Housewarming'],
+  'Pop-up & Public Events': ['Bazaar / Weekend Market','Festival / Carnival','Mall Activation','Pop-up Store Collaboration','Brand Activation Event','Roadshow'],
+  'Wedding & Romantic Events': ['Wedding Reception','Nikah Ceremony','Engagement Event','Anniversary Dinner','Proposal Event'],
+  'Lifestyle & Community Events': ['Fun Run / Marathon','Fitness / Gym Event','Cycling Event','Yoga / Wellness Session','Community Gathering','Charity Event'],
+  'Education Events': ['University / College Event','Orientation Week','Graduation Day','Student Festival','School Event'],
+  'Creative & Media Events': ['Photoshoot','Video Production / Filming','Influencer Event','Content Creation Event','Podcast Session']
+};
+
+// ═══════════════════════════════════
+// STATE
+// ═══════════════════════════════════
+let S = {
+  page: 1,
+  date: null, slot: null,
+  menu: null,
+  cupsQty: 100,
+  selectedDrinks: [],
+  compDrink: null,
+  selectedFlavours: [],   // complimentary + addon
+  selectedPurees: [],     // complimentary + addon
+  addonCanopy: false, canopyType: null,
+  addonCleanup: false,
+  addonTime: 0,
+  timeAddonBlocked: false, maxTimeAddon: null,
+  mapLat: null, mapLng: null,
+  distanceKm: 0, logisticsCost: 0,
+  tnc: false, reqCount: 1, dietYes: null,
+  blocked: [], existing: [],
+  magicLink: ''
+};
+
+// ═══════════════════════════════════
+// NAVIGATION
+// ═══════════════════════════════════
+function goTo(n) {
+  document.getElementById(`page-${S.page}`).classList.remove('active');
+  S.page = n;
+  document.getElementById(`page-${n}`).classList.add('active');
+  updateProg();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  if (n === 4) setupPage4();
+  if (n === 5) setTimeout(initMapOnPage5, 100);
+  if (n === 7) buildSummary();
+}
+
+function updateProg() {
+  document.querySelectorAll('.prog-dot').forEach((d, i) => {
+    d.classList.remove('active','done');
+    const s = i + 1;
+    if (s < S.page) d.classList.add('done');
+    else if (s === S.page) d.classList.add('active');
+  });
+  document.getElementById('progressWrap').style.display = S.page === 8 ? 'none' : 'flex';
+}
+
+// ═══════════════════════════════════
+// CALENDAR
+// ═══════════════════════════════════
+let CY, CM;
+const MONTHS = ['Januari','Februari','Mac','April','Mei','Jun','Julai','Ogos','September','Oktober','November','Disember'];
+
+function initCal() {
+  const t = new Date(); CY = t.getFullYear(); CM = t.getMonth();
+  renderCal();
+}
+
+function renderCal() {
+  document.getElementById('calLabel').textContent = `${MONTHS[CM]} ${CY}`;
+  const first = new Date(CY, CM, 1).getDay();
+  const days = new Date(CY, CM + 1, 0).getDate();
+  const today = new Date(); today.setHours(0,0,0,0);
+  const minD = new Date(today); minD.setDate(minD.getDate() + 14);
+  let h = '';
+  for (let i = 0; i < first; i++) h += '<div class="cal-cell cal-empty"></div>';
+  for (let d = 1; d <= days; d++) {
+    const dt = new Date(CY, CM, d);
+    const ds = fmtDate(dt);
+    const disabled = dt < minD;
+    const isToday = dt.toDateString() === today.toDateString();
+    const isSel = S.date === ds;
+    let cls = 'cal-cell';
+    if (disabled) cls += ' cal-disabled';
+    else if (isSel) cls += ' cal-selected';
+    else if (isToday) cls += ' cal-today';
+    const cb = disabled ? '' : `onclick="pickDate('${ds}')"`;
+    h += `<div class="${cls}" ${cb}>${d}</div>`;
+  }
+  document.getElementById('calGrid').innerHTML = h;
+}
+
+function prevMonth() { CM--; if (CM < 0) { CM = 11; CY--; } renderCal(); }
+function nextMonth() { CM++; if (CM > 11) { CM = 0; CY++; } renderCal(); }
+
+function pickDate(ds) {
+  S.date = ds; S.slot = null;
+  document.getElementById('btn2next').disabled = true;
+  renderCal();
+  renderSlots(ds);
+  document.getElementById('slotSection').style.display = 'block';
+}
+
+function fmtDate(d) { return d.toISOString().split('T')[0]; }
+
+function fmtDateDisplay(ds) {
+  const d = new Date(ds + 'T00:00:00');
+  const days = ['Ahad','Isnin','Selasa','Rabu','Khamis','Jumaat','Sabtu'];
+  return `${days[d.getDay()]}, ${d.getDate()} ${MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+}
+
+const SLOT_HOURS = { '8AM': 8, '2PM': 14, '8PM': 20 };
+
+function renderSlots(ds) {
+  ['8AM','2PM','8PM'].forEach(sl => {
+    const btn = document.getElementById(`slot-${sl}`);
+    btn.classList.remove('selected'); btn.disabled = false;
+    const blocked = S.blocked.some(b => b.blocked_date === ds && b.slot_time === sl);
+    if (blocked) { btn.disabled = true; return; }
+    const booked = S.existing.some(b => {
+      if (b.event_date !== ds) return false;
+      const bs = SLOT_HOURS[b.slot_time], be = bs + b.duration_hours;
+      return SLOT_HOURS[sl] >= bs && SLOT_HOURS[sl] < be;
+    });
+    if (booked) btn.disabled = true;
+  });
+}
+
+function pickSlot(sl) {
+  S.slot = sl;
+  document.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('selected'));
+  document.getElementById(`slot-${sl}`).classList.add('selected');
+  document.getElementById('btn2next').disabled = false;
+  calcSmartBlock(sl);
+}
+
+function calcSmartBlock(sl) {
+  // 8PM — no extend
+  if (sl === '8PM') { S.timeAddonBlocked = true; S.maxTimeAddon = 0; return; }
+
+  const nextSlot = sl === '8AM' ? '2PM' : '8PM';
+  const nextBtn = document.getElementById(`slot-${nextSlot}`);
+  const curDefaultEnd = SLOT_HOURS[sl] + 4;
+  const maxEnd = 24; // midnight
+
+  // Check if next slot is booked
+  if (nextBtn && nextBtn.disabled) {
+    // Next slot booked — check gap
+    const nextStart = SLOT_HOURS[nextSlot];
+    const maxAdd = nextStart - curDefaultEnd;
+    if (maxAdd <= 0) { S.timeAddonBlocked = true; S.maxTimeAddon = 0; }
+    else { S.timeAddonBlocked = false; S.maxTimeAddon = maxAdd; }
+  } else {
+    // Next slot free — extend till midnight
+    // 8AM: 8+4=12, midnight=24, max=12 jam
+    // 2PM: 14+4=18, midnight=24, max=6 jam
+    S.timeAddonBlocked = false;
+    S.maxTimeAddon = maxEnd - curDefaultEnd;
+  }
+}
+
+// ═══════════════════════════════════
+// PAGE 3 — MENU SELECTION
+// ═══════════════════════════════════
+function pickMenu(menuId, price, name, cups, maxDrinks, addonCupPrice) {
+  document.querySelectorAll('.pkg-card').forEach(c => c.classList.remove('selected'));
+  document.getElementById(`p-${menuId}`).classList.add('selected');
+  S.menu = MENUS[menuId];
+
+  // Reset drink selections
+  S.selectedDrinks = [];
+  S.selectedFlavours = [];
+  S.selectedPurees = [];
+  S.compDrink = null;
+
+  // Show cup qty section
+  document.getElementById('cup-qty-section').style.display = 'block';
+  document.getElementById('cups-input').value = 100;
+  S.cupsQty = 100;
+  updateCupsDisplay();
+
+  // Render drink options
+  renderDrinkOptions();
+  document.getElementById('drink-section').style.display = 'block';
+
+  validatePage3();
+}
+
+function renderDrinkOptions() {
+  if (!S.menu) return;
+  const menu = S.menu;
+  document.getElementById('max-drinks-label').textContent = menu.maxDrinks;
+
+  let html = '';
+  menu.drinks.forEach(d => {
+    const isSel = S.selectedDrinks.includes(d);
+    const isDisabled = !isSel && S.selectedDrinks.length >= menu.maxDrinks;
+    html += `<div class="drink-option${isSel ? ' selected' : ''}${isDisabled ? ' disabled' : ''}" onclick="toggleDrink('${d}')">
+      <div class="drink-check">${isSel ? '✓' : ''}</div>
+      <div class="drink-name">${d}</div>
+    </div>`;
+  });
+  document.getElementById('drink-options').innerHTML = html;
+
+  // Show/hide flavour & puree sections
+  const hasLatte = S.selectedDrinks.some(d => DRINKS_WITH_LATTE.includes(d));
+  const hasFruityMatcha = S.selectedDrinks.includes('Fruity Matcha');
+  document.getElementById('flavour-section').style.display = hasLatte ? 'block' : 'none';
+  document.getElementById('puree-section').style.display = hasFruityMatcha ? 'block' : 'none';
+
+  if (hasLatte) renderFlavours();
+  if (hasFruityMatcha) renderPurees();
+}
+
+function toggleDrink(drink) {
+  const menu = S.menu;
+  const idx = S.selectedDrinks.indexOf(drink);
+  if (idx > -1) {
+    S.selectedDrinks.splice(idx, 1);
+    // Remove flavour if latte deselected
+    if (DRINKS_WITH_LATTE.includes(drink) && !S.selectedDrinks.some(d => DRINKS_WITH_LATTE.includes(d))) {
+      S.selectedFlavours = [];
+    }
+    // Remove puree if fruity matcha deselected
+    if (drink === 'Fruity Matcha') S.selectedPurees = [];
+  } else {
+    if (S.selectedDrinks.length >= menu.maxDrinks) { toast(`Maksimum ${menu.maxDrinks} jenis minuman sahaja.`); return; }
+    S.selectedDrinks.push(drink);
+  }
+  renderDrinkOptions();
+  validatePage3();
+}
+
+function renderFlavours() {
+  let html = '';
+  FLAVOUR_SYRUPS.forEach((f, i) => {
+    const isComp = i === 0 && S.selectedFlavours.length === 0 ? false : false;
+    const isSel = S.selectedFlavours.includes(f);
+    const isFirst = S.selectedFlavours[0] === f;
+    let cls = 'flavour-option';
+    if (isSel) cls += isFirst ? ' selected' : ' addon-selected';
+    html += `<div class="${cls}" onclick="toggleFlavour('${f}')">${f}${isSel && !isFirst ? ' (+RM70)' : ''}</div>`;
+  });
+  document.getElementById('flavour-options').innerHTML = html;
+}
+
+function toggleFlavour(f) {
+  const idx = S.selectedFlavours.indexOf(f);
+  if (idx > -1) S.selectedFlavours.splice(idx, 1);
+  else S.selectedFlavours.push(f);
+  renderFlavours();
+  updateRT();
+}
+
+function renderPurees() {
+  let html = '';
+  FRUIT_PUREES.forEach((p, i) => {
+    const isSel = S.selectedPurees.includes(p);
+    const isFirst = S.selectedPurees[0] === p;
+    let cls = 'flavour-option';
+    if (isSel) cls += isFirst ? ' selected' : ' addon-selected';
+    html += `<div class="${cls}" onclick="togglePuree('${p}')">${p}${isSel && !isFirst ? ' (+RM70)' : ''}</div>`;
+  });
+  document.getElementById('puree-options').innerHTML = html;
+}
+
+function togglePuree(p) {
+  const idx = S.selectedPurees.indexOf(p);
+  if (idx > -1) S.selectedPurees.splice(idx, 1);
+  else S.selectedPurees.push(p);
+  renderPurees();
+  updateRT();
+}
+
+// ═══════════════════════════════════
+// CUP QUANTITY
+// ═══════════════════════════════════
+function adjCups(delta) {
+  let newVal = S.cupsQty + delta;
+  if (newVal < 100) newVal = 100;
+  S.cupsQty = newVal;
+  document.getElementById('cups-input').value = newVal;
+  updateCupsDisplay();
+}
+
+function onCupsInput(el) {
+  const v = parseInt(el.value);
+  if (isNaN(v) || v < 100) return;
+  S.cupsQty = v;
+  updateCupsDisplay();
+}
+
+function onCupsBlur(el) {
+  const v = parseInt(el.value);
+  if (isNaN(v) || v < 100) { el.value = 100; S.cupsQty = 100; }
+  updateCupsDisplay();
+}
+
+function updateCupsDisplay() {
+  if (!S.menu) return;
+  const addon = Math.max(0, S.cupsQty - 100);
+  const addonCost = addon * S.menu.addonCupPrice;
+  document.getElementById('cups-addon-cost').textContent = `Add-on: RM ${addonCost.toFixed(2)}`;
+
+  // Complimentary drink for 200+ cups
+  const compSection = document.getElementById('complimentary-drink-section');
+  compSection.style.display = S.cupsQty >= 200 ? 'block' : 'none';
+  if (S.cupsQty < 200) S.compDrink = null;
+
+  updateRT();
+}
+
+function pickCompDrink(drink) {
+  S.compDrink = drink;
+  ['iced-tea','thai','mocktail'].forEach(id => document.getElementById(`comp-${id}`)?.classList.remove('selected'));
+  const idMap = { 'Iced Tea': 'iced-tea', 'Thai Milk Tea': 'thai', 'Mocktails': 'mocktail' };
+  document.getElementById(`comp-${idMap[drink]}`)?.classList.add('selected');
+}
+
+function validatePage3() {
+  const btn = document.getElementById('btn3next');
+  btn.disabled = !(S.menu && S.selectedDrinks.length > 0);
+}
+
+// ═══════════════════════════════════
+// PAGE 4 — ADD-ONS
+// ═══════════════════════════════════
+function setupPage4() {
+  const notice = document.getElementById('smartBlockNotice');
+  const timeCard = document.getElementById('acard-time');
+  const maxNotice = document.getElementById('time-max-notice');
+
+  if (S.timeAddonBlocked || S.maxTimeAddon === 0) {
+    timeCard.classList.add('hidden');
+    notice.classList.add('show');
+    notice.textContent = S.slot === '8PM'
+      ? '⚠️ Slot 8PM adalah fixed 4 jam. Tambah Masa tidak tersedia.'
+      : '⚠️ Tambah Masa tidak tersedia kerana slot seterusnya telah ditempah.';
+  } else {
+    timeCard.classList.remove('hidden');
+    notice.classList.remove('show');
+    if (S.maxTimeAddon !== null) {
+      maxNotice.textContent = `⚠ Maksimum ${S.maxTimeAddon} jam tambahan (berdasarkan slot seterusnya).`;
+      maxNotice.style.display = 'block';
+    } else {
+      maxNotice.style.display = 'none';
+    }
+  }
+  updateRT();
+}
+
+function adjQty(type, delta) {
+  let newVal = S.addonTime + delta;
+  if (S.maxTimeAddon !== null) newVal = Math.min(newVal, S.maxTimeAddon);
+  S.addonTime = Math.max(0, newVal);
+  document.getElementById('qi-time').value = S.addonTime;
+  document.getElementById('sub-time').textContent = `RM ${(S.addonTime * 40).toLocaleString()}`;
+  updateRT();
+}
+
+function onQtyInput(type, el) {
+  const err = document.getElementById(`err-qi-${type}`);
+  if (el.value !== '' && !/^\d+$/.test(el.value)) {
+    el.classList.add('error'); err.classList.add('show');
+  } else {
+    el.classList.remove('error'); err.classList.remove('show');
+    let val = parseInt(el.value) || 0;
+    if (S.maxTimeAddon !== null) val = Math.min(val, S.maxTimeAddon);
+    S.addonTime = val;
+    document.getElementById('sub-time').textContent = `RM ${(S.addonTime * 40).toLocaleString()}`;
+    updateRT();
+  }
+}
+
+function onQtyBlur(type, el) {
+  if (!/^\d+$/.test(el.value)) el.value = S.addonTime;
+  el.classList.remove('error');
+  document.getElementById(`err-qi-${type}`).classList.remove('show');
+}
+
+function toggleCanopy() {
+  S.addonCanopy = !S.addonCanopy;
+  const check = document.getElementById('check-canopy');
+  check.classList.toggle('checked', S.addonCanopy);
+  check.textContent = S.addonCanopy ? '✓' : '';
+  document.getElementById('canopy-choices').style.display = S.addonCanopy ? 'flex' : 'none';
+  if (!S.addonCanopy) { S.canopyType = null; document.querySelectorAll('.canopy-choice').forEach(c => c.classList.remove('selected')); }
+  updateRT();
+}
+
+function pickCanopyType(type) {
+  S.canopyType = type;
+  document.getElementById('cc-canopy').classList.toggle('selected', type === 'CANOPY');
+  document.getElementById('cc-umbrella').classList.toggle('selected', type === 'CART_UMBRELLA');
+}
+
+function toggleCheck(type) {
+  S.addonCleanup = !S.addonCleanup;
+  document.getElementById('check-cleanup').classList.toggle('checked', S.addonCleanup);
+  document.getElementById('check-cleanup').textContent = S.addonCleanup ? '✓' : '';
+  updateRT();
+}
+
+function getFlavorAddonTotal() {
+  const flavourAddon = Math.max(0, S.selectedFlavours.length - 1) * 70;
+  const pureeAddon = Math.max(0, S.selectedPurees.length - 1) * 70;
+  return flavourAddon + pureeAddon;
+}
+
+function updateRT() {
+  if (!S.menu) return;
+  const base = S.menu.price;
+  const cupsAddon = Math.max(0, S.cupsQty - 100) * S.menu.addonCupPrice;
+  const flavorAddon = getFlavorAddonTotal();
+  const timeAddon = S.addonTime * 40;
+  const canopyAddon = S.addonCanopy ? 50 : 0;
+  const cleanupAddon = S.addonCleanup ? 150 : 0;
+  const total = base + cupsAddon + flavorAddon + timeAddon + canopyAddon + cleanupAddon + S.logisticsCost;
+  document.getElementById('runTotal').textContent = `RM ${total.toLocaleString('en-MY', {minimumFractionDigits:2, maximumFractionDigits:2})}`;
+}
+
+// ═══════════════════════════════════
+// GOOGLE MAPS
+// ═══════════════════════════════════
+let map, marker, autocomplete, distService;
+window.mapsReady = false;
+
+function initMaps() { window.mapsReady = true; }
+
+function initMapOnPage5() {
+  if (!window.mapsReady || window.mapInitialized) return;
+  window.mapInitialized = true;
+
+  const basePos = { lat: BASE_LAT, lng: BASE_LNG };
+
+  map = new google.maps.Map(document.getElementById('map-container'), {
+    center: basePos, zoom: 12,
+    mapTypeControl: false, streetViewControl: false, fullscreenControl: false,
+  });
+
+  marker = new google.maps.Marker({ map, draggable: true, position: basePos, visible: false });
+  distService = new google.maps.DistanceMatrixService();
+
+  autocomplete = new google.maps.places.Autocomplete(
+    document.getElementById('map-search'),
+    { componentRestrictions: { country: 'my' } }
+  );
+
+  autocomplete.addListener('place_changed', () => {
+    const place = autocomplete.getPlace();
+    if (!place.geometry) return;
+    const loc = place.geometry.location;
+    map.setCenter(loc); map.setZoom(16);
+    marker.setPosition(loc); marker.setVisible(true);
+    S.mapLat = loc.lat(); S.mapLng = loc.lng();
+    calcLogistics(S.mapLat, S.mapLng);
+    // Auto-fill address
+    if (!document.getElementById('f-addr').value && place.formatted_address) {
+      document.getElementById('f-addr').value = place.formatted_address;
+    }
+  });
+
+  map.addListener('click', e => {
+    marker.setPosition(e.latLng); marker.setVisible(true);
+    S.mapLat = e.latLng.lat(); S.mapLng = e.latLng.lng();
+    calcLogistics(S.mapLat, S.mapLng);
+  });
+
+  marker.addListener('dragend', e => {
+    S.mapLat = e.latLng.lat(); S.mapLng = e.latLng.lng();
+    calcLogistics(S.mapLat, S.mapLng);
+  });
+}
+
+function calcLogistics(destLat, destLng) {
+  if (!distService) return;
+
+  distService.getDistanceMatrix({
+    origins: [{ lat: BASE_LAT, lng: BASE_LNG }],
+    destinations: [{ lat: destLat, lng: destLng }],
+    travelMode: google.maps.TravelMode.DRIVING,
+    unitSystem: google.maps.UnitSystem.METRIC,
+  }, (res, status) => {
+    if (status !== 'OK') { toast('Gagal mengira jarak. Sila cuba semula.'); return; }
+    const element = res.rows[0].elements[0];
+    if (element.status !== 'OK') { toast('Lokasi tidak dapat dicapai.'); return; }
+
+    const distanceM = element.distance.value;
+    const km = distanceM / 1000;
+    S.distanceKm = km;
+    const kmCost = km * 1;
+    const tollParking = 50;
+    S.logisticsCost = kmCost + tollParking;
+
+    // Update UI
+    document.getElementById('l-distance').textContent = `${km.toFixed(1)} km`;
+    document.getElementById('l-km-cost').textContent = `RM ${kmCost.toFixed(2)}`;
+    document.getElementById('l-total').textContent = `RM ${S.logisticsCost.toFixed(2)}`;
+    document.getElementById('logistics-info').classList.add('show');
+    document.getElementById('e-map').classList.remove('show');
+    updateRT();
+  });
+}
+
+// ═══════════════════════════════════
+// PAGE 5 — EVENT TYPES + VALIDATION
+// ═══════════════════════════════════
+function onCatChange() {
+  const cat = document.getElementById('f-evcat').value;
+  const sel = document.getElementById('f-evtype');
+  const other = document.getElementById('f-evtype-other');
+  const selWrap = document.getElementById('evtype-select-wrap');
+
+  if (!cat || cat === 'Others') {
+    selWrap.style.display = 'none'; other.style.display = 'block';
+  } else {
+    selWrap.style.display = 'block'; other.style.display = 'none';
+    const types = EVENT_TYPES[cat] || [];
+    sel.innerHTML = '<option value="">-- Pilih Event --</option>' +
+      types.map(t => `<option>${t}</option>`).join('') + '<option value="others">Others</option>';
+  }
+}
+
+function onTypeChange() {
+  const val = document.getElementById('f-evtype').value;
+  document.getElementById('f-evtype-other').style.display = val === 'others' ? 'block' : 'none';
+}
+
+function validatePhonePrefix() {
+  const el = document.getElementById('f-prefix');
+  if (el.value && !/^[\d+]+$/.test(el.value)) el.classList.add('has-error');
+  else el.classList.remove('has-error');
+}
+
+function validatePhoneNum() {
+  const el = document.getElementById('f-phone');
+  const err = document.getElementById('e-phone');
+  if (el.value && !/^\d+$/.test(el.value)) { el.classList.add('has-error'); err.classList.add('show'); }
+  else { el.classList.remove('has-error'); err.classList.remove('show'); }
+}
+
+function validateP5() {
+  let ok = true;
+
+  function chk(id, errId, test) {
+    const el = document.getElementById(id);
+    const v = el.value.trim();
+    const err = document.getElementById(errId);
+    if (!test(v)) { el.classList.add('has-error'); err.classList.add('show'); ok = false; }
+    else { el.classList.remove('has-error'); err.classList.remove('show'); }
+  }
+
+  chk('f-name','e-name', v => v.length > 1);
+  chk('f-email','e-email', v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v));
+  chk('f-addr','e-addr', v => v.length > 3);
+  chk('f-postcode','e-postcode', v => /^\d{5}$/.test(v));
+  chk('f-city','e-city', v => v.length > 1);
+  chk('f-state','e-state', v => v !== '');
+  chk('f-evcat','e-evcat', v => v !== '');
+  chk('f-loctype','e-loctype', v => v !== '');
+  chk('f-pax','e-pax', v => v !== '');
+
+  // Phone
+  const prefix = document.getElementById('f-prefix').value.trim();
+  const phone = document.getElementById('f-phone').value.trim();
+  const phoneErr = document.getElementById('e-phone');
+  if (!prefix || !phone || !/^\d+$/.test(phone)) {
+    document.getElementById('f-phone').classList.add('has-error');
+    phoneErr.classList.add('show'); ok = false;
+  } else {
+    document.getElementById('f-phone').classList.remove('has-error');
+    phoneErr.classList.remove('show');
+  }
+
+  // Event type
+  const cat = document.getElementById('f-evcat').value;
+  if (cat && cat !== 'Others') {
+    const tv = document.getElementById('f-evtype').value;
+    const ov = document.getElementById('f-evtype-other').value.trim();
+    if (!tv && !ov) { document.getElementById('e-evtype').classList.add('show'); ok = false; }
+    else document.getElementById('e-evtype').classList.remove('show');
+  }
+
+  // Map pin required
+  if (!S.mapLat || !S.mapLng) {
+    document.getElementById('e-map').classList.add('show'); ok = false;
+  } else {
+    document.getElementById('e-map').classList.remove('show');
+  }
+
+  if (ok) goTo(6);
+  else window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ═══════════════════════════════════
+// PAGE 6 — REQUESTS
+// ═══════════════════════════════════
+function addReq() {
+  S.reqCount++;
+  const n = S.reqCount;
+  const div = document.createElement('div');
+  div.className = 'req-row'; div.id = `rr-${n}`;
+  div.innerHTML = `<input type="text" class="form-input" id="rr-inp-${n}" placeholder="Permintaan khas anda...">
+    <button class="del-btn" onclick="delReq(${n})">✕</button>`;
+  document.getElementById('reqRows').appendChild(div);
+  if (S.reqCount > 1) document.querySelector('#rr-1 .del-btn').style.display = 'flex';
+}
+
+function delReq(n) {
+  const el = document.getElementById(`rr-${n}`);
+  if (el) el.remove();
+  const rows = document.querySelectorAll('.req-row');
+  if (rows.length === 1) rows[0].querySelector('.del-btn').style.display = 'none';
+}
+
+function pickDiet(y) {
+  S.dietYes = y;
+  document.getElementById('r-diet-y').classList.toggle('selected', y);
+  document.getElementById('r-diet-n').classList.toggle('selected', !y);
+  document.getElementById('diet-detail').style.display = y ? 'block' : 'none';
+}
+
+// ═══════════════════════════════════
+// PAGE 7 — SUMMARY
+// ═══════════════════════════════════
+function buildSummary() {
+  document.getElementById('s-date').textContent = S.date ? fmtDateDisplay(S.date) : '—';
+  document.getElementById('s-slot').textContent = S.slot ? `${S.slot} (4 jam)` : '—';
+  document.getElementById('s-evcat').textContent = document.getElementById('f-evcat').value || '—';
+
+  const cat = document.getElementById('f-evcat').value;
+  let evtype = cat === 'Others' ? document.getElementById('f-evtype-other').value :
+    (document.getElementById('f-evtype').value === 'others' ? document.getElementById('f-evtype-other').value : document.getElementById('f-evtype').value);
+  document.getElementById('s-evtype').textContent = evtype || '—';
+
+  const evname = document.getElementById('f-evname').value.trim();
+  document.getElementById('s-evname-row').style.display = evname ? 'flex' : 'none';
+  document.getElementById('s-evname').textContent = evname || '—';
+
+  const addr = [document.getElementById('f-addr').value, document.getElementById('f-city').value, document.getElementById('f-postcode').value, document.getElementById('f-state').value].filter(Boolean).join(', ');
+  document.getElementById('s-addr').textContent = addr || '—';
+  document.getElementById('s-loctype').textContent = document.getElementById('f-loctype').value || '—';
+  document.getElementById('s-pax').textContent = document.getElementById('f-pax').value || '—';
+
+  // Menu & drinks
+  document.getElementById('s-menu').textContent = S.menu ? `${S.menu.name} — RM ${S.menu.price.toFixed(2)}` : '—';
+  document.getElementById('s-cups').textContent = S.cupsQty ? `${S.cupsQty} cawan` : '—';
+  document.getElementById('s-drinks').textContent = S.selectedDrinks.join(', ') || '—';
+
+  // Flavours
+  const sFlavRow = document.getElementById('s-flavour-row');
+  if (S.selectedFlavours.length > 0) {
+    const flavText = S.selectedFlavours.map((f, i) => i === 0 ? f + ' (percuma)' : f + ' (+RM70)').join(', ');
+    document.getElementById('s-flavours').textContent = flavText;
+    sFlavRow.style.display = 'flex';
+  } else sFlavRow.style.display = 'none';
+
+  // Purees
+  const sPureeRow = document.getElementById('s-puree-row');
+  if (S.selectedPurees.length > 0) {
+    const pureeText = S.selectedPurees.map((p, i) => i === 0 ? p + ' (percuma)' : p + ' (+RM70)').join(', ');
+    document.getElementById('s-purees').textContent = pureeText;
+    sPureeRow.style.display = 'flex';
+  } else sPureeRow.style.display = 'none';
+
+  // Complimentary drink
+  const sCompRow = document.getElementById('s-comp-row');
+  if (S.compDrink) { document.getElementById('s-comp').textContent = S.compDrink; sCompRow.style.display = 'flex'; }
+  else sCompRow.style.display = 'none';
+
+  // Add-ons
+  let aHtml = ''; let aTotal = 0;
+  if (S.addonTime > 0) { const s = S.addonTime * 40; aTotal += s; aHtml += `<div class="sum-row"><span class="sum-key">Tambah Masa (${S.addonTime} jam)</span><span class="sum-val">RM ${s.toFixed(2)}</span></div>`; }
+  if (S.addonCanopy) { aTotal += 50; aHtml += `<div class="sum-row"><span class="sum-key">${S.canopyType === 'CART_UMBRELLA' ? 'Cart Umbrella' : 'Canopy'}</span><span class="sum-val">RM 50.00</span></div>`; }
+  if (S.addonCleanup) { aTotal += 150; aHtml += `<div class="sum-row"><span class="sum-key">Perkhidmatan Kebersihan</span><span class="sum-val">RM 150.00</span></div>`; }
+  const ab = document.getElementById('s-addons-block');
+  if (aTotal > 0) { document.getElementById('s-addons-list').innerHTML = aHtml; ab.style.display = 'block'; document.getElementById('b-addon-row').style.display = 'flex'; document.getElementById('b-addons').textContent = `RM ${aTotal.toFixed(2)}`; }
+  else { ab.style.display = 'none'; document.getElementById('b-addon-row').style.display = 'none'; }
+
+  // Requests
+  const reqs = [...document.querySelectorAll('.req-row input')].map(i => i.value.trim()).filter(Boolean);
+  const rb = document.getElementById('s-req-block');
+  if (reqs.length) { document.getElementById('s-req-list').innerHTML = reqs.map((r,i) => `<div class="sum-row"><span class="sum-key">${i+1}.</span><span class="sum-val">${r}</span></div>`).join(''); rb.style.display = 'block'; }
+  else rb.style.display = 'none';
+
+  // Dietary
+  const db = document.getElementById('s-diet-block');
+  if (S.dietYes !== null) {
+    const dd = S.dietYes ? (document.getElementById('f-diet').value || 'Ada keperluan diet') : 'Tiada keperluan diet';
+    document.getElementById('s-diet-info').innerHTML = `<div class="sum-row"><span class="sum-key">Maklumat</span><span class="sum-val">${dd}</span></div>`;
+    db.style.display = 'block';
+  } else db.style.display = 'none';
+
+  // Bill
+  const base = S.menu ? S.menu.price : 0;
+  const cupsAddon = Math.max(0, S.cupsQty - 100) * (S.menu?.addonCupPrice || 0);
+  const flavorAddon = getFlavorAddonTotal();
+  const total = base + cupsAddon + flavorAddon + aTotal + S.logisticsCost;
+
+  document.getElementById('b-menu').textContent = `RM ${base.toFixed(2)}`;
+  if (cupsAddon > 0) { document.getElementById('b-cups').textContent = `RM ${cupsAddon.toFixed(2)}`; document.getElementById('b-cups-row').style.display = 'flex'; }
+  else document.getElementById('b-cups-row').style.display = 'none';
+  if (flavorAddon > 0) { document.getElementById('b-flavor').textContent = `RM ${flavorAddon.toFixed(2)}`; document.getElementById('b-flavor-row').style.display = 'flex'; }
+  else document.getElementById('b-flavor-row').style.display = 'none';
+  document.getElementById('b-logistics').textContent = `RM ${S.logisticsCost.toFixed(2)}`;
+  document.getElementById('b-total').textContent = `RM ${total.toFixed(2)}`;
+}
+
+function toggleTnc() {
+  S.tnc = !S.tnc;
+  document.getElementById('tncRow').classList.toggle('checked', S.tnc);
+  document.getElementById('tncBox').textContent = S.tnc ? '✓' : '';
+  document.getElementById('submitBtn').disabled = !S.tnc;
+}
+
+// ═══════════════════════════════════
+// SUBMIT
+// ═══════════════════════════════════
+async function submitBooking() {
+  if (!S.tnc) return;
+  document.getElementById('loadOverlay').classList.add('show');
+
+  try {
+    const token = genToken();
+    const base = S.menu.price;
+    const cupsAddon = Math.max(0, S.cupsQty - 100) * S.menu.addonCupPrice;
+    const flavorAddon = getFlavorAddonTotal();
+    const timeAddon = S.addonTime * 40;
+    const canopyAddon = S.addonCanopy ? 50 : 0;
+    const cleanupAddon = S.addonCleanup ? 150 : 0;
+    const subtotal = base + cupsAddon + flavorAddon + timeAddon + canopyAddon + cleanupAddon;
+    const total = subtotal + S.logisticsCost;
+
+    const cat = document.getElementById('f-evcat').value;
+    let evtype = cat === 'Others' ? document.getElementById('f-evtype-other').value :
+      (document.getElementById('f-evtype').value === 'others' ? document.getElementById('f-evtype-other').value : document.getElementById('f-evtype').value);
+
+    // Get package ID
+    const pkgs = await sbGet('packages', `name=eq.${encodeURIComponent(S.menu.name)}&is_active=eq.true`);
+
+    const bData = {
+      order_token: token,
+      customer_name: document.getElementById('f-name').value.trim(),
+      customer_phone: document.getElementById('f-prefix').value.trim() + document.getElementById('f-phone').value.trim(),
+      customer_email: document.getElementById('f-email').value.trim(),
+      event_address: document.getElementById('f-addr').value.trim(),
+      postcode: document.getElementById('f-postcode').value.trim(),
+      city: document.getElementById('f-city').value.trim(),
+      state: document.getElementById('f-state').value,
+      location_type: document.getElementById('f-loctype').value,
+      pax_count: document.getElementById('f-pax').value,
+      event_category: cat,
+      event_type: evtype,
+      event_name: document.getElementById('f-evname').value.trim() || null,
+      phone_prefix: document.getElementById('f-prefix').value.trim(),
+      phone_number: document.getElementById('f-phone').value.trim(),
+      event_lat: S.mapLat,
+      event_lng: S.mapLng,
+      package_id: pkgs[0]?.id,
+      event_date: S.date,
+      slot_time: S.slot,
+      duration_hours: 4 + S.addonTime,
+      cups_quantity: S.cupsQty,
+      addon_cups: Math.max(0, S.cupsQty - 100),
+      addon_cups_price: cupsAddon,
+      complimentary_drink: S.compDrink || null,
+      canopy_type: S.addonCanopy ? S.canopyType : null,
+      distance_km: S.distanceKm,
+      logistics_cost: S.logisticsCost,
+      logistics_km_cost: S.distanceKm * 1,
+      logistics_toll_parking: 50,
+      flavor_addon_total: flavorAddon,
+      transport_cost: S.logisticsCost,
+      subtotal, total_amount: total,
+      status: 'SUBMITTED', tnc_accepted: true,
+      time_addon_blocked: S.timeAddonBlocked
+    };
+
+    const res = await sbPost('bookings', bData);
+    const bid = res[0]?.id;
+    if (!bid) throw new Error('Booking insert failed');
+
+    // Insert booking_drinks
+    for (const [i, drink] of S.selectedDrinks.entries()) {
+      await sbPost('booking_drinks', { booking_id: bid, drink_name: drink, sort_order: i + 1 });
+    }
+
+    // Insert booking_flavors
+    for (const [i, f] of S.selectedFlavours.entries()) {
+      await sbPost('booking_flavors', { booking_id: bid, flavor_type: 'SYRUP', flavor_name: f, is_addon: i > 0, addon_price: i > 0 ? 70 : 0 });
+    }
+    for (const [i, p] of S.selectedPurees.entries()) {
+      await sbPost('booking_flavors', { booking_id: bid, flavor_type: 'PUREE', flavor_name: p, is_addon: i > 0, addon_price: i > 0 ? 70 : 0 });
+    }
+
+    // Insert addons
+    const addonTypes = [];
+    if (S.addonTime > 0) addonTypes.push({ type: 'TIME', qty: S.addonTime, price: 40 });
+    if (S.addonCanopy) addonTypes.push({ type: 'CANOPY', qty: 1, price: 50 });
+    if (S.addonCleanup) addonTypes.push({ type: 'CLEANUP', qty: 1, price: 150 });
+    const addonData = [];
+    for (const a of addonTypes) {
+      const ads = await sbGet('addons', `addon_type=eq.${a.type}&is_active=eq.true`);
+      if (ads[0]) {
+        await sbPost('booking_addons', { booking_id: bid, addon_id: ads[0].id, quantity: a.qty, unit_price: a.price, subtotal: a.qty * a.price });
+        addonData.push({ name: ads[0].name, quantity: a.qty, subtotal: a.qty * a.price });
+      }
+    }
+
+    // Special requests
+    const reqsData = [];
+    let oi = 1;
+    for (const inp of document.querySelectorAll('.req-row input')) {
+      const txt = inp.value.trim();
+      if (txt) { await sbPost('special_requests', { booking_id: bid, request_text: txt, order_index: oi++ }); reqsData.push({ request_text: txt }); }
+    }
+
+    // Dietary
+    const dietData = S.dietYes !== null ? { has_dietary_req: S.dietYes, dietary_details: S.dietYes ? document.getElementById('f-diet').value.trim() : null } : null;
+    if (dietData) await sbPost('dietary_info', { booking_id: bid, ...dietData });
+
+    // Status log
+    await sbPost('status_logs', { booking_id: bid, old_status: null, new_status: 'SUBMITTED', changed_by: 'system', note: 'Booking submitted by customer' });
+
+    // Send emails
+    try {
+      await fetch(SB_EDGE, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SB_KEY}` },
+        body: JSON.stringify({
+          booking: {
+            ...bData,
+            package_name: S.menu.name,
+            package_price: S.menu.price,
+            transport_zone: `${S.distanceKm.toFixed(1)} km dari Petre Coffee`,
+            drinks: S.selectedDrinks.join(', '),
+            cups_quantity: S.cupsQty
+          },
+          addons: addonData,
+          special_requests: reqsData,
+          dietary: dietData
+        })
+      });
+    } catch(e) { console.warn('Email failed:', e); }
+
+    // Notification log
+    await sbPost('notifications', { booking_id: bid, channel: 'EMAIL', trigger_event: 'ORDER_SUBMITTED', message: `Emails dihantar untuk ${token}`, status: 'SENT' });
+
+    document.getElementById('loadOverlay').classList.remove('show');
+    S.magicLink = `petrecoffee.com/order?token=${token}`;
+    document.getElementById('suc-ref').textContent = token;
+    document.getElementById('suc-link').textContent = S.magicLink;
+    goTo(8);
+
+  } catch(e) {
+    document.getElementById('loadOverlay').classList.remove('show');
+    console.error(e);
+    toast('Ralat berlaku. Sila cuba semula.');
+  }
+}
+
+function genToken() {
+  const y = new Date().getFullYear();
+  const r = Math.floor(Math.random() * 9000 + 1000);
+  return `PCO-${y}-${r}`;
+}
+
+// ═══════════════════════════════════
+// UTILS
+// ═══════════════════════════════════
+function copyLink() { navigator.clipboard.writeText(S.magicLink); toast('Pautan disalin!'); }
+
+function toast(msg) {
+  const el = document.getElementById('toastEl');
+  el.textContent = msg; el.classList.add('show');
+  setTimeout(() => el.classList.remove('show'), 2400);
+}
+
+function resetAll() {
+  S = { page:1, date:null, slot:null, menu:null, cupsQty:100, selectedDrinks:[], compDrink:null, selectedFlavours:[], selectedPurees:[], addonCanopy:false, canopyType:null, addonCleanup:false, addonTime:0, timeAddonBlocked:false, maxTimeAddon:null, mapLat:null, mapLng:null, distanceKm:0, logisticsCost:0, tnc:false, reqCount:1, dietYes:null, blocked:S.blocked, existing:S.existing, magicLink:'' };
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-1').classList.add('active');
+  updateProg();
+}
+
+// ═══════════════════════════════════
+// INIT
+// ═══════════════════════════════════
+async function init() {
+  try {
+    const [bl, ex] = await Promise.all([
+      sbGet('blocked_dates', 'select=blocked_date,slot_time'),
+      sbGet('bookings', 'select=event_date,slot_time,duration_hours,status&status=in.(SUBMITTED,CONFIRMED)')
+    ]);
+    S.blocked = bl || [];
+    S.existing = ex || [];
+  } catch(e) { console.warn('Could not load availability:', e); }
+  initCal();
+}
+
+// Watch page 5 for map init
+new MutationObserver(() => {
+  if (document.getElementById('page-5').classList.contains('active')) {
+    setTimeout(initMapOnPage5, 150);
+  }
+}).observe(document.getElementById('page-5'), { attributes: true, attributeFilter: ['class'] });
+
+init();
+</script>
+</body>
+</html>
