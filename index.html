@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+m<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -30,10 +30,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
 .lang-toggle{display:flex;background:var(--g100);border-radius:6px;padding:2px;gap:2px}
 .lang-btn{padding:4px 10px;border-radius:4px;border:none;background:none;font-family:'Syne',sans-serif;font-size:11px;font-weight:700;cursor:pointer;transition:var(--tr);color:var(--g600)}
 .lang-btn.active{background:var(--white);color:var(--black);box-shadow:0 1px 4px rgba(0,0,0,.1)}
-.prog-wrap{display:flex;align-items:center;gap:6px}
-.prog-dot{width:7px;height:7px;border-radius:50%;background:var(--g200);transition:var(--tr)}
-.prog-dot.active{background:var(--black);width:7px}
-.prog-dot.done{background:var(--g400)}
+.prog-bar-wrap{display:flex;align-items:center;gap:8px;margin-bottom:20px}
+.prog-bar-label{font-size:11px;font-weight:600;color:var(--g400);white-space:nowrap;font-family:'Syne',sans-serif;letter-spacing:.5px}
+.prog-bar-track{flex:1;height:3px;background:var(--g100);border-radius:99px;overflow:hidden}
+.prog-bar-fill{height:100%;background:var(--black);border-radius:99px;transition:width .4s cubic-bezier(.4,0,.2,1)}
 
 /* MAIN */
 .main{padding-top:60px;min-height:100vh;display:flex;justify-content:center}
@@ -124,7 +124,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
 .addon-masa-price{font-size:12px;color:var(--g600)}
 .qty-wrap{display:flex;align-items:center;gap:6px}
 .qty-btn{width:28px;height:28px;border:1.5px solid var(--g200);border-radius:5px;background:var(--white);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--tr);color:var(--black);line-height:1}
-.qty-btn:hover{border-color:var(--black)}
+.qty-btn:hover:not(:disabled){border-color:var(--black)}
+.qty-btn:disabled{opacity:.4;cursor:not-allowed;border-color:var(--g200)!important}
 .qty-input{width:48px;height:28px;border:1.5px solid var(--g200);border-radius:5px;text-align:center;font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--black);outline:none;transition:var(--tr)}
 .qty-input:focus{border-color:var(--black)}
 .qty-input.err{border-color:var(--err)}
@@ -302,7 +303,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
   .page{padding:30px 18px 90px}
   .nav-row{flex-direction:column-reverse}
   .nav-row .btn-out{width:100%}
-  .steps-grid{grid-template-columns:1fr}
+  .steps-grid{grid-template-columns:1fr 1fr}
   .drink-grid{grid-template-columns:1fr}
   .time-grid{grid-template-columns:repeat(4,1fr)}
 }
@@ -316,6 +317,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
   .flavour-grid{grid-template-columns:1fr 1fr}
   .time-grid{grid-template-columns:repeat(4,1fr);gap:5px}
   .time-btn{font-size:11px;padding:10px 3px}
+  /* SOCIAL */
+  .social-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+  .social-btn{display:flex;align-items:center;gap:10px;padding:12px 15px;border-radius:var(--rs);border:1.5px solid var(--g100);text-decoration:none;color:var(--black);font-family:'Syne',sans-serif;font-weight:600;font-size:13px;transition:var(--tr);background:var(--white)}
+  .social-btn:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,0,0,.1)}
 }
 </style>
 </head>
@@ -327,10 +332,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
     <div class="lang-toggle">
       <button class="lang-btn active" onclick="setLang('en')">EN</button>
       <button class="lang-btn" onclick="setLang('bm')">BM</button>
-    </div>
-    <div class="prog-wrap" id="progWrap">
-      <div class="prog-dot active"></div><div class="prog-dot"></div><div class="prog-dot"></div>
-      <div class="prog-dot"></div><div class="prog-dot"></div><div class="prog-dot"></div><div class="prog-dot"></div>
     </div>
   </div>
 </header>
@@ -382,9 +383,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
 
 <!-- PAGE 2 — DATE & SLOT -->
 <div class="page" id="page-2">
-  <div class="eyebrow" data-i18n="step_1_6">Step 1 of 6</div>
+  <div class="prog-bar-wrap">
+    <span class="prog-bar-label">Step 1 of 6</span>
+    <div class="prog-bar-track"><div class="prog-bar-fill" style="width:16.6%"></div></div>
+  </div>
   <h1 class="page-title" data-i18n="p2_title">Date & Serving Time</h1>
-  <p class="page-sub" data-i18n="p2_sub">Select your event date and preferred start time. Minimum 14 days advance booking required.</p>
+  <p class="page-sub" data-i18n="p2_sub">Select your event date and preferred start time. Minimum 3 days advance booking required.</p>
 
   <!-- CALENDAR -->
   <div class="cal-shell">
@@ -445,9 +449,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px">
           <div class="qty-wrap">
-            <button class="qty-btn" onclick="adjMasa(-1)">−</button>
+            <button class="qty-btn" id="masa-btn-minus" onclick="adjMasa(-1)">−</button>
             <input class="qty-input" id="masa-input" value="0" oninput="onMasaInput(this)" onblur="onMasaBlur(this)">
-            <button class="qty-btn" onclick="adjMasa(1)">+</button>
+            <button class="qty-btn" id="masa-btn-plus" onclick="adjMasa(1)">+</button>
           </div>
           <div class="addon-sub" id="masa-sub">RM 0</div>
         </div>
@@ -464,7 +468,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
 
 <!-- PAGE 3 — MENU -->
 <div class="page" id="page-3">
-  <div class="eyebrow" data-i18n="step_2_6">Step 2 of 6</div>
+  <div class="prog-bar-wrap">
+    <span class="prog-bar-label">Step 2 of 6</span>
+    <div class="prog-bar-track"><div class="prog-bar-fill" style="width:33.3%"></div></div>
+  </div>
   <h1 class="page-title" data-i18n="p3_title">Choose Your Menu</h1>
   <p class="page-sub" data-i18n="p3_sub">Select a menu, set cup quantity, and choose your drinks.</p>
 
@@ -557,7 +564,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
 
 <!-- PAGE 4 — ADD-ONS -->
 <div class="page" id="page-4">
-  <div class="eyebrow" data-i18n="step_3_6">Step 3 of 6</div>
+  <div class="prog-bar-wrap">
+    <span class="prog-bar-label">Step 3 of 6</span>
+    <div class="prog-bar-track"><div class="prog-bar-fill" style="width:50%"></div></div>
+  </div>
   <h1 class="page-title" data-i18n="p4_title">Add-ons</h1>
   <p class="page-sub" data-i18n="p4_sub">All optional. Add as needed for your event.</p>
 
@@ -597,33 +607,74 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
     <button class="btn btn-blk" onclick="goTo(5)"><span data-i18n="next">Next</span> →</button>
   </div>
 </div>
-
+  
 <!-- PAGE 5 — CUSTOMER INFO -->
+  
 <div class="page" id="page-5">
-  <div class="eyebrow" data-i18n="step_4_6">Step 4 of 6</div>
+  <div class="prog-bar-wrap">
+    <span class="prog-bar-label">Step 4 of 6</span>
+    <div class="prog-bar-track"><div class="prog-bar-fill" style="width:66.6%"></div></div>
+  </div>
   <h1 class="page-title" data-i18n="p5_title">Your Details</h1>
   <p class="page-sub" data-i18n="p5_sub">Fill in your contact info and event details accurately.</p>
 
   <div class="sec-label" data-i18n="personal_info">Personal Information</div>
 
+  <!-- INDIVIDUAL/COMPANY TOGGLE -->
   <div class="form-group">
-    <label class="form-lbl"><span data-i18n="full_name">Full Name</span> <span class="req">*</span></label>
+    <div class="radio-row" style="margin-bottom:16px">
+      <label class="radio-opt sel" id="tog-individual" onclick="pickBookerType('individual')"><input type="radio" name="bookertype" checked>Individual</label>
+      <label class="radio-opt" id="tog-company" onclick="pickBookerType('company')"><input type="radio" name="bookertype">Company</label>
+    </div>
+  </div>
+
+  <!-- Company fields (hidden by default) -->
+  <div id="company-fields" style="display:none">
+    <div class="form-group">
+      <label class="form-lbl">Company Name <span class="req">*</span></label>
+      <input type="text" class="form-input" id="f-company" placeholder="e.g. Syarikat ABC Sdn Bhd">
+      <div class="err-msg" id="e-company">Please enter your company name.</div>
+    </div>
+    <div class="form-group">
+      <label class="form-lbl">Industry <span class="req">*</span></label>
+      <div class="form-sel-wrap">
+        <select class="form-select" id="f-industry">
+          <option value="">-- Select Industry --</option>
+          <option>Technology</option><option>Finance & Banking</option><option>Healthcare</option>
+          <option>Education</option><option>Government / GLC</option><option>Retail</option>
+          <option>Food & Beverage</option><option>Construction & Property</option>
+          <option>Manufacturing</option><option>Media & Creative</option><option>Others</option>
+        </select>
+      </div>
+      <div class="err-msg" id="e-industry">Please select your industry.</div>
+    </div>
+  </div>
+
+  <div class="form-group">
+    <label class="form-lbl"><span id="lbl-name">Full Name</span> <span class="req">*</span></label>
     <input type="text" class="form-input" id="f-name" data-i18n-ph="name_ph">
     <div class="err-msg" id="e-name" data-i18n="name_err">Please enter your full name.</div>
+  </div>
+
+  <!-- Designation field (company only) -->
+  <div class="form-group" id="designation-field" style="display:none">
+    <label class="form-lbl">Designation <span class="req">*</span></label>
+    <input type="text" class="form-input" id="f-designation" placeholder="e.g. HR Manager, Event Coordinator">
+    <div class="err-msg" id="e-designation">Please enter your designation.</div>
   </div>
 
   <div class="form-group">
     <label class="form-lbl"><span data-i18n="phone">Phone Number</span> <span class="req">*</span></label>
     <div class="phone-row">
       <div class="phone-pfx-wrap">
-        <input list="pfx-list" class="phone-pfx" id="f-pfx" placeholder="019" oninput="valPfx()">
+        <input list="pfx-list" class="phone-pfx" id="f-pfx" placeholder="019" onblur="valPfx()">
         <datalist id="pfx-list">
           <option value="010"><option value="011"><option value="012"><option value="013">
           <option value="014"><option value="016"><option value="017"><option value="018">
           <option value="019"><option value="03"><option value="06"><option value="1800">
         </datalist>
       </div>
-      <div style="flex:1"><input type="text" class="form-input" id="f-phone" placeholder="12345678" oninput="valPhone()" style="margin:0"></div>
+      <div style="flex:1"><input type="text" class="form-input" id="f-phone" placeholder="12345678" onblur="valPhone()" style="margin:0"></div>
     </div>
     <div class="err-msg" id="e-phone" data-i18n="phone_err">Please enter a valid phone number (numbers only).</div>
   </div>
@@ -770,7 +821,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
 
 <!-- PAGE 6 — SPECIAL REQUEST -->
 <div class="page" id="page-6">
-  <div class="eyebrow" data-i18n="step_5_6">Step 5 of 6</div>
+  <div class="prog-bar-wrap">
+    <span class="prog-bar-label">Step 5 of 6</span>
+    <div class="prog-bar-track"><div class="prog-bar-fill" style="width:83.3%"></div></div>
+  </div>
   <h1 class="page-title" data-i18n="p6_title">Special Requests</h1>
   <p class="page-sub" data-i18n="p6_sub">All fields below are optional. Leave blank if none.</p>
   <div class="sec-label" data-i18n="special_req">Special Requests</div>
@@ -791,6 +845,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
   <div id="diet-detail" style="display:none;margin-top:13px">
     <textarea class="form-textarea" id="f-diet" data-i18n-ph="diet_ph"></textarea>
   </div>
+
+  <div class="divider"></div>
+  <div class="sec-label">Additional Remarks</div>
+  <p style="font-size:13px;color:var(--g600);margin-bottom:10px">Anything else you'd like us to know? Share any special instructions, arrangements, or notes for your event.</p>
+  <div class="form-group">
+    <textarea class="form-textarea" id="f-remarks" placeholder="e.g. Please set up near the entrance. Our event coordinator is Amirah — 0123456789." style="min-height:130px;resize:vertical" maxlength="2500" oninput="updateRemarksCount(this)"></textarea>
+    <div style="font-size:11px;color:var(--g400);text-align:right;margin-top:4px"><span id="remarks-count">0</span> / 500 words</div>
+  </div>
+
   <div class="nav-row">
     <button class="btn btn-out" onclick="goTo(5)">← <span data-i18n="back">Back</span></button>
     <button class="btn btn-blk" onclick="goTo(7)"><span data-i18n="next">Next</span> →</button>
@@ -799,7 +862,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
 
 <!-- PAGE 7 — SUMMARY -->
 <div class="page" id="page-7">
-  <div class="eyebrow" data-i18n="step_6_6">Step 6 of 6</div>
+  <div class="prog-bar-wrap">
+    <span class="prog-bar-label">Step 6 of 6</span>
+    <div class="prog-bar-track"><div class="prog-bar-fill" style="width:100%"></div></div>
+  </div>
   <h1 class="page-title" data-i18n="p7_title">Review & Confirm</h1>
   <p class="page-sub" data-i18n="p7_sub">Please review all details before submitting your booking.</p>
 
@@ -999,7 +1065,7 @@ const TR={
     why4:'Limited slots per day — secure your date early',
     start_booking:'Start Booking →',
     step_1_6:'Step 1 of 6',p2_title:'Date & Serving Time',
-    p2_sub:'Select your event date and preferred start time. Minimum 14 days advance booking required.',
+    p2_sub:'Select your event date and preferred start time. Minimum 3 days advance booking required.',
     pick_start_time:'Pick Start Time',
     time_note:'Select when you\'d like us to start serving. Green dots = available team slots.',
     service_timeline:'Service Timeline',tl_setup:'Booth Setup',tl_serve:'Serving',tl_close:'Pack Up & Closing',
@@ -1072,7 +1138,7 @@ const TR={
     why4:'Slot terhad sehari — amankan tarikh anda awal',
     start_booking:'Mula Tempahan →',
     step_1_6:'Langkah 1 dari 6',p2_title:'Tarikh & Masa Hidangan',
-    p2_sub:'Pilih tarikh event dan masa mula pilihan. Tempahan minimum 14 hari awal diperlukan.',
+    p2_sub:'Pilih tarikh event dan masa mula pilihan. Tempahan minimum 3 hari awal diperlukan.',
     pick_start_time:'Pilih Masa Mula',
     time_note:'Pilih waktu anda mahu kami mula berkhidmat. Titik hijau = slot pasukan tersedia.',
     service_timeline:'Jadual Perkhidmatan',tl_setup:'Setup Booth',tl_serve:'Hidangan',tl_close:'Pembungkusan & Penutupan',
@@ -1191,15 +1257,7 @@ function goTo(n){
   if(n===5)setTimeout(initMapOnP5,100);
   if(n===7)buildSummary();
 }
-function updateProg(){
-  document.querySelectorAll('.prog-dot').forEach((d,i)=>{
-    d.classList.remove('active','done');
-    const s=i+1;
-    if(s<S.page)d.classList.add('done');
-    else if(s===S.page)d.classList.add('active');
-  });
-  document.getElementById('progWrap').style.display=S.page===8?'none':'flex';
-}
+function updateProg(){}
 
 // ═══════════════ CALENDAR ═══════════════
 let CY,CM,CAL_VIEW='month';
@@ -1287,7 +1345,7 @@ function pickYearMonth(m){
 
 function renderMonthView(){
   const now=new Date();now.setHours(0,0,0,0);
-  const minD=new Date(now);minD.setDate(minD.getDate()+14);
+  const minD=new Date(now);minD.setDate(minD.getDate()+3);
   const first=new Date(CY,CM,1).getDay();
   const days=new Date(CY,CM+1,0).getDate();
   let h='';
@@ -1386,15 +1444,25 @@ function pickTime(hr){
   document.querySelectorAll('.time-btn').forEach(b=>b.classList.remove('sel'));
   event.currentTarget.classList.add('sel');
   // Max masa
-  S.maxMasa=Math.max(0,20-hr-DEFAULT_SERVE);
+  S.maxMasa=Math.max(0,23-hr-DEFAULT_SERVE);
   document.getElementById('masa-input').value=0;
   document.getElementById('masa-sub').textContent='RM 0';
   updateTimeline();
   document.getElementById('timeline-box').style.display='block';
   document.getElementById('addon-masa-box').style.display='block';
   const maxNote=document.getElementById('masa-max-note');
-  if(S.maxMasa>0){maxNote.textContent=`Max ${S.maxMasa} ${t('per_hour')}`;maxNote.style.display='block'}
-  else{maxNote.style.display='none'}
+  const plusBtn=document.getElementById('masa-btn-plus');
+  if(S.maxMasa>0){
+    maxNote.textContent=`Max ${S.maxMasa} additional hour(s) available`;
+    maxNote.style.display='block';
+    maxNote.style.color='green';
+    if(plusBtn)plusBtn.disabled=false;
+  } else {
+    maxNote.textContent='Cannot add additional hour — max serving time reached (11PM)';
+    maxNote.style.color='var(--err)';
+    maxNote.style.display='block';
+    if(plusBtn)plusBtn.disabled=true;
+  }
   document.getElementById('btn2next').disabled=false;
 }
 
@@ -1415,6 +1483,8 @@ function adjMasa(d){
   S.masaAddon=Math.max(0,v);
   document.getElementById('masa-input').value=S.masaAddon;
   document.getElementById('masa-sub').textContent=`RM ${(S.masaAddon*40).toLocaleString()}`;
+  const plusBtn=document.getElementById('masa-btn-plus');
+  if(plusBtn)plusBtn.disabled=(S.maxMasa!==null&&S.masaAddon>=S.maxMasa);
   updateTimeline();updateRT();
 }
 
@@ -1585,7 +1655,16 @@ function updateRT(){
   const total=base+cupsAddon+flavAddon+masaAddon+canopyAddon+cleanupAddon+S.logisticsCost;
   document.getElementById('run-total').textContent=`RM ${total.toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2})}`;
 }
-
+// BOOKER TYPE TOGGLE
+let BOOKER_TYPE='individual';
+function pickBookerType(type){
+  BOOKER_TYPE=type;
+  document.getElementById('tog-individual').classList.toggle('sel',type==='individual');
+  document.getElementById('tog-company').classList.toggle('sel',type==='company');
+  document.getElementById('company-fields').style.display=type==='company'?'block':'none';
+  document.getElementById('designation-field').style.display=type==='company'?'block':'none';
+  document.getElementById('lbl-name').textContent=type==='company'?'PIC Full Name':'Full Name';
+}
 // ═══════════════ PAGE 5 — FORMS ═══════════════
 function onCatChange(){
   const cat=document.getElementById('f-evcat').value;
@@ -1694,6 +1773,18 @@ function calcLogistics(dLat,dLng){
 
 function validateP5(){
   let ok=true;
+  // Company validation
+  if(BOOKER_TYPE==='company'){
+    const co=document.getElementById('f-company');
+    const ind=document.getElementById('f-industry');
+    const des=document.getElementById('f-designation');
+    const eco=document.getElementById('e-company');
+    const eind=document.getElementById('e-industry');
+    const edes=document.getElementById('e-designation');
+    if(!co.value.trim()){co.classList.add('herr');eco.classList.add('show');ok=false}else{co.classList.remove('herr');eco.classList.remove('show')}
+    if(!ind.value){ind.classList.add('herr');eind.classList.add('show');ok=false}else{ind.classList.remove('herr');eind.classList.remove('show')}
+    if(!des.value.trim()){des.classList.add('herr');edes.classList.add('show');ok=false}else{des.classList.remove('herr');edes.classList.remove('show')}
+  }
   function chk(id,errId,test){
     const el=document.getElementById(id);
     const v=el.value.trim();
@@ -1747,7 +1838,11 @@ function pickDiet(y){
   document.getElementById('r-diet-n').classList.toggle('sel',!y);
   document.getElementById('diet-detail').style.display=y?'block':'none';
 }
-
+function updateRemarksCount(el){
+  const words=el.value.trim()===''?0:el.value.trim().split(/\s+/).length;
+  document.getElementById('remarks-count').textContent=words;
+  if(words>500){el.style.borderColor='var(--err)'}else{el.style.borderColor=''}
+}
 // ═══════════════ PAGE 7 — SUMMARY ═══════════════
 function buildSummary(){
   document.getElementById('s-date').textContent=S.date?fmtDateDisp(S.date):'—';
