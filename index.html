@@ -420,6 +420,13 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
     <div class="sec-label" data-i18n="pick_start_time">Pick Start Time</div>
     <p style="font-size:12px;color:var(--g600);margin-bottom:10px" data-i18n="time_note">Select when you'd like us to start serving. Each dot below represents an available team slot.</p>
     <div class="time-grid" id="time-grid"></div>
+    <div id="date-full-notice" style="display:none;margin-top:16px">
+      <div style="background:linear-gradient(135deg,#fff5f5,#fff0f0);border:1.5px solid #ffcdd2;border-radius:12px;padding:20px;text-align:center">
+        <div style="font-size:28px;margin-bottom:8px">📅</div>
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:15px;color:#c62828;margin-bottom:6px">This Date is Fully Booked</div>
+        <div style="font-size:12px;color:#e57373;line-height:1.6">All serving slots for this date have been taken.<br>Please select another available date to continue.</div>
+      </div>
+    </div>
 
     <!-- TIMELINE -->
     <div class="timeline-box" id="timeline-box" style="display:none">
@@ -667,18 +674,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
 
   <div class="form-group">
     <label class="form-lbl"><span data-i18n="phone">Phone Number</span> <span class="req">*</span></label>
-    <div class="phone-row">
-      <div class="phone-pfx-wrap">
-        <input list="pfx-list" class="phone-pfx" id="f-pfx" placeholder="019" onblur="valPfx()">
-        <datalist id="pfx-list">
-          <option value="010"><option value="011"><option value="012"><option value="013">
-          <option value="014"><option value="016"><option value="017"><option value="018">
-          <option value="019"><option value="03"><option value="06"><option value="1800">
-        </datalist>
-      </div>
-      <div style="flex:1"><input type="text" class="form-input" id="f-phone" placeholder="12345678" onblur="valPhone()" style="margin:0"></div>
-    </div>
-    <div class="err-msg" id="e-phone" data-i18n="phone_err">Please enter a valid phone number (numbers only).</div>
+    <input type="tel" class="form-input" id="f-phone-full" placeholder="e.g. 014-2258475" oninput="fmtPhone(this)" onblur="valPhoneFull()" autocomplete="tel" style="margin:0">
+    <div class="err-msg" id="e-phone">Please enter a valid Malaysian phone number.</div>
   </div>
 
   <div class="form-group">
@@ -765,26 +762,30 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
     </div>
     <div id="map-container"></div>
     <div class="logistics-info" id="logistics-info">
+      <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:13px;color:var(--black);letter-spacing:.3px;margin-bottom:14px">Transportation Cost Breakdown</div>
       <div class="logistics-row">
-        <span class="logistics-key" data-i18n="distance">📍 Distance from Petre Coffee</span>
+        <span class="logistics-key">📍 Distance from Petre Coffee</span>
         <span class="logistics-val" id="l-distance">—</span>
       </div>
+      <div style="height:10px"></div>
       <div class="logistics-row">
-        <span class="logistics-key" data-i18n="km_cost">🚗 Distance cost (RM1/km)</span>
+        <span class="logistics-key">🚗 Distance cost (RM1/km)</span>
         <span class="logistics-val" id="l-km-cost">—</span>
       </div>
       <div class="logistics-row">
-        <span class="logistics-key" data-i18n="toll_est">🏷️ Toll & Parking (estimated)</span>
+        <span class="logistics-key">🏷️ Toll & Parking (estimated)</span>
         <span class="logistics-val">RM 50.00</span>
       </div>
-      <div id="accommodation-row" class="accommodation-row" style="display:none">
-        🏨 <span data-i18n="accommodation">Accommodation (>100km)</span>: RM 250.00
+      <div class="logistics-row" id="accommodation-row" style="display:none">
+        <span class="logistics-key">🏨 Accommodation (>100km)</span>
+        <span class="logistics-val">RM 250.00</span>
       </div>
-      <div class="logistics-row" style="border-top:1px solid var(--g200);padding-top:7px;margin-top:3px">
-        <span class="logistics-key" style="font-weight:600;color:var(--black)" data-i18n="logistics_total">Total Logistics</span>
-        <span class="logistics-val" style="font-family:'Syne',sans-serif;font-size:14px" id="l-total">—</span>
+      <div class="logistics-row" style="border-top:1.5px solid var(--g200);padding-top:10px;margin-top:8px">
+        <span style="font-family:'Syne',sans-serif;font-weight:800;font-size:13px;color:var(--black)">Total Logistics Cost</span>
+        <span class="logistics-val" style="font-family:'Syne',sans-serif;font-size:15px;font-weight:800" id="l-total">—</span>
       </div>
-      <div class="logistics-note" data-i18n="logistics_note">* Excess toll & parking charges will be refunded after the event.</div>
+      <div class="logistics-note" style="margin-top:8px">* Excess toll & parking charges will be refunded after the event.</div>
+      <div class="logistics-note" id="accommodation-note" style="display:none;margin-top:4px">* Accommodation will be charged for venues more than 100km from Petre Coffee HQ.</div>
     </div>
     <div class="err-msg" id="e-map" data-i18n="map_err">Please pin your event location on the map.</div>
   </div>
@@ -844,6 +845,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
     <label class="radio-opt" id="r-diet-y" onclick="pickDiet(true)"><input type="radio" name="diet"><span data-i18n="yes_have">Yes, there are</span></label>
     <label class="radio-opt" id="r-diet-n" onclick="pickDiet(false)"><input type="radio" name="diet"><span data-i18n="no_none">No, none</span></label>
   </div>
+  <div class="err-msg" id="e-diet-req" style="margin-top:8px">Please answer the dietary requirement question.</div>
+  <div class="err-msg" id="e-diet-detail" style="margin-top:4px">Please describe the dietary requirements.</div>
   <div id="diet-detail" style="display:none;margin-top:13px">
     <textarea class="form-textarea" id="f-diet" data-i18n-ph="diet_ph"></textarea>
   </div>
@@ -858,7 +861,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
 
   <div class="nav-row">
     <button class="btn btn-out" onclick="goTo(5)">← <span data-i18n="back">Back</span></button>
-    <button class="btn btn-blk" onclick="goTo(7)"><span data-i18n="next">Next</span> →</button>
+    <button class="btn btn-blk" onclick="validateP6()"><span data-i18n="next">Next</span> →</button>
   </div>
 </div>
 
@@ -959,6 +962,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
     <div class="divider"></div>
 
     <!-- SOCIAL LINKS -->
+    <p style="font-family:'Syne',sans-serif;font-size:16px;font-weight:700;color:var(--black);margin-bottom:6px">Stay connected with Petre Coffee</p>
+    <p style="font-size:12px;color:var(--g600);margin-bottom:14px">Follow our website and social media for more info and promotions ahead!</p>
     <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px">
 
       <!-- Row 1 — Website full width -->
@@ -1434,10 +1439,20 @@ function pickDate(ds){
   S.date=ds;S.startHour=null;S.masaAddon=0;
   document.getElementById('btn2next').disabled=true;
   renderMonthView();
-  renderTimeGrid(ds);
+  const full=isDateFull(ds);
   document.getElementById('time-section').style.display='block';
   document.getElementById('timeline-box').style.display='none';
   document.getElementById('addon-masa-box').style.display='none';
+  const notice=document.getElementById('date-full-notice');
+  const timeGrid=document.getElementById('time-grid');
+  if(full){
+    notice.style.display='block';
+    timeGrid.style.display='none';
+  } else {
+    notice.style.display='none';
+    timeGrid.style.display='grid';
+    renderTimeGrid(ds);
+  }
 }
 
 function fmtDate(d){return d.toISOString().split('T')[0]}
@@ -1808,7 +1823,8 @@ function calcLogistics(dLat,dLng){
     document.getElementById('l-km-cost').textContent=`RM ${kmCost.toFixed(2)}`;
     document.getElementById('l-total').textContent=`RM ${S.logisticsCost.toFixed(2)}`;
     document.getElementById('logistics-info').classList.add('show');
-    document.getElementById('accommodation-row').style.display=km>100?'block':'none';
+    document.getElementById('accommodation-row').style.display=km>100?'flex':'none';
+    document.getElementById('accommodation-note').style.display=km>100?'block':'none';
     document.getElementById('e-map').classList.remove('show');
     updateRT();
   });
@@ -1844,11 +1860,8 @@ function validateP5(){
   chk('f-evcat','e-evcat',v=>v!=='');
   chk('f-loctype','e-loctype',v=>v!=='');
   chk('f-pax','e-pax',v=>v!=='');
-  const pfx=document.getElementById('f-pfx').value.trim();
-  const ph=document.getElementById('f-phone').value.trim();
-  const pe=document.getElementById('e-phone');
-  if(!pfx||!ph||!/^\d+$/.test(ph)){document.getElementById('f-phone').classList.add('herr');pe.classList.add('show');ok=false}
-  else{document.getElementById('f-phone').classList.remove('herr');pe.classList.remove('show')}
+  valPhoneFull();
+  if(document.getElementById('f-phone-full').classList.contains('herr'))ok=false;
   const cat=document.getElementById('f-evcat').value;
   if(cat&&cat!=='Others'){
     const tv=document.getElementById('f-evtype').value;
@@ -1885,6 +1898,48 @@ function updateRemarksCount(el){
   const words=el.value.trim()===''?0:el.value.trim().split(/\s+/).length;
   document.getElementById('remarks-count').textContent=words;
   if(words>500){el.style.borderColor='var(--err)'}else{el.style.borderColor=''}
+}
+function fmtPhone(el){
+  let v=el.value.replace(/\D/g,'');
+  if(v.startsWith('60'))v='0'+v.slice(2);
+  if(v.length<=3)el.value=v;
+  else if(v.startsWith('011')||v.startsWith('015')){
+    // 011-XXXXXXXX (8 digits after prefix)
+    el.value=v.slice(0,3)+'-'+v.slice(3,11);
+  } else if(v.startsWith('0')){
+    // 01X-XXXXXXX (7 digits after prefix)
+    el.value=v.slice(0,3)+'-'+v.slice(3,10);
+  } else {
+    el.value=v;
+  }
+}
+function valPhoneFull(){
+  const el=document.getElementById('f-phone-full');
+  const err=document.getElementById('e-phone');
+  const digits=el.value.replace(/\D/g,'');
+  const valid=digits.length>=9&&digits.length<=11&&digits.startsWith('0');
+  el.classList.toggle('herr',!valid);
+  err.classList.toggle('show',!valid);
+}
+function getPhoneForSubmit(){
+  const v=document.getElementById('f-phone-full').value.replace(/\D/g,'');
+  return{pfx:v.slice(0,3),num:v.slice(3)};
+}
+function validateP6(){
+  let ok=true;
+  if(S.dietYes===null){
+    document.getElementById('e-diet-req').classList.add('show');ok=false;
+  } else {
+    document.getElementById('e-diet-req').classList.remove('show');
+    if(S.dietYes){
+      const detail=document.getElementById('f-diet').value.trim();
+      if(!detail){document.getElementById('e-diet-detail').classList.add('show');ok=false}
+      else document.getElementById('e-diet-detail').classList.remove('show');
+    } else {
+      document.getElementById('e-diet-detail').classList.remove('show');
+    }
+  }
+  if(ok)goTo(7);
 }
 // ═══════════════ PAGE 7 — SUMMARY ═══════════════
 function buildSummary(){
@@ -1990,7 +2045,7 @@ async function submitBooking(){
     const bData={
       order_token:token,
       customer_name:document.getElementById('f-name').value.trim(),
-      customer_phone:document.getElementById('f-pfx').value.trim()+document.getElementById('f-phone').value.trim(),
+      customer_phone:document.getElementById('f-phone-full').value.replace(/\D/g,''),
       customer_email:document.getElementById('f-email').value.trim(),
       event_address:document.getElementById('f-addr').value.trim(),
       postcode:document.getElementById('f-postcode').value.trim(),
@@ -2000,8 +2055,6 @@ async function submitBooking(){
       pax_count:document.getElementById('f-pax').value,
       event_category:cat,event_type:evtype,
       event_name:document.getElementById('f-evname').value.trim()||null,
-      phone_prefix:document.getElementById('f-pfx').value.trim(),
-      phone_number:document.getElementById('f-phone').value.trim(),
       event_lat:S.mapLat,event_lng:S.mapLng,
       package_id:pkgs[0]?.id,
       event_date:S.date,
