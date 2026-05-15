@@ -1790,8 +1790,6 @@ function initMapOnP5(){
     marker.setPosition(loc);marker.setVisible(true);
     S.mapLat=loc.lat();S.mapLng=loc.lng();
     calcLogistics(S.mapLat,S.mapLng);
-    if(!document.getElementById('f-addr').value&&p.formatted_address)
-      document.getElementById('f-addr').value=p.formatted_address;
   });
   map.addListener('click',e=>{
     marker.setPosition(e.latLng);marker.setVisible(true);
@@ -1910,7 +1908,10 @@ function calcLogistics(dLat,dLng){
     const toll=50;
     const accommodation=km>100?250:0;
     S.logisticsCost=kmCost+toll+accommodation;
-    document.getElementById('l-distance').textContent=`${km.toFixed(1)} km`;
+    const lDist=document.getElementById('l-distance');
+    if(lDist)lDist.textContent=`${km.toFixed(1)} km`;
+    const lDistTop=document.getElementById('l-distance-top');
+    if(lDistTop){lDistTop.textContent=`${km.toFixed(1)} km`;document.getElementById('distance-info').style.display='block';}
     document.getElementById('l-km-cost').textContent=`RM ${kmCost.toFixed(2)}`;
     document.getElementById('l-total').textContent=`RM ${S.logisticsCost.toFixed(2)}`;
     document.getElementById('logistics-info').classList.add('show');
