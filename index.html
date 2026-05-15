@@ -726,7 +726,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
     <p style="font-size:12px;color:var(--g600);margin-bottom:9px" data-i18n="pin_desc">Pin your event location for accurate logistics cost calculation.</p>
     <div class="map-btn-row">
       <button class="map-loc-btn" onclick="getMyLocation()">📍 <span data-i18n="use_my_loc">Use My Current Location</span></button>
-      <button class="map-loc-btn" onclick="autoFillAddress()" id="btn-autofill" style="display:none">✏️ Auto Fill Address</button>
+      <button class="map-loc-btn" id="btn-autofill" onclick="autoFillAddress()" style="display:none">✏️ Auto Fill Address</button>
     </div>
     <div class="map-search-wrap">
       <span class="map-search-ico">🔍</span>
@@ -1911,20 +1911,15 @@ function calcLogistics(dLat,dLng){
     const accommodation=km>100?250:0;
     S.logisticsCost=kmCost+toll+accommodation;
     document.getElementById('l-distance').textContent=`${km.toFixed(1)} km`;
-    // Update distance top + show autofill button
-    const distTop=document.getElementById('l-distance-top');
-    if(distTop)distTop.textContent=`${km.toFixed(1)} km`;
-    const distInfo=document.getElementById('distance-info');
-    if(distInfo)distInfo.style.display='block';
-    const btnAF=document.getElementById('btn-autofill');
-    if(btnAF)btnAF.style.display='flex';
     document.getElementById('l-km-cost').textContent=`RM ${kmCost.toFixed(2)}`;
     document.getElementById('l-total').textContent=`RM ${S.logisticsCost.toFixed(2)}`;
     document.getElementById('logistics-info').classList.add('show');
     const accRow=document.getElementById('accommodation-row');
-    if(accRow){accRow.style.display=km>100?'block':'none';}
+    if(accRow)accRow.style.display=km>100?'block':'none';
     document.getElementById('accommodation-note').style.display=km>100?'block':'none';
     document.getElementById('e-map').classList.remove('show');
+    const btnAF=document.getElementById('btn-autofill');
+    if(btnAF)btnAF.style.display='flex';
     updateRT();
   });
 }
