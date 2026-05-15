@@ -1818,6 +1818,7 @@ function getMyLocation(){
 }
 
 // AUTO FILL ADDRESS dari map marker
+// AUTO FILL ADDRESS dari map marker
 function autoFillAddress(){
   if(!S.mapLat||!S.mapLng){showToast('Please pin a location first.');return;}
   const btn=document.getElementById('btn-autofill');
@@ -1829,68 +1830,7 @@ function autoFillAddress(){
       const comp=res[0].address_components;
       const get=type=>comp.find(c=>c.types.includes(type))?.long_name||'';
 
-      // ── FULL ADDRESS ──
-      // Ambil semua parts yang meaningful, strip Plus Code
-      const isPlusCode=s=>/^[A-Z0-9]{4,}\+[A-Z0-9]+/.test(s.trim());
-      const cleanFormatted=res[0].formatted_address
-        .split(',')
-        .map(s=>s.trim())
-        .filter(s=>!isPlusCode(s)&&s!=='Malaysia');
-
-      // Cuba bina dari components dulu
-      const num=get('street_number');
-      const route=get('route');
-      const premise=get('premise');
-      const poi=get('point_of_interest');
-      const sub2=get('sublocality_level_2');
-      const sub1=get('sublocality_level_1')||get('sublocality');
-      const neighbourhood=get('neighborhood');
-      const parts=[poi||premise,num,route,sub2||neighbourhood,sub1].filter(Boolean);
-      const cleanParts=parts.filter(p=>!isPlusCode(p));
-
-      let fullAddr='';
-      if(cleanParts.length>=1){
-        fullAddr=cleanParts.join(', ');
-      } else if(cleanFormatted.length>=1){
-        // Guna formatted_address — ambil bahagian sebelum city/state
-        const rawState=get('administrative_area_level_1');
-        const city=get('locality')||get('administrative_area_level_2');
-        fullAddr=cleanFormatted
-          .filter(s=>s!==rawState&&s!==city&&s!=='Malacca'&&s!=='Melaka'&&!/^\d{5}$/.test(s))
-          .slice(0,2)
-          .join(', ');
-      }
-      document.getElementById('f-addr').value=fullAddr;
-
-      // ── POSTCODE ──
-      // Cuba dari components dulu, kalau takde try cari dari formatted_address
-      let pc=get('postal_code').replace(/\D/g,'').slice(0,5);
-      if(!pc){
-        // Scan formatted_address untuk 5-digit number
-        const pcMatch=res[0].formatted_address.match(/\b(\d{5})\b/);
-        if(pcMatch)pc=pcMatch[1];
-      }
-      if(!pc){
-        // Last resort — try geocode balik dengan radius untuk cari postcode kawasan
-        const allResults=res.filter(r=>r.types.includes('postal_code'));
-        if(allResults.length>0){
-          pc=allResults[0].address_components
-            .find(c=>c.types.includes('postal_code'))?.long_name.replace(/\D/g,'').slice(0,5)||'';
-        }
-      }
-      if(pc&&pc.length===5)document.getElementById('f-postcode').value=pc;
-
-      // ── CITY ──
-      // Ikut priority: locality → administrative_area_level_2 (daerah) → sublocality
-      const city=get('locality')||
-                 get('administrative_area_level_2')||
-                 get('administrative_area_level_3')||
-                 get('sublocality_level_1')||
-                 get('sublocality');
-      if(city)document.getElementById('f-city').value=city;
-
-      // ── STATE ──
-      const rawState=get('administrative_area_level_1');
+      // ── 1. STATEMAP — declare dulu sebelum guna ──
       const stateMap={
         'Selangor':'Selangor',
         'Kuala Lumpur':'W.P. Kuala Lumpur',
@@ -1906,6 +1846,78 @@ function autoFillAddress(){
         'Sabah':'Sabah','Sarawak':'Sarawak',
         'Labuan':'W.P. Labuan'
       };
+
+      // ── 2. EXTRACT components ──
+      const rawState=get('administrative_area_level_1');
+      const city=get('locality')||
+                 get('administrative_area_level_2')||
+                 get('administrative_area_level_3')||
+                 get('sublocality_level_1')||
+                 get('sublocality');
+
+      // ── 3. FULL ADDRESS ──
+      const isPlusCode=s=>/^[A-Z0-9]{4,}\+[A-Z0-9]+/.test(s.trim());
+
+      // Strip Malaysia, state, city, postcode, plus code dari formatted_address
+      const stopWords=[city,rawState,'Malaysia',stateMap[rawState]||'',
+        'Malacca','Melaka','Selangor','Kuala Lumpur','Putrajaya',
+        'Johor','Kedah','Kelantan','Negeri Sembilan','Pahang',
+        'Perak','Perlis','Penang','Pulau Pinang','Terengganu',
+        'Sabah','Sarawak','Labuan'
+      ].filter(Boolean).map(s=>s.toLowerCase());
+
+      const cleanFormatted=res[0].formatted_address
+        .split(',')
+        .map(s=>s.trim())
+        .filter(s=>!isPlusCode(s)&&s!=='Malaysia');
+
+      // Cuba bina dari components dulu (street number, route, sublocality)
+      const num=get('street_number');
+      const route=get('route');
+      const premise=get('premise');
+      const poi=get('point_of_interest');
+      const sub2=get('sublocality_level_2');
+      const sub1=get('sublocality_level_1')||get('sublocality');
+      const neighbourhood=get('neighborhood');
+      const compParts=[poi||premise,num,route,sub2||neighbourhood,sub1]
+        .filter(Boolean)
+        .filter(p=>!isPlusCode(p));
+
+      let fullAddr='';
+      if(compParts.length>=1){
+        // Guna components
+        fullAddr=compParts.join(', ');
+      } else {
+        // Fallback — loop formatted_address, stop bila jumpa city/state/postcode
+        const addrParts=[];
+        for(const s of cleanFormatted){
+          if(stopWords.includes(s.toLowerCase()))break;
+          if(/^\d{5}$/.test(s))break;
+          addrParts.push(s);
+        }
+        fullAddr=addrParts.join(', ');
+      }
+      document.getElementById('f-addr').value=fullAddr;
+
+      // ── 4. POSTCODE ──
+      let pc=get('postal_code').replace(/\D/g,'').slice(0,5);
+      if(!pc){
+        const pcMatch=res[0].formatted_address.match(/\b(\d{5})\b/);
+        if(pcMatch)pc=pcMatch[1];
+      }
+      if(!pc){
+        const pcResult=res.find(r=>r.types.includes('postal_code'));
+        if(pcResult){
+          pc=pcResult.address_components
+            .find(c=>c.types.includes('postal_code'))?.long_name.replace(/\D/g,'').slice(0,5)||'';
+        }
+      }
+      if(pc&&pc.length===5)document.getElementById('f-postcode').value=pc;
+
+      // ── 5. CITY ──
+      if(city)document.getElementById('f-city').value=city;
+
+      // ── 6. STATE ──
       const mapped=stateMap[rawState]||rawState;
       const sel=document.getElementById('f-state');
       let matched=false;
