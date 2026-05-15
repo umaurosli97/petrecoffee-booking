@@ -771,7 +771,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
 
   <!-- FULL ADDRESS (auto-fillable) -->
   <div class="form-group" style="margin-top:20px">
-    <label class="form-lbl"><span data-i18n="full_address">Full Address</span> <span class="req">*</span></label>
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+      <label class="form-lbl" style="margin:0"><span data-i18n="full_address">Full Address</span> <span class="req">*</span></label>
+      <button onclick="clearAddressFields()" style="background:none;border:none;font-size:11px;color:var(--g400);cursor:pointer;font-family:'DM Sans',sans-serif;padding:2px 6px;border-radius:4px;transition:var(--tr);display:flex;align-items:center;gap:4px" onmouseover="this.style.color='var(--err)'" onmouseout="this.style.color='var(--g400)'">✕ Clear address</button>
+    </div>
     <input type="text" class="form-input" id="f-addr" data-i18n-ph="addr_ph">
     <div class="err-msg" id="e-addr" data-i18n="addr_err">Please enter the full event address.</div>
   </div>
@@ -1818,40 +1821,78 @@ function getMyLocation(){
 
 // AUTO FILL ADDRESS dari map marker
 function autoFillAddress(){
-  if(!S.mapLat||!S.mapLng)return;
+  if(!S.mapLat||!S.mapLng){showToast('Please pin a location first.');return;}
+  const btn=document.getElementById('btn-autofill');
+  if(btn){btn.textContent='⏳ Detecting...';btn.disabled=true;}
   const gc=new google.maps.Geocoder();
   gc.geocode({location:{lat:S.mapLat,lng:S.mapLng}},function(res,status){
+    if(btn){btn.innerHTML='✏️ Auto Fill Address';btn.disabled=false;}
     if(status==='OK'&&res[0]){
       const comp=res[0].address_components;
       const get=type=>comp.find(c=>c.types.includes(type))?.long_name||'';
-      const getShort=type=>comp.find(c=>c.types.includes(type))?.short_name||'';
-      // Full address
+      // Build full address intelligently
       const num=get('street_number');
       const route=get('route');
-      const sub=get('sublocality_level_1')||get('sublocality');
-      document.getElementById('f-addr').value=[num,route,sub].filter(Boolean).join(', ')||res[0].formatted_address;
-      // Postcode
-      const pc=get('postal_code');
+      const sub2=get('sublocality_level_2');
+      const sub1=get('sublocality_level_1')||get('sublocality');
+      const parts=[num,route,sub2,sub1].filter(Boolean);
+      const fullAddr=parts.length>=2?parts.join(', '):res[0].formatted_address.split(',').slice(0,3).join(',').trim();
+      document.getElementById('f-addr').value=fullAddr;
+      // Postcode — 5 digit Malaysian
+      const pc=get('postal_code').replace(/\D/g,'').slice(0,5);
       if(pc)document.getElementById('f-postcode').value=pc;
-      // City
-      const city=get('locality')||get('administrative_area_level_2');
+      // City — try multiple levels
+      const city=get('locality')||get('sublocality_level_1')||get('administrative_area_level_2')||get('administrative_area_level_3');
       if(city)document.getElementById('f-city').value=city;
-      // State
-      const state=get('administrative_area_level_1');
+      // State — map to dropdown values
+      const rawState=get('administrative_area_level_1');
       const stateMap={
-        'Selangor':'Selangor','Kuala Lumpur':'W.P. Kuala Lumpur','Putrajaya':'W.P. Putrajaya',
-        'Johor':'Johor','Kedah':'Kedah','Kelantan':'Kelantan','Malacca':'Melaka','Melaka':'Melaka',
-        'Negeri Sembilan':'Negeri Sembilan','Pahang':'Pahang','Perak':'Perak','Perlis':'Perlis',
-        'Penang':'Pulau Pinang','Pulau Pinang':'Pulau Pinang','Terengganu':'Terengganu'
+        'Selangor':'Selangor',
+        'Kuala Lumpur':'W.P. Kuala Lumpur','Federal Territory of Kuala Lumpur':'W.P. Kuala Lumpur',
+        'Putrajaya':'W.P. Putrajaya','Federal Territory of Putrajaya':'W.P. Putrajaya',
+        'Johor':'Johor','Kedah':'Kedah','Kelantan':'Kelantan',
+        'Malacca':'Melaka','Melaka':'Melaka',
+        'Negeri Sembilan':'Negeri Sembilan',
+        'Pahang':'Pahang','Perak':'Perak','Perlis':'Perlis',
+        'Penang':'Pulau Pinang','Pulau Pinang':'Pulau Pinang',
+        'Terengganu':'Terengganu',
+        'Sabah':'Sabah','Sarawak':'Sarawak',
+        'Labuan':'W.P. Labuan'
       };
+      const mapped=stateMap[rawState]||rawState;
       const sel=document.getElementById('f-state');
-      const mapped=stateMap[state]||state;
-      for(let o of sel.options){if(o.value===mapped){sel.value=mapped;break}}
-      showToast('Address filled! Please verify and edit if needed.');
+      let matched=false;
+      for(let o of sel.options){
+        if(o.value===mapped){sel.value=mapped;matched=true;break;}
+      }
+      // Fallback: partial match
+      if(!matched&&rawState){
+        for(let o of sel.options){
+          if(o.value.toLowerCase().includes(rawState.toLowerCase())||rawState.toLowerCase().includes(o.value.toLowerCase())){
+            sel.value=o.value;break;
+          }
+        }
+      }
+      showToast('✅ Address filled! Verify and edit if needed.');
+    } else {
+      showToast('Could not detect address. Please fill manually.');
     }
   });
 }
-
+function clearAddressFields(){
+  document.getElementById('f-addr').value='';
+  document.getElementById('f-postcode').value='';
+  document.getElementById('f-city').value='';
+  document.getElementById('f-state').value='';
+  // Clear error states
+  ['f-addr','f-postcode','f-city','f-state'].forEach(id=>{
+    document.getElementById(id)?.classList.remove('herr');
+  });
+  ['e-addr','e-postcode','e-city','e-state'].forEach(id=>{
+    document.getElementById(id)?.classList.remove('show');
+  });
+  showToast('Address fields cleared.');
+}
 function calcLogistics(dLat,dLng){
   if(!distSvc)return;
   distSvc.getDistanceMatrix({
