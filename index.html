@@ -1828,26 +1828,75 @@ function autoFillAddress(){
     if(status==='OK'&&res[0]){
       const comp=res[0].address_components;
       const get=type=>comp.find(c=>c.types.includes(type))?.long_name||'';
-      // Build full address intelligently
+
+      // ── FULL ADDRESS ──
+      // Ambil semua parts yang meaningful, strip Plus Code
+      const isPlusCode=s=>/^[A-Z0-9]{4,}\+[A-Z0-9]+/.test(s.trim());
+      const cleanFormatted=res[0].formatted_address
+        .split(',')
+        .map(s=>s.trim())
+        .filter(s=>!isPlusCode(s)&&s!=='Malaysia');
+
+      // Cuba bina dari components dulu
       const num=get('street_number');
       const route=get('route');
+      const premise=get('premise');
+      const poi=get('point_of_interest');
       const sub2=get('sublocality_level_2');
       const sub1=get('sublocality_level_1')||get('sublocality');
-      const parts=[num,route,sub2,sub1].filter(Boolean);
-      const fullAddr=parts.length>=2?parts.join(', '):res[0].formatted_address.split(',').slice(0,3).join(',').trim();
+      const neighbourhood=get('neighborhood');
+      const parts=[poi||premise,num,route,sub2||neighbourhood,sub1].filter(Boolean);
+      const cleanParts=parts.filter(p=>!isPlusCode(p));
+
+      let fullAddr='';
+      if(cleanParts.length>=1){
+        fullAddr=cleanParts.join(', ');
+      } else if(cleanFormatted.length>=1){
+        // Guna formatted_address — ambil bahagian sebelum city/state
+        const rawState=get('administrative_area_level_1');
+        const city=get('locality')||get('administrative_area_level_2');
+        fullAddr=cleanFormatted
+          .filter(s=>s!==rawState&&s!==city&&s!=='Malacca'&&s!=='Melaka'&&!/^\d{5}$/.test(s))
+          .slice(0,2)
+          .join(', ');
+      }
       document.getElementById('f-addr').value=fullAddr;
-      // Postcode — 5 digit Malaysian
-      const pc=get('postal_code').replace(/\D/g,'').slice(0,5);
-      if(pc)document.getElementById('f-postcode').value=pc;
-      // City — try multiple levels
-      const city=get('locality')||get('sublocality_level_1')||get('administrative_area_level_2')||get('administrative_area_level_3');
+
+      // ── POSTCODE ──
+      // Cuba dari components dulu, kalau takde try cari dari formatted_address
+      let pc=get('postal_code').replace(/\D/g,'').slice(0,5);
+      if(!pc){
+        // Scan formatted_address untuk 5-digit number
+        const pcMatch=res[0].formatted_address.match(/\b(\d{5})\b/);
+        if(pcMatch)pc=pcMatch[1];
+      }
+      if(!pc){
+        // Last resort — try geocode balik dengan radius untuk cari postcode kawasan
+        const allResults=res.filter(r=>r.types.includes('postal_code'));
+        if(allResults.length>0){
+          pc=allResults[0].address_components
+            .find(c=>c.types.includes('postal_code'))?.long_name.replace(/\D/g,'').slice(0,5)||'';
+        }
+      }
+      if(pc&&pc.length===5)document.getElementById('f-postcode').value=pc;
+
+      // ── CITY ──
+      // Ikut priority: locality → administrative_area_level_2 (daerah) → sublocality
+      const city=get('locality')||
+                 get('administrative_area_level_2')||
+                 get('administrative_area_level_3')||
+                 get('sublocality_level_1')||
+                 get('sublocality');
       if(city)document.getElementById('f-city').value=city;
-      // State — map to dropdown values
+
+      // ── STATE ──
       const rawState=get('administrative_area_level_1');
       const stateMap={
         'Selangor':'Selangor',
-        'Kuala Lumpur':'W.P. Kuala Lumpur','Federal Territory of Kuala Lumpur':'W.P. Kuala Lumpur',
-        'Putrajaya':'W.P. Putrajaya','Federal Territory of Putrajaya':'W.P. Putrajaya',
+        'Kuala Lumpur':'W.P. Kuala Lumpur',
+        'Federal Territory of Kuala Lumpur':'W.P. Kuala Lumpur',
+        'Putrajaya':'W.P. Putrajaya',
+        'Federal Territory of Putrajaya':'W.P. Putrajaya',
         'Johor':'Johor','Kedah':'Kedah','Kelantan':'Kelantan',
         'Malacca':'Melaka','Melaka':'Melaka',
         'Negeri Sembilan':'Negeri Sembilan',
@@ -1863,15 +1912,16 @@ function autoFillAddress(){
       for(let o of sel.options){
         if(o.value===mapped){sel.value=mapped;matched=true;break;}
       }
-      // Fallback: partial match
       if(!matched&&rawState){
         for(let o of sel.options){
-          if(o.value.toLowerCase().includes(rawState.toLowerCase())||rawState.toLowerCase().includes(o.value.toLowerCase())){
+          if(o.value.toLowerCase().includes(rawState.toLowerCase())||
+             rawState.toLowerCase().includes(o.value.toLowerCase())){
             sel.value=o.value;break;
           }
         }
       }
-      showToast('✅ Address filled! Verify and edit if needed.');
+
+      showToast('✅ Address filled! Please verify and edit if needed.');
     } else {
       showToast('Could not detect address. Please fill manually.');
     }
