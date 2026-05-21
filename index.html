@@ -1472,7 +1472,12 @@ function pickDate(ds){
   }
 }
 
-function fmtDate(d){return d.toISOString().split('T')[0]}
+function fmtDate(d){
+  const yyyy=d.getFullYear();
+  const mm=String(d.getMonth()+1).padStart(2,'0');
+  const dd=String(d.getDate()).padStart(2,'0');
+  return `${yyyy}-${mm}-${dd}`;
+}
 
 function fmtDateDisp(ds){
   const d=new Date(ds+'T00:00:00');
