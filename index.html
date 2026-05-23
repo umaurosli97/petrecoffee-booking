@@ -360,26 +360,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
     </div>
   </div>
 
-  <div class="intro-section">
-    <div class="intro-section-title" data-i18n="what_you_get">What You Get</div>
-    <ul class="benefit-list">
-      <li class="benefit-item"><span class="benefit-icon">☕</span><span data-i18n="benefit1">Complete coffee setup — table booth, equipment & 2 baristas</span></li>
-      <li class="benefit-item"><span class="benefit-icon">⏱️</span><span data-i18n="benefit2">4-hour service — 1 hour setup, 3 hours serving</span></li>
-      <li class="benefit-item"><span class="benefit-icon">🥤</span><span data-i18n="benefit3">Quality drinks — 8oz (hot) & 9oz (cold)</span></li>
-      <li class="benefit-item"><span class="benefit-icon">✨</span><span data-i18n="benefit4">Stress-free experience — we handle everything on-site</span></li>
-    </ul>
-  </div>
-
-  <div class="intro-section">
-    <div class="intro-section-title" data-i18n="why_book">Why Book With Us</div>
-    <ul class="benefit-list">
-      <li class="benefit-item"><span class="benefit-icon">🔥</span><span data-i18n="why1">No back-and-forth — everything done in one simple booking</span></li>
-      <li class="benefit-item"><span class="benefit-icon">💎</span><span data-i18n="why2">Transparent packages — no hidden charges</span></li>
-      <li class="benefit-item"><span class="benefit-icon">🤝</span><span data-i18n="why3">Reliable team — we show up on time, ready to serve</span></li>
-      <li class="benefit-item"><span class="benefit-icon">⚡</span><span data-i18n="why4">Limited slots per day — secure your date early</span></li>
-    </ul>
-  </div>
-
   <div class="nav-row" style="margin-top:24px">
     <button class="btn btn-blk btn-full" onclick="goTo(2)" data-i18n="start_booking">Start Booking →</button>
   </div>
@@ -567,20 +547,38 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
     </div>
   </div>
 
+  <!-- DIETARY — moved from page 6 -->
+  <div id="dietary-in-p3" style="display:none;margin-top:18px">
+    <div class="divider"></div>
+    <div class="sec-label" data-i18n="dietary">Dietary & Allergy Requirements</div>
+    <p style="font-size:13px;color:var(--g600);margin-bottom:12px" data-i18n="dietary_q">Are there any dietary requirements or food allergies among your guests?</p>
+    <div class="radio-row">
+      <label class="radio-opt" id="r-diet-y" onclick="pickDiet(true)"><input type="radio" name="diet"><span data-i18n="yes_have">Yes, there are</span></label>
+      <label class="radio-opt" id="r-diet-n" onclick="pickDiet(false)"><input type="radio" name="diet"><span data-i18n="no_none">No, none</span></label>
+    </div>
+    <div class="err-msg" id="e-diet-req" style="margin-top:8px">Please answer the dietary requirement question.</div>
+    <div class="err-msg" id="e-diet-detail" style="margin-top:4px">Please describe the dietary requirements.</div>
+    <div id="diet-detail" style="display:none;margin-top:13px">
+      <textarea class="form-textarea" id="f-diet" data-i18n-ph="diet_ph"></textarea>
+    </div>
+  </div>
+
   <div class="nav-row">
     <button class="btn btn-out" onclick="goTo(2)">← <span data-i18n="back">Back</span></button>
     <button class="btn btn-blk" id="btn3next" disabled onclick="goTo(4)"><span data-i18n="next">Next</span> →</button>
   </div>
 </div>
 
-<!-- PAGE 4 — ADD-ONS -->
+<!-- PAGE 4 — ADD-ONS & SPECIAL REQUESTS -->
 <div class="page" id="page-4">
   <div class="prog-bar-wrap">
     <span class="prog-bar-label">Step 3 of 6</span>
     <div class="prog-bar-track"><div class="prog-bar-fill" style="width:50%"></div></div>
   </div>
-  <h1 class="page-title" data-i18n="p4_title">Add-ons</h1>
+  <h1 class="page-title" data-i18n="p4_title">Add-on Services & Special Requests</h1>
   <p class="page-sub" data-i18n="p4_sub">All optional. Add as needed for your event.</p>
+
+  <div class="sec-label" data-i18n="addons_label">Add-on Services</div>
 
   <!-- Canopy -->
   <div class="addon-card" id="acard-canopy">
@@ -611,6 +609,26 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
   <div class="running-total">
     <div><div class="rt-lbl" data-i18n="total_so_far">Menu + Add-ons Total</div></div>
     <div class="rt-amt" id="run-total">RM 0</div>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="sec-label" data-i18n="special_req">Special Requests</div>
+  <div id="reqRows">
+    <div class="req-row" id="rr-1">
+      <input type="text" class="form-input" id="rr-1-inp" data-i18n-ph="req_ph">
+      <button class="del-btn" onclick="delReq(1)" style="display:none">✕</button>
+    </div>
+  </div>
+  <button class="add-req-btn" onclick="addReq()">+ <span data-i18n="add_request">Add Request</span></button>
+
+  <div class="divider"></div>
+
+  <div class="sec-label">Additional Remarks</div>
+  <p style="font-size:13px;color:var(--g600);margin-bottom:10px">Anything else you'd like us to know? Share any special instructions, arrangements, or notes for your event.</p>
+  <div class="form-group">
+    <textarea class="form-textarea" id="f-remarks" placeholder="e.g. Please set up near the entrance. Our event coordinator is Amirah — 0123456789." style="min-height:130px;resize:vertical" maxlength="2500" oninput="updateRemarksCount(this)"></textarea>
+    <div style="font-size:11px;color:var(--g400);text-align:right;margin-top:4px"><span id="remarks-count">0</span> / 500 words</div>
   </div>
 
   <div class="nav-row">
@@ -839,48 +857,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
   </div>
 </div>
 
-<!-- PAGE 6 — SPECIAL REQUEST -->
-<div class="page" id="page-6">
-  <div class="prog-bar-wrap">
-    <span class="prog-bar-label">Step 5 of 6</span>
-    <div class="prog-bar-track"><div class="prog-bar-fill" style="width:83.3%"></div></div>
-  </div>
-  <h1 class="page-title" data-i18n="p6_title">Special Requests</h1>
-  <p class="page-sub" data-i18n="p6_sub">All fields below are optional. Leave blank if none.</p>
-  <div class="sec-label" data-i18n="special_req">Special Requests</div>
-  <div id="reqRows">
-    <div class="req-row" id="rr-1">
-      <input type="text" class="form-input" id="rr-1-inp" data-i18n-ph="req_ph">
-      <button class="del-btn" onclick="delReq(1)" style="display:none">✕</button>
-    </div>
-  </div>
-  <button class="add-req-btn" onclick="addReq()">+ <span data-i18n="add_request">Add Request</span></button>
-  <div class="divider"></div>
-  <div class="sec-label" data-i18n="dietary">Dietary & Allergy Requirements</div>
-  <p style="font-size:13px;color:var(--g600);margin-bottom:12px" data-i18n="dietary_q">Are there any dietary requirements or food allergies among your guests?</p>
-  <div class="radio-row">
-    <label class="radio-opt" id="r-diet-y" onclick="pickDiet(true)"><input type="radio" name="diet"><span data-i18n="yes_have">Yes, there are</span></label>
-    <label class="radio-opt" id="r-diet-n" onclick="pickDiet(false)"><input type="radio" name="diet"><span data-i18n="no_none">No, none</span></label>
-  </div>
-  <div class="err-msg" id="e-diet-req" style="margin-top:8px">Please answer the dietary requirement question.</div>
-  <div class="err-msg" id="e-diet-detail" style="margin-top:4px">Please describe the dietary requirements.</div>
-  <div id="diet-detail" style="display:none;margin-top:13px">
-    <textarea class="form-textarea" id="f-diet" data-i18n-ph="diet_ph"></textarea>
-  </div>
-
-  <div class="divider"></div>
-  <div class="sec-label">Additional Remarks</div>
-  <p style="font-size:13px;color:var(--g600);margin-bottom:10px">Anything else you'd like us to know? Share any special instructions, arrangements, or notes for your event.</p>
-  <div class="form-group">
-    <textarea class="form-textarea" id="f-remarks" placeholder="e.g. Please set up near the entrance. Our event coordinator is Amirah — 0123456789." style="min-height:130px;resize:vertical" maxlength="2500" oninput="updateRemarksCount(this)"></textarea>
-    <div style="font-size:11px;color:var(--g400);text-align:right;margin-top:4px"><span id="remarks-count">0</span> / 500 words</div>
-  </div>
-
-  <div class="nav-row">
-    <button class="btn btn-out" onclick="goTo(5)">← <span data-i18n="back">Back</span></button>
-    <button class="btn btn-blk" onclick="validateP6()"><span data-i18n="next">Next</span> →</button>
-  </div>
-</div>
 
 <!-- PAGE 7 — SUMMARY -->
 <div class="page" id="page-7">
@@ -950,7 +926,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
   </div>
 
   <div class="nav-row">
-    <button class="btn btn-out" onclick="goTo(6)">← <span data-i18n="back">Back</span></button>
+    <button class="btn btn-out" onclick="goTo(5)">← <span data-i18n="back">Back</span></button>
     <button class="btn btn-blk" id="submit-btn" disabled onclick="submitBooking()"><span data-i18n="submit">Submit Booking</span></button>
   </div>
 </div>
@@ -1144,6 +1120,7 @@ const TR={
     comp_syrup:'Complimentary: Sugar Syrup + 1 Flavour Syrup',syrup_note:'Choose 1 complimentary flavour. Additional flavours: RM 70 each.',
     comp_puree:'Complimentary: 1 Fruit Puree',puree_note:'Choose 1 complimentary puree. Additional purees: RM 70 each.',
     step_3_6:'Step 3 of 6',p4_title:'Add-ons',p4_sub:'All optional. Add as needed for your event.',
+    addons_label:'Add-on Services',
     canopy_desc:'Shade solution for outdoor or open venues. Ideal for locations with rain risk.',
     cleanup_name:'Waste Management Service',cleanup_desc:'Petre Coffee handles all waste collection, booth area cleanup, and take everything back.',
     total_so_far:'Menu + Add-ons Total',
@@ -1217,6 +1194,7 @@ const TR={
     comp_syrup:'Percuma: Sirap Gula + 1 Sirap Perisa',syrup_note:'Pilih 1 perisa percuma. Perisa tambahan: RM 70 setiap satu.',
     comp_puree:'Percuma: 1 Puree Buah',puree_note:'Pilih 1 puree percuma. Puree tambahan: RM 70 setiap satu.',
     step_3_6:'Langkah 3 dari 6',p4_title:'Add-ons',p4_sub:'Semua pilihan. Tambah mengikut keperluan event anda.',
+    addons_label:'Perkhidmatan Tambahan',
     canopy_desc:'Pelindung teduhan untuk venue luar atau terbuka. Sesuai untuk lokasi berisiko hujan.',
     cleanup_name:'Perkhidmatan Pengurusan Sisa',cleanup_desc:'Petre Coffee menguruskan kutipan sampah, pembersihan kawasan booth, dan membawa semua balik.',
     total_so_far:'Jumlah Menu + Add-ons',
@@ -1646,6 +1624,8 @@ function renderDrinkOpts(){
   document.getElementById('puree-sec').style.display=hasFruity?'block':'none';
   if(hasLatte)renderFlavours();
   if(hasFruity)renderPurees();
+  // Show dietary section once drink is selected
+  document.getElementById('dietary-in-p3').style.display=S.selectedDrinks.length>0?'block':'none';
 }
 
 function toggleDrink(d){
@@ -2033,7 +2013,7 @@ function validateP5(){
   }
   if(!S.mapLat||!S.mapLng){document.getElementById('e-map').classList.add('show');ok=false}
   else document.getElementById('e-map').classList.remove('show');
-  if(ok)goTo(6);else window.scrollTo({top:0,behavior:'smooth'});
+  if(ok)goTo(5);else window.scrollTo({top:0,behavior:'smooth'});
 }
 
 // ═══════════════ PAGE 6 ═══════════════
