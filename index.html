@@ -1313,8 +1313,7 @@ async function findOrCreateCustomer() {
   const email = document.getElementById('f-email').value.trim();
   const city = document.getElementById('f-city').value.trim();
   const state = document.getElementById('f-state').value;
-  const postcode = document.getElementById('f-postcode').value.trim();
-  const customerType = 'individual';
+  const customerType = BOOKER_TYPE === 'company' ? 'company' : 'individual';
 
   // 1. Cari berdasarkan no telefon (unique key)
   const existing = await sbGet('customers', `phone=eq.${phoneRaw}`);
@@ -1331,7 +1330,6 @@ async function findOrCreateCustomer() {
     email: email,
     city: city,
     state: state,
-    postcode: postcode,
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   };
