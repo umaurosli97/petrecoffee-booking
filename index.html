@@ -191,6 +191,23 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
 .rt-lbl{font-size:11px;opacity:.65}
 .rt-amt{font-family:'Syne',sans-serif;font-weight:800;font-size:20px;letter-spacing:-.5px}
 
+/* datess */
+.cal-cell.cal-blocked {
+  position: relative;
+  color: var(--g300);
+  cursor: not-allowed;
+}
+.cal-cell.cal-blocked::after {
+  content: '';
+  position: absolute;
+  left: 15%;
+  right: 15%;
+  top: 50%;
+  height: 1.5px;
+  background: var(--err);
+  transform: rotate(-45deg);
+}
+
 /* FORMS */
 .form-group{margin-bottom:16px}
 .form-lbl{display:block;font-size:12px;font-weight:500;color:var(--black);margin-bottom:6px}
@@ -1289,6 +1306,68 @@ const EVENT_TYPES={
   'Creative & Media Events':['Photoshoot','Video Production / Filming','Influencer Event','Content Creation Event','Podcast Session']
 };
 
+// ═══════════════ customer find or create new ═══════════════
+async function findOrCreateCustomer() {
+  const fullName = document.getElementById('f-name').value.trim();
+  const phoneRaw = document.getElementById('f-phone-full').value.replace(/\D/g, '');
+  const email = document.getElementById('f-email').value.trim();
+  const city = document.getElementById('f-city').value.trim();
+  const state = document.getElementById('f-state').value;
+  const postcode = document.getElementById('f-postcode').value.trim();
+  const customerType = BOOKER_TYPE === 'company' ? 'company' : 'individual';
+
+  // 1. Cari berdasarkan no telefon (unique key)
+  const existing = await sbGet('customers', `phone=eq.${phoneRaw}`);
+  if (existing && existing.length > 0) {
+    // Jumpa, return ID sedia ada
+    return existing[0].id;
+  }
+
+  // 2. Tiada rekod dengan no telefon ini -> cipta baru
+  const customerData = {
+    customer_type: customerType,
+    full_name: fullName,
+    phone: phoneRaw,
+    email: email,
+    city: city,
+    state: state,
+    postcode: postcode,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString()
+  };
+
+  // Jika company, tambah field berkaitan
+  if (BOOKER_TYPE === 'company') {
+    customerData.company_name = document.getElementById('f-company').value.trim();
+    customerData.industry = document.getElementById('f-industry').value;
+    customerData.designation = document.getElementById('f-designation').value.trim();
+  }
+
+  const res = await sbPost('customers', customerData);
+  if (res && res[0] && res[0].id) {
+    return res[0].id;
+  } else {
+    throw new Error('Failed to create customer');
+  }
+}
+
+function isDateBlocked(date) {
+  const blocked = S.blocked.find(b => b.blocked_date === date);
+  return blocked ? blocked.reason : null;  // return reason jika blocked, else null
+}
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/[&<>]/g, function(m) {
+    if (m === '&') return '&amp;';
+    if (m === '<') return '&lt;';
+    if (m === '>') return '&gt;';
+    return m;
+  }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
+    return c;
+  });
+}
+
 // ═══════════════ NAVIGATION ═══════════════
 function goTo(n){
   document.getElementById(`page-${S.page}`).classList.remove('active');
@@ -1394,60 +1473,114 @@ function renderMonthView(){
   let h='';
   for(let i=0;i<first;i++)h+='<div class="cal-cell cal-empty"></div>';
   for(let d=1;d<=days;d++){
-    const dt=new Date(CY,CM,d);
-    const ds=fmtDate(dt);
-    const isPast=dt<minD;
-    const isToday=dt.toDateString()===now.toDateString();
-    const isSel=S.date===ds;
-    const isFull=!isPast&&isDateFull(ds);
-    let cls='cal-cell';
-    if(isPast)cls+=' cal-dis';
-    else if(isFull)cls+=' cal-full';
-    else if(isSel)cls+=' cal-sel';
-    else if(isToday)cls+=' cal-today';
-    const cb=(isPast||isFull)?'':'onclick="pickDate(\''+ds+'\')"';
-    h+=`<div class="${cls}" ${cb}>
+    const dt = new Date(CY, CM, d);
+        const ds = fmtDate(dt);
+    const isPast = dt < minD;
+    const isToday = dt.toDateString() === now.toDateString();
+    const isSel = S.date === ds;
+    const isFull = !isPast && isDateFull(ds);
+    const blockedReason = isDateBlocked(ds);
+
+    let cls = 'cal-cell';
+    if (isPast) cls += ' cal-dis';
+    else if (blockedReason !== null) cls += ' cal-blocked';   // class untuk slash
+    else if (isFull) cls += ' cal-full';
+    else if (isSel) cls += ' cal-sel';
+    else if (isToday) cls += ' cal-today';
+
+    let cb = '';
+    if (!isPast && blockedReason === null && !isFull) {
+      cb = `onclick="pickDate('${ds}')"`;
+    }
+
+    // Tooltip jika diblok
+    let titleAttr = '';
+    if (blockedReason) titleAttr = ` title="${blockedReason.replace(/"/g, '&quot;')}"`;
+
+    h += `<div class="${cls}" ${cb} ${titleAttr}>
       <span>${d}</span>
-      ${isToday?`<span class="cal-today-lbl">Today</span>`:''}
+      ${isToday ? `<span class="cal-today-lbl">Today</span>` : ''}
     </div>`;
   }
   document.getElementById('cal-grid').innerHTML=h;
 }
 
-function isDateFull(ds){
-  for(let h=8;h<=20;h++){if(isSlotAvail(ds,h))return false}
+function isDateFull(ds) {
+  // Jika tarikh diblok, anggap full
+  if (isDateBlocked(ds) !== null) return true;
+  for (let h = 8; h <= 20; h++) {
+    if (isSlotAvail(ds, h)) return false;
+  }
   return true;
 }
 
-function isSlotAvail(date,startH){
-  const bookings=S.existing.filter(b=>b.event_date===date);
-  const newEnd=startH+DEFAULT_SERVE+TEAM_BUFFER;
-  const conflicts=bookings.filter(b=>{
-    const bH=b.serving_start_hour||(b.slot_time==='8AM'?8:b.slot_time==='2PM'?14:20);
-    const bEnd=bH+b.duration_hours+TEAM_BUFFER;
-    return startH<bEnd&&newEnd>bH;
+function isSlotAvail(date, startH) {
+  // Tarikh diblok -> tiada slot tersedia
+  if (isDateBlocked(date) !== null) return false;
+  const bookings = S.existing.filter(b => b.event_date === date);
+  const newEnd = startH + DEFAULT_SERVE + TEAM_BUFFER;
+  const conflicts = bookings.filter(b => {
+    const bH = b.serving_start_hour || (b.slot_time === '8AM' ? 8 : b.slot_time === '2PM' ? 14 : 20);
+    const bEnd = bH + b.duration_hours + TEAM_BUFFER;
+    return startH < bEnd && newEnd > bH;
   });
-  return conflicts.length<MAX_TEAMS;
+  return conflicts.length < MAX_TEAMS;
 }
 
-function pickDate(ds){
-  S.date=ds;S.startHour=null;S.masaAddon=0;
-  document.getElementById('btn2next').disabled=true;
+function pickDate(ds) {
+  S.date = ds;
+  S.startHour = null;
+  S.masaAddon = 0;
+  document.getElementById('btn2next').disabled = true;
   renderMonthView();
-  const full=isDateFull(ds);
-  document.getElementById('time-section').style.display='block';
-  document.getElementById('timeline-box').style.display='none';
-  document.getElementById('addon-masa-box').style.display='none';
-  const notice=document.getElementById('date-full-notice');
-  const timeGrid=document.getElementById('time-grid');
-  if(full){
-    notice.style.display='block';
-    timeGrid.style.display='none';
-  } else {
-    notice.style.display='none';
-    timeGrid.style.display='grid';
-    renderTimeGrid(ds);
+
+  const blockedReason = isDateBlocked(ds);
+  const full = isDateFull(ds);
+  const timeSection = document.getElementById('time-section');
+  const timelineBox = document.getElementById('timeline-box');
+  const addonBox = document.getElementById('addon-masa-box');
+  const noticeDiv = document.getElementById('date-full-notice');
+  const timeGrid = document.getElementById('time-grid');
+
+  if (blockedReason !== null) {
+    // Tarikh diblok oleh admin
+    noticeDiv.style.display = 'block';
+    noticeDiv.innerHTML = `
+      <div style="background:#fff0f0; border:1.5px solid #ffcdd2; border-radius:12px; padding:20px; text-align:center">
+        <div style="font-size:28px; margin-bottom:8px">🚫</div>
+        <div style="font-family:'Syne',sans-serif; font-weight:800; font-size:15px; color:#c62828; margin-bottom:6px">Date is Blocked</div>
+        <div style="font-size:12px; color:#e57373; line-height:1.6">${escapeHtml(blockedReason)}<br>Please select another date.</div>
+      </div>
+    `;
+    timeSection.style.display = 'none';
+    timelineBox.style.display = 'none';
+    addonBox.style.display = 'none';
+    timeGrid.style.display = 'none';
+    return;
   }
+
+  // Jika full (bukan blocked, tapi semua slot penuh)
+  if (full) {
+    noticeDiv.style.display = 'block';
+    noticeDiv.innerHTML = `
+      <div style="background:linear-gradient(135deg,#fff5f5,#fff0f0); border:1.5px solid #ffcdd2; border-radius:12px; padding:20px; text-align:center">
+        <div style="font-size:28px; margin-bottom:8px">📅</div>
+        <div style="font-family:'Syne',sans-serif; font-weight:800; font-size:15px; color:#c62828; margin-bottom:6px">This Date is Fully Booked</div>
+        <div style="font-size:12px; color:#e57373; line-height:1.6">All serving slots for this date have been taken.<br>Please select another available date to continue.</div>
+      </div>
+    `;
+    timeSection.style.display = 'none';
+    timelineBox.style.display = 'none';
+    addonBox.style.display = 'none';
+    timeGrid.style.display = 'none';
+    return;
+  }
+
+  // Tarikh normal dengan slot tersedia
+  noticeDiv.style.display = 'none';
+  timeSection.style.display = 'block';
+  timeGrid.style.display = 'grid';
+  renderTimeGrid(ds);
 }
 
 function fmtDate(d){
@@ -2167,106 +2300,195 @@ function toggleTnc(){
 }
 
 // ═══════════════ SUBMIT ═══════════════
-async function submitBooking(){
-  if(!S.tnc)return;
+async function submitBooking() {
+  if (!S.tnc) return;
   document.getElementById('load-overlay').classList.add('show');
-  try{
-    const token=genToken();
-    const base=S.menu.price;
-    const cupsAddon=Math.max(0,S.cupsQty-100)*S.menu.addonCupPrice;
-    const flavAddon=getFlavAddonTotal();
-    const masaAddon=S.masaAddon*40;
-    const canopyAddon=S.addonCanopy?50:0;
-    const cleanupAddon=S.addonCleanup?150:0;
-    const subtotal=base+cupsAddon+flavAddon+masaAddon+canopyAddon+cleanupAddon;
-    const total=subtotal+S.logisticsCost;
-    const cat=document.getElementById('f-evcat').value;
-    let evtype=cat==='Others'?document.getElementById('f-evtype-other').value:
-      (document.getElementById('f-evtype').value==='others'?document.getElementById('f-evtype-other').value:document.getElementById('f-evtype').value);
-    const pkgs=await sbGet('packages',`name=eq.${encodeURIComponent(S.menu.name)}&is_active=eq.true`);
-    const bData={
-      order_token:token,
-      customer_name:document.getElementById('f-name').value.trim(),
-      customer_phone:document.getElementById('f-phone-full').value.replace(/\D/g,''),
-      customer_email:document.getElementById('f-email').value.trim(),
-      event_address:document.getElementById('f-addr').value.trim(),
-      postcode:document.getElementById('f-postcode').value.trim(),
-      city:document.getElementById('f-city').value.trim(),
-      state:document.getElementById('f-state').value,
-      location_type:document.getElementById('f-loctype').value,
-      pax_count:document.getElementById('f-pax').value,
-      event_category:cat,event_type:evtype,
-      event_name:document.getElementById('f-evname').value.trim()||null,
-      event_lat:S.mapLat,event_lng:S.mapLng,
-      package_id:pkgs[0]?.id,
-      event_date:S.date,
-      serving_start_hour:S.startHour,
-      slot_time:S.startHour<12?`${S.startHour}AM`:S.startHour===12?'12PM':`${S.startHour-12}PM`,
-      duration_hours:DEFAULT_SERVE+S.masaAddon,
-      cups_quantity:S.cupsQty,
-      addon_cups:Math.max(0,S.cupsQty-100),
-      addon_cups_price:cupsAddon,
-      complimentary_drink:S.compDrink||null,
-      canopy_type:S.addonCanopy?S.canopyType:null,
-      distance_km:S.distKm,
-      logistics_cost:S.logisticsCost,
-      logistics_km_cost:S.distKm*1,
-      logistics_toll_parking:50,
-      flavor_addon_total:flavAddon,
-      transport_cost:S.logisticsCost,
-      subtotal,total_amount:total,
-      status:'SUBMITTED',tnc_accepted:true
+  try {
+    // 1. Dapatkan atau cipta customer
+    const customerId = await findOrCreateCustomer();
+
+    // 2. Data asas untuk bookings
+    const token = genToken();
+    const base = S.menu.price;
+    const cupsAddon = Math.max(0, S.cupsQty - 100) * S.menu.addonCupPrice;
+    const flavAddon = getFlavAddonTotal();
+    const masaAddon = S.masaAddon * 40;
+    const canopyAddon = S.addonCanopy ? 50 : 0;
+    const cleanupAddon = S.addonCleanup ? 150 : 0;
+    const subtotal = base + cupsAddon + flavAddon + masaAddon + canopyAddon + cleanupAddon;
+    const total = subtotal + S.logisticsCost;
+
+    const cat = document.getElementById('f-evcat').value;
+    let evtype = cat === 'Others'
+      ? document.getElementById('f-evtype-other').value
+      : (document.getElementById('f-evtype').value === 'others'
+          ? document.getElementById('f-evtype-other').value
+          : document.getElementById('f-evtype').value);
+
+    // Dapatkan package_id dari table packages
+    const pkgs = await sbGet('packages', `name=eq.${encodeURIComponent(S.menu.name)}&is_active=eq.true`);
+    if (!pkgs || pkgs.length === 0) throw new Error('Package not found');
+
+    const bookingPayload = {
+      order_token: token,
+      customer_id: customerId,
+      created_by: document.getElementById('f-name').value.trim(),
+      created_by_type: 'customer',
+      event_address: document.getElementById('f-addr').value.trim(),
+      event_lat: S.mapLat,
+      event_lng: S.mapLng,
+      location_type: document.getElementById('f-loctype').value,
+      pax_count: document.getElementById('f-pax').value,
+      transport_zone_id: null,
+      package_id: pkgs[0].id,
+      event_date: S.date,
+      slot_time: S.startHour < 12 ? `${S.startHour}AM` : (S.startHour === 12 ? '12PM' : `${S.startHour-12}PM`),
+      duration_hours: DEFAULT_SERVE + S.masaAddon,
+      transport_cost: S.logisticsCost,
+      subtotal: subtotal,
+      total_amount: total,
+      status: 'SUBMITTED',
+      payment_status: 'NOT_PAID',
+      tnc_accepted: S.tnc,
+      event_category: cat,
+      event_type: evtype,
+      event_name: document.getElementById('f-evname').value.trim() || null,
+      postcode: document.getElementById('f-postcode').value.trim(),
+      city: document.getElementById('f-city').value.trim(),
+      state: document.getElementById('f-state').value,
+      time_addon_blocked: false,
+      max_addon_hours: null,
+      canopy_type: S.addonCanopy ? S.canopyType : null,
+      cups_quantity: S.cupsQty,
+      addon_cups: Math.max(0, S.cupsQty - 100),
+      addon_cups_price: cupsAddon,
+      complimentary_drink: S.compDrink || null,
+      distance_km: S.distKm,
+      logistics_cost: S.logisticsCost,
+      logistics_km_cost: S.distKm * 1,
+      logistics_toll_parking: 50,
+      flavor_addon_total: flavAddon,
+      serving_start_hour: S.startHour,
+      is_active: true,
+      checklist_status: 'NOT_STARTED',
+      work_status: 'Not started'
     };
-    const res=await sbPost('bookings',bData);
-    const bid=res[0]?.id;
-    if(!bid)throw new Error('Booking insert failed');
-    // Drinks
-    for(const[i,d]of S.selectedDrinks.entries())await sbPost('booking_drinks',{booking_id:bid,drink_name:d,sort_order:i+1});
-    // Flavours
-    for(const[i,f]of S.selectedFlavours.entries())await sbPost('booking_flavors',{booking_id:bid,flavor_type:'SYRUP',flavor_name:f,is_addon:i>0,addon_price:i>0?70:0});
-    for(const[i,p]of S.selectedPurees.entries())await sbPost('booking_flavors',{booking_id:bid,flavor_type:'PUREE',flavor_name:p,is_addon:i>0,addon_price:i>0?70:0});
-    // Addons
-    const addonData=[];
-    const addonTypes=[];
-    if(S.masaAddon>0)addonTypes.push({type:'TIME',qty:S.masaAddon,price:40});
-    if(S.addonCanopy)addonTypes.push({type:'CANOPY',qty:1,price:50});
-    if(S.addonCleanup)addonTypes.push({type:'CLEANUP',qty:1,price:150});
-    for(const a of addonTypes){
-      const ads=await sbGet('addons',`addon_type=eq.${a.type}&is_active=eq.true`);
-      if(ads[0]){await sbPost('booking_addons',{booking_id:bid,addon_id:ads[0].id,quantity:a.qty,unit_price:a.price,subtotal:a.qty*a.price});addonData.push({name:ads[0].name,quantity:a.qty,subtotal:a.qty*a.price})}
+
+    const bookingRes = await sbPost('bookings', bookingPayload);
+    const bookingId = bookingRes[0]?.id;
+    if (!bookingId) throw new Error('Booking insert failed');
+
+    // 3. Insert drinks
+    for (let i = 0; i < S.selectedDrinks.length; i++) {
+      await sbPost('booking_drinks', {
+        booking_id: bookingId,
+        drink_name: S.selectedDrinks[i],
+        sort_order: i + 1
+      });
     }
-    // Requests
-    const reqsData=[];let oi=1;
-    for(const inp of document.querySelectorAll('.req-row input')){
-      const txt=inp.value.trim();
-      if(txt){await sbPost('special_requests',{booking_id:bid,request_text:txt,order_index:oi++});reqsData.push({request_text:txt})}
+
+    // 4. Insert flavours & purees
+    for (let i = 0; i < S.selectedFlavours.length; i++) {
+      await sbPost('booking_flavors', {
+        booking_id: bookingId,
+        flavor_type: 'SYRUP',
+        flavor_name: S.selectedFlavours[i],
+        is_addon: i > 0,
+        addon_price: i > 0 ? 70 : 0
+      });
     }
-    // Dietary
-    const dietData=S.dietYes!==null?{has_dietary_req:S.dietYes,dietary_details:S.dietYes?document.getElementById('f-diet').value.trim():null}:null;
-    if(dietData)await sbPost('dietary_info',{booking_id:bid,...dietData});
-    // Status log
-    await sbPost('status_logs',{booking_id:bid,old_status:null,new_status:'SUBMITTED',changed_by:'system',note:'Booking submitted by customer'});
-    // Email
-    try{
-      await fetch(SB_EDGE,{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${SB_KEY}`},
-        body:JSON.stringify({
-          booking:{...bData,package_name:S.menu.name,package_price:S.menu.price,
-            transport_zone:`${S.distKm.toFixed(1)}km from Petre Coffee`,
-            drinks:S.selectedDrinks.join(', '),cups_quantity:S.cupsQty},
-          addons:addonData,special_requests:reqsData,dietary:dietData
+    for (let i = 0; i < S.selectedPurees.length; i++) {
+      await sbPost('booking_flavors', {
+        booking_id: bookingId,
+        flavor_type: 'PUREE',
+        flavor_name: S.selectedPurees[i],
+        is_addon: i > 0,
+        addon_price: i > 0 ? 70 : 0
+      });
+    }
+
+    // 5. Insert addons (cari addon_id dari table addons)
+    const addonItems = [];
+    if (S.masaAddon > 0) addonItems.push({ type: 'TIME', qty: S.masaAddon, price: 40 });
+    if (S.addonCanopy) addonItems.push({ type: 'CANOPY', qty: 1, price: 50 });
+    if (S.addonCleanup) addonItems.push({ type: 'CLEANUP', qty: 1, price: 150 });
+
+    for (const a of addonItems) {
+      const ads = await sbGet('addons', `addon_type=eq.${a.type}&is_active=eq.true`);
+      if (ads && ads[0]) {
+        await sbPost('booking_addons', {
+          booking_id: bookingId,
+          addon_id: ads[0].id,
+          quantity: a.qty,
+          unit_price: a.price,
+          subtotal: a.qty * a.price
+        });
+      }
+    }
+
+    // 6. Special requests
+    let orderIdx = 1;
+    for (const inp of document.querySelectorAll('.req-row input')) {
+      const txt = inp.value.trim();
+      if (txt) {
+        await sbPost('special_requests', {
+          booking_id: bookingId,
+          request_text: txt,
+          order_index: orderIdx++
+        });
+      }
+    }
+
+    // 7. Dietary info
+    if (S.dietYes !== null) {
+      await sbPost('dietary_info', {
+        booking_id: bookingId,
+        has_dietary_req: S.dietYes,
+        dietary_details: S.dietYes ? document.getElementById('f-diet').value.trim() : null
+      });
+    }
+
+    // 8. Status log
+    await sbPost('status_logs', {
+      booking_id: bookingId,
+      old_status: null,
+      new_status: 'SUBMITTED',
+      changed_by: 'system',
+      note: 'Booking submitted by customer'
+    });
+
+    // 9. Notification (email trigger)
+    try {
+      await fetch(SB_EDGE, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SB_KEY}` },
+        body: JSON.stringify({
+          booking: { ...bookingPayload, package_name: S.menu.name, package_price: S.menu.price, drinks: S.selectedDrinks.join(', ') },
+          addons: addonItems,
+          special_requests: Array.from(document.querySelectorAll('.req-row input')).map(i => i.value.trim()).filter(Boolean),
+          dietary: S.dietYes ? { has_dietary_req: S.dietYes, details: document.getElementById('f-diet').value.trim() } : null
         })
       });
-    }catch(e){console.warn('Email failed:',e)}
-    await sbPost('notifications',{booking_id:bid,channel:'EMAIL',trigger_event:'ORDER_SUBMITTED',message:`Emails sent for ${token}`,status:'SENT'});
+    } catch (e) { console.warn('Email failed:', e); }
+
+    await sbPost('notifications', {
+      booking_id: bookingId,
+      channel: 'EMAIL',
+      trigger_event: 'ORDER_SUBMITTED',
+      message: `Emails sent for ${token}`,
+      status: 'SENT'
+    });
+
+    // 10. Show success
     document.getElementById('load-overlay').classList.remove('show');
-    S.magicLink=`petrecoffee.com/order?token=${token}`;
-    document.getElementById('suc-ref').textContent=token;
-    document.getElementById('suc-link').textContent=S.magicLink;
+    S.magicLink = `petrecoffee.com/order?token=${token}`;
+    document.getElementById('suc-ref').textContent = token;
+    document.getElementById('suc-link').textContent = S.magicLink;
     goTo(8);
-  }catch(e){
+  } catch (err) {
     document.getElementById('load-overlay').classList.remove('show');
-    console.error(e);
-    showToast('Error: '+( e?.message||'Please try again.'));
+    console.error(err);
+    showToast('Error: ' + (err.message || 'Please try again.'));
   }
 }
 
@@ -2292,11 +2514,11 @@ new MutationObserver(()=>{
 
 async function init(){
   try{
-    const[bl,ex]=await Promise.all([
-      sbGet('blocked_dates','select=blocked_date,slot_time'),
-      sbGet('bookings','select=event_date,slot_time,serving_start_hour,duration_hours,status&status=in.(SUBMITTED,CONFIRMED)')
-    ]);
-    S.blocked=bl||[];S.existing=ex||[];
+    const [bl, ex] = await Promise.all([
+    sbGet('blocked_dates', 'select=blocked_date,reason'),
+    sbGet('bookings', 'select=event_date,slot_time,serving_start_hour,duration_hours,status&status=in.(SUBMITTED,CONFIRMED)')
+  ]);
+  S.blocked = bl || [];   // setiap item: { blocked_date, reason }
   }catch(e){console.warn('Could not load availability:',e)}
   initCal();
   applyLang();
