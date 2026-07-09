@@ -2471,7 +2471,9 @@ async function submitBooking() {
             customer_phone: document.getElementById('f-phone-full').value.trim(),
             booking_type: BOOKER_TYPE,
             company_name: BOOKER_TYPE === 'company' ? document.getElementById('f-company').value.trim() : null,
-            pic_designation: BOOKER_TYPE === 'company' ? document.getElementById('f-designation').value.trim() : null
+            pic_designation: BOOKER_TYPE === 'company' ? document.getElementById('f-designation').value.trim() : null,
+            flavours: S.selectedFlavours,
+            purees: S.selectedPurees
           },
           addons: addonItems,
           special_requests: Array.from(document.querySelectorAll('.req-row input')).map(i => i.value.trim()).filter(Boolean),
