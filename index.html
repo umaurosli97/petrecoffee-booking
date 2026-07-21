@@ -499,8 +499,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
     <div class="pkg-price">RM 627</div>
     <div class="pkg-meta">Add-on cup: RM 5.75 / <span data-i18n="cup">cup</span></div>
     <div class="pkg-drinks">
-      <span class="pkg-drink-tag">Americano & Latte</span><span class="pkg-drink-tag">Chocolate</span>
-      <span class="pkg-drink-tag">Matcha</span><span class="pkg-drink-tag">Mocha</span><span class="pkg-drink-tag">Aussie Iced Coffee</span>
+      <span class="pkg-drink-tag">Americano & Cafe Latte</span><span class="pkg-drink-tag">Chocolate</span>
+      <span class="pkg-drink-tag">Matcha Latte</span><span class="pkg-drink-tag">Mocha</span><span class="pkg-drink-tag">Aussie Iced Coffee</span>
     </div>
   </div>
 
@@ -510,8 +510,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
     <div class="pkg-price">RM 675</div>
     <div class="pkg-meta">Add-on cup: RM 6.12 / <span data-i18n="cup">cup</span></div>
     <div class="pkg-drinks">
-      <span class="pkg-drink-tag">Americano & Latte</span><span class="pkg-drink-tag">Chocolate</span>
-      <span class="pkg-drink-tag">Matcha</span><span class="pkg-drink-tag">Fruity Matcha</span>
+      <span class="pkg-drink-tag">Americano & Cafe Latte</span><span class="pkg-drink-tag">Chocolate</span>
+      <span class="pkg-drink-tag">Matcha Latte</span><span class="pkg-drink-tag">Fruity Matcha Latte</span>
       <span class="pkg-drink-tag">Mocha</span><span class="pkg-drink-tag">Aussie Iced Coffee</span>
     </div>
   </div>
@@ -531,16 +531,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
       </div>
     </div>
 
-    <!-- COMPLIMENTARY 200+ -->
-    <div id="comp-drink-sec" style="display:none;margin-top:18px">
-      <div class="comp-badge">🎁 <span data-i18n="comp_200">Complimentary Drink — 200+ cups</span></div>
-      <p style="font-size:13px;color:var(--g600);margin-bottom:10px" data-i18n="comp_pick">You qualify for 1 complimentary drink! Pick one:</p>
-      <div class="radio-row">
-        <label class="radio-opt" id="comp-iced" onclick="pickComp('Iced Tea')"><input type="radio" name="comp">Iced Tea</label>
-        <label class="radio-opt" id="comp-thai" onclick="pickComp('Thai Milk Tea')"><input type="radio" name="comp">Thai Milk Tea</label>
-        <label class="radio-opt" id="comp-mock" onclick="pickComp('Mocktails')"><input type="radio" name="comp">Mocktails</label>
-      </div>
-    </div>
   </div>
 
   <!-- DRINKS -->
@@ -549,8 +539,20 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
     <p class="drink-lmt-note" id="drink-lmt-note" style="font-size:11px;color:var(--g400);margin-bottom:8px"></p>
     <div class="drink-grid" id="drink-opts"></div>
 
+    <!-- MILK SELECTION -->
+    <div id="milk-sec" style="display:none;margin-top:18px">
+      <div class="sec-label" style="margin-top:0" data-i18n="milk_selection">Milk Selection</div>
+      <p style="font-size:13px;color:var(--g600);margin-bottom:9px" data-i18n="milk_desc">Choose your preferred milk base. Oat Milk adds RM 1.00 per cup. If you choose Fresh Milk, a limited number of complimentary Oat Milk cups will still be provided.</p>
+      <div class="flavour-grid" id="milk-opts"></div>
+      <div id="milk-sub-wrap" style="display:none;margin-top:8px;text-align:right">
+        <span style="font-size:12px;color:var(--g600)" data-i18n="milk_selection">Oat Milk Add-on</span>
+        <span class="addon-sub" id="milk-sub" style="display:inline-block;margin-left:6px">RM 0</span>
+      </div>
+    </div>
+    
     <!-- FLAVOUR SYRUP -->
     <div id="flavour-sec" style="display:none;margin-top:18px">
+      <div class="sec-label" style="margin-top:0" data-i18n="flavor_selection">Flavor & Puree Selection</div>
       <div class="comp-badge">☕ <span data-i18n="comp_syrup">Complimentary: Sugar Syrup + 1 Flavour Syrup</span></div>
       <p style="font-size:13px;color:var(--g600);margin-bottom:9px" data-i18n="syrup_note">Choose 1 complimentary flavour. Additional flavours: RM 70 each.</p>
       <div class="flavour-grid" id="flavour-opts"></div>
@@ -616,9 +618,20 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
   <div class="addon-card" onclick="toggleCleanup()" style="cursor:pointer">
     <div class="addon-chk-wrap">
       <div class="addon-chk" id="chk-cleanup"></div>
-      <div>
-        <div class="addon-name" data-i18n="cleanup_name">Waste Management Service <span style="font-size:12px;font-weight:400;color:var(--g400)">— RM 150.00</span></div>
+      <div><div class="addon-name"><span data-i18n="cleanup_name">Waste Management Service</span> <span style="font-size:12px;font-weight:400;color:var(--g400)">— RM 200.00</span></div>
+        
         <div class="addon-desc" data-i18n="cleanup_desc">Petre Coffee handles all waste collection, booth area cleanup, and take everything back.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Off-Grid -->
+  <div class="addon-card" onclick="toggleOffgrid()" style="cursor:pointer">
+    <div class="addon-chk-wrap">
+      <div class="addon-chk" id="chk-offgrid"></div>
+      <div>
+        <div class="addon-name"><span data-i18n="offgrid_name">Off-Grid Power Charge</span> <span style="font-size:12px;font-weight:400;color:var(--g400)">— RM 150.00</span></div>
+        <div class="addon-desc" data-i18n="offgrid_desc">For venues without electricity access — beach, campsite, riverside, recreational park, or other outdoor nature locations. Petre Coffee will bring our own portable power station to run the coffee machine and equipment.</div>
       </div>
     </div>
   </div>
@@ -783,25 +796,18 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
   <div class="logistics-info" id="logistics-info">
     <div class="sec-label" style="margin-top:0;font-size:13px">Transportation Cost Breakdown</div>
     <div class="logistics-row">
-      <span class="logistics-key">🚗 Distance cost (RM1/km)</span>
+      <span class="logistics-key">Distance, Toll & Parking Cost</span>
       <span class="logistics-val" id="l-km-cost">—</span>
     </div>
-    <div class="logistics-row">
-      <span class="logistics-key">🏷️ Toll & Parking (estimated)</span>
-      <span class="logistics-val">RM 50.00</span>
-    </div>
-    <div id="accommodation-row" style="display:none;background:#fffde7;border:1.5px solid #f9a825;border-radius:var(--rs);padding:9px 12px;margin:8px 0;display:none">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:13px;color:#795500">🏨 Accommodation (&gt;100km)</span>
-        <span style="font-weight:700;color:#795500">RM 250.00</span>
-      </div>
+    <div class="logistics-row" id="accommodation-row" style="display:none">
+      <span class="logistics-key" style="color:var(--ad)">Accommodation Cost</span>
+      <span class="logistics-val" style="color:var(--ad)">RM 250.00</span>
     </div>
     <div style="border-top:1.5px solid var(--g200);padding-top:10px;margin-top:8px;display:flex;justify-content:space-between;align-items:center">
       <span class="sec-label" style="margin:0;font-size:13px;border:none">Total Logistics Cost</span>
       <span style="font-family:'Syne',sans-serif;font-size:16px;font-weight:800" id="l-total">—</span>
     </div>
-    <div class="logistics-note" style="margin-top:8px">* Excess toll & parking charges will be refunded after the event.</div>
-    <div class="logistics-note" id="accommodation-note" style="display:none;margin-top:4px">* Accommodation will be charged for venues more than 100km from Petre Coffee HQ.</div>
+    <div class="logistics-note" id="accommodation-note" style="display:none;margin-top:8px">* Accommodation will be charged for venues more than 100km from Petre Coffee HQ.</div>
   </div>
 
   <!-- FULL ADDRESS (auto-fillable) -->
@@ -903,7 +909,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
     <div class="sum-row"><span class="sum-key" data-i18n="drinks">Drinks</span><span class="sum-val" id="s-drinks">—</span></div>
     <div class="sum-row" id="s-flav-row" style="display:none"><span class="sum-key" data-i18n="flavour">Flavour Syrup</span><span class="sum-val" id="s-flavs">—</span></div>
     <div class="sum-row" id="s-puree-row" style="display:none"><span class="sum-key" data-i18n="fruit_puree">Fruit Puree</span><span class="sum-val" id="s-purees">—</span></div>
-    <div class="sum-row" id="s-comp-row" style="display:none"><span class="sum-key">🎁 <span data-i18n="comp_drink">Complimentary</span></span><span class="sum-val" id="s-comp">—</span></div>
+    <div class="sum-row" id="s-milk-row" style="display:none"><span class="sum-key" data-i18n="milk_selection">Milk</span><span class="sum-val" id="s-milk">—</span></div>
   </div>
 
   <div class="sum-block" id="s-addon-block" style="display:none">
@@ -926,6 +932,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
     <div class="sum-row"><span class="sum-key" data-i18n="menu_price">Menu Price</span><span class="sum-val" id="b-menu">RM 0.00</span></div>
     <div class="sum-row" id="b-cups-row" style="display:none"><span class="sum-key" data-i18n="cup_addon">Cup Add-on</span><span class="sum-val" id="b-cups">RM 0.00</span></div>
     <div class="sum-row" id="b-flav-row" style="display:none"><span class="sum-key" data-i18n="flavour_addon">Flavour Add-on</span><span class="sum-val" id="b-flavs">RM 0.00</span></div>
+    <div class="sum-row" id="b-milk-row" style="display:none"><span class="sum-key" data-i18n="milk_addon">Oat Milk Add-on</span><span class="sum-val" id="b-milk">RM 0.00</span></div>
     <div class="sum-row" id="b-masa-row" style="display:none"><span class="sum-key" data-i18n="extra_time">Extra Time</span><span class="sum-val" id="b-masa">RM 0.00</span></div>
     <div class="sum-row" id="b-addon-row" style="display:none"><span class="sum-key" data-i18n="other_addons">Other Add-ons</span><span class="sum-val" id="b-addons">RM 0.00</span></div>
     <div class="sum-row"><span class="sum-key" data-i18n="logistics">Logistics</span><span class="sum-val" id="b-logistics">RM 0.00</span></div>
@@ -1132,7 +1139,6 @@ const TR={
     step_2_6:'Step 2 of 5',p3_title:'Choose Your Menu',p3_sub:'Select a menu, set cup quantity, and choose your drinks.',
     cups:'Cups',up_to:'Up to',drinks:'Drinks',cup:'cup',
     cup_qty:'Cup Quantity',cup_note:'Min 100 cups. +/- adds/removes 50.',
-    comp_200:'Complimentary Drink — 200+ cups',comp_pick:'You qualify for 1 complimentary drink! Pick one:',
     drink_selection:'Drink Selection',
     comp_syrup:'Complimentary: Sugar Syrup + 1 Flavour Syrup',syrup_note:'Choose 1 complimentary flavour. Additional flavours: RM 70 each.',
     comp_puree:'Complimentary: 1 Fruit Puree',puree_note:'Choose 1 complimentary puree. Additional purees: RM 70 each.',
@@ -1140,6 +1146,9 @@ const TR={
     addons_label:'Add-on Services',
     canopy_desc:'Shade solution for outdoor or open venues. Ideal for locations with rain risk.',
     cleanup_name:'Waste Management Service',cleanup_desc:'Petre Coffee handles all waste collection, booth area cleanup, and take everything back.',
+    offgrid_name:'Off-Grid Power Charge',offgrid_desc:'For venues without electricity access — beach, campsite, riverside, recreational park, or other outdoor nature locations. Petre Coffee will bring our own portable power station to run the coffee machine and equipment.',
+    milk_selection:'Milk Selection',milk_fresh:'Fresh Milk',milk_oat:'Oat Milk',milk_addon:'Oat Milk Add-on',flavor_selection:'Flavor & Puree Selection',
+    milk_desc:'Choose your preferred milk base. Oat Milk adds RM 1.00 per cup. If you choose Fresh Milk, a limited number of complimentary Oat Milk cups will still be provided.',
     total_so_far:'Menu + Add-ons Total',
     step_4_6:'Step 4 of 5',p5_title:'Your Details',p5_sub:'Fill in your contact info and event details accurately.',
     personal_info:'Personal Information',full_name:'Full Name',name_ph:'e.g. Ahmad bin Abdullah',name_err:'Please enter your full name.',
@@ -1206,7 +1215,6 @@ const TR={
     step_2_6:'Langkah 2 dari 5',p3_title:'Pilih Menu Anda',p3_sub:'Pilih menu, tetapkan kuantiti cawan, dan pilih minuman.',
     cups:'Cawan',up_to:'Sehingga',drinks:'Minuman',cup:'cawan',
     cup_qty:'Kuantiti Cawan',cup_note:'Min 100 cawan. +/- tambah/tolak 50.',
-    comp_200:'Minuman Percuma — 200+ cawan',comp_pick:'Anda layak untuk 1 minuman percuma! Pilih satu:',
     drink_selection:'Pilihan Minuman',
     comp_syrup:'Percuma: Sirap Gula + 1 Sirap Perisa',syrup_note:'Pilih 1 perisa percuma. Perisa tambahan: RM 70 setiap satu.',
     comp_puree:'Percuma: 1 Puree Buah',puree_note:'Pilih 1 puree percuma. Puree tambahan: RM 70 setiap satu.',
@@ -1214,6 +1222,9 @@ const TR={
     addons_label:'Perkhidmatan Tambahan',
     canopy_desc:'Pelindung teduhan untuk venue luar atau terbuka. Sesuai untuk lokasi berisiko hujan.',
     cleanup_name:'Perkhidmatan Pengurusan Sisa',cleanup_desc:'Petre Coffee menguruskan kutipan sampah, pembersihan kawasan booth, dan membawa semua balik.',
+    offgrid_name:'Caj Kuasa Off-Grid',offgrid_desc:'Untuk venue tanpa capaian elektrik — pantai, tapak perkhemahan, tepi sungai, taman rekreasi, atau lokasi luar semula jadi lain. Petre Coffee akan membawa power station mudah alih sendiri untuk menjalankan mesin kopi dan peralatan.',
+    milk_selection:'Pilihan Susu',milk_fresh:'Fresh Milk',milk_oat:'Oat Milk',milk_addon:'Add-on Oat Milk',flavor_selection:'Pilihan Perasa & Puree',
+    milk_desc:'Pilih jenis susu pilihan anda. Oat Milk menambah RM 1.00 setiap cawan. Jika anda pilih Fresh Milk, sebilangan cawan Oat Milk percuma (terhad) tetap akan disediakan.',
     total_so_far:'Jumlah Menu + Add-ons',
     step_4_6:'Langkah 4 dari 5',p5_title:'Maklumat Anda',p5_sub:'Isi maklumat hubungan dan butiran event anda dengan tepat.',
     personal_info:'Maklumat Peribadi',full_name:'Nama Penuh',name_ph:'cth: Ahmad bin Abdullah',name_err:'Sila masukkan nama penuh anda.',
@@ -1276,9 +1287,9 @@ function applyLang(){
 // ═══════════════ STATE ═══════════════
 let S={
   page:1,date:null,startHour:null,masaAddon:0,maxMasa:null,
-  menu:null,cupsQty:100,selectedDrinks:[],compDrink:null,
+  menu:null,cupsQty:100,selectedDrinks:[],milkType:'fresh',
   selectedFlavours:[],selectedPurees:[],
-  addonCanopy:false,canopyType:null,addonCleanup:false,
+  addonCanopy:false,canopyType:null,addonCleanup:false,addonOffgrid:false,
   mapLat:null,mapLng:null,distKm:0,logisticsCost:0,
   tnc:false,reqCount:1,dietYes:null,
   blocked:[],existing:[],magicLink:''
@@ -1288,13 +1299,13 @@ const MENUS={
   a:{id:'a',name:'Menu A',price:541,maxDrinks:3,addonCupPrice:5.00,
     drinks:['Americano','Cafe Latte','Chocolate']},
   b:{id:'b',name:'Menu B',price:627,maxDrinks:4,addonCupPrice:5.75,
-    drinks:['Americano & Latte','Chocolate','Matcha','Mocha','Aussie Iced Coffee']},
+    drinks:['Americano & Cafe Latte','Chocolate','Matcha Latte','Mocha','Aussie Iced Coffee']},
   c:{id:'c',name:'Menu C',price:675,maxDrinks:5,addonCupPrice:6.12,
-    drinks:['Americano & Latte','Chocolate','Matcha','Fruity Matcha','Mocha','Aussie Iced Coffee']}
+    drinks:['Americano & Cafe Latte','Chocolate','Matcha Latte','Fruity Matcha','Mocha','Aussie Iced Coffee']}
 };
 const FLAVOUR_SYRUPS=['Caramel','Salted Caramel','Vanilla','Hazelnut','Butterscotch','Gula Apong'];
 const FRUIT_PUREES=['Strawberry','Raspberry','Peach','Mango'];
-const LATTE_DRINKS=['Americano','Cafe Latte','Americano & Latte'];
+const LATTE_DRINKS=['Americano','Cafe Latte','Americano & Cafe Latte'];
 const EVENT_TYPES={
   'Corporate Events':['Company Meeting / Townhall','Training & Workshop','Product Launch','Client Meeting / Client Visit','Networking Session','Team Building','Office Celebration','Conference / Seminar'],
   'Government Events':['Official Meeting','Government Seminar / Kursus','Training Program','Majlis Rasmi','Community Program','Hari Terbuka Jabatan','Conference / Forum Kerajaan','CSR / Outreach Program','Election-Related Events'],
@@ -1698,7 +1709,7 @@ function onMasaBlur(el){
 function pickMenu(id){
   document.querySelectorAll('.pkg-card').forEach(c=>c.classList.remove('sel'));
   document.getElementById(`p-menu-${id}`).classList.add('sel');
-  S.menu=MENUS[id];S.selectedDrinks=[];S.selectedFlavours=[];S.selectedPurees=[];S.compDrink=null;
+  S.menu=MENUS[id];S.selectedDrinks=[];S.selectedFlavours=[];S.selectedPurees=[];S.milkType='fresh';
   document.getElementById('cup-section').style.display='block';
   document.getElementById('cups-inp').value=100;S.cupsQty=100;
   updateCupsDisplay();
@@ -1724,15 +1735,8 @@ function updateCupsDisplay(){
   if(!S.menu)return;
   const addon=Math.max(0,S.cupsQty-100);
   document.getElementById('cups-addon-cost').textContent=`Add-on: RM ${(addon*S.menu.addonCupPrice).toFixed(2)}`;
-  document.getElementById('comp-drink-sec').style.display=S.cupsQty>=200?'block':'none';
-  if(S.cupsQty<200)S.compDrink=null;
+  renderMilkOpt();
   updateRT();
-}
-function pickComp(drink){
-  S.compDrink=drink;
-  document.getElementById('comp-iced').classList.toggle('sel',drink==='Iced Tea');
-  document.getElementById('comp-thai').classList.toggle('sel',drink==='Thai Milk Tea');
-  document.getElementById('comp-mock').classList.toggle('sel',drink==='Mocktails');
 }
 
 function renderDrinkOpts(){
@@ -1755,6 +1759,8 @@ function renderDrinkOpts(){
   document.getElementById('puree-sec').style.display=hasFruity?'block':'none';
   if(hasLatte)renderFlavours();
   if(hasFruity)renderPurees();
+  document.getElementById('milk-sec').style.display=S.selectedDrinks.length>0?'block':'none';
+  if(S.selectedDrinks.length>0)renderMilkOpt();
   // Show dietary section once drink is selected
   document.getElementById('dietary-in-p3').style.display=S.selectedDrinks.length>0?'block':'none';
 }
@@ -1806,6 +1812,28 @@ function togglePuree(p){
   renderPurees();updateRT();
 }
 
+function getOatMilkTotal(){
+  return S.milkType==='oat'?S.cupsQty*1:0;
+}
+function renderMilkOpt(){
+  const oatSel=S.milkType==='oat';
+  const oatTotal=getOatMilkTotal();
+  let h=`<div class="flavour-opt${!oatSel?' sel':''}" onclick="pickMilk('fresh')">${t('milk_fresh')}</div>`;
+  h+=`<div class="flavour-opt${oatSel?' addon-sel':''}" onclick="pickMilk('oat')">${t('milk_oat')}${oatSel?' (+RM1/cup)':''}</div>`;
+  document.getElementById('milk-opts').innerHTML=h;
+  const subWrap=document.getElementById('milk-sub-wrap');
+  if(oatSel){
+    subWrap.style.display='block';
+    document.getElementById('milk-sub').textContent=`RM ${oatTotal.toFixed(2)}`;
+  } else {
+    subWrap.style.display='none';
+  }
+}
+function pickMilk(type){
+  S.milkType=type;
+  renderMilkOpt();updateRT();
+}
+
 function validateP3(){
   document.getElementById('btn3next').disabled=!(S.menu&&S.selectedDrinks.length>0);
 }
@@ -1830,6 +1858,12 @@ function toggleCleanup(){
   chk.classList.toggle('chkd',S.addonCleanup);chk.textContent=S.addonCleanup?'✓':'';
   updateRT();
 }
+function toggleOffgrid(){
+  S.addonOffgrid=!S.addonOffgrid;
+  const chk=document.getElementById('chk-offgrid');
+  chk.classList.toggle('chkd',S.addonOffgrid);chk.textContent=S.addonOffgrid?'✓':'';
+  updateRT();
+}
 
 function getFlavAddonTotal(){
   return(Math.max(0,S.selectedFlavours.length-1)*70)+(Math.max(0,S.selectedPurees.length-1)*70);
@@ -1840,10 +1874,12 @@ function updateRT(){
   const base=S.menu.price;
   const cupsAddon=Math.max(0,S.cupsQty-100)*S.menu.addonCupPrice;
   const flavAddon=getFlavAddonTotal();
+  const oatAddon=getOatMilkTotal();
   const masaAddon=S.masaAddon*40;
   const canopyAddon=S.addonCanopy?50:0;
-  const cleanupAddon=S.addonCleanup?150:0;
-  const total=base+cupsAddon+flavAddon+masaAddon+canopyAddon+cleanupAddon+S.logisticsCost;
+  const cleanupAddon=S.addonCleanup?200:0;
+  const offgridAddon=S.addonOffgrid?150:0;
+  const total=base+cupsAddon+flavAddon+oatAddon+masaAddon+canopyAddon+cleanupAddon+offgridAddon+S.logisticsCost;
   document.getElementById('run-total').textContent=`RM ${total.toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2})}`;
 }
 // BOOKER TYPE TOGGLE
@@ -2090,11 +2126,11 @@ function calcLogistics(dLat,dLng){
     if(lDist)lDist.textContent=`${km.toFixed(1)} km`;
     const lDistTop=document.getElementById('l-distance-top');
     if(lDistTop){lDistTop.textContent=`${km.toFixed(1)} km`;document.getElementById('distance-info').style.display='block';}
-    document.getElementById('l-km-cost').textContent=`RM ${kmCost.toFixed(2)}`;
+    document.getElementById('l-km-cost').textContent=`RM ${(kmCost+toll).toFixed(2)}`;
     document.getElementById('l-total').textContent=`RM ${S.logisticsCost.toFixed(2)}`;
     document.getElementById('logistics-info').classList.add('show');
     const accRow=document.getElementById('accommodation-row');
-    if(accRow)accRow.style.display=km>100?'block':'none';
+    if(accRow)accRow.style.display=km>100?'flex':'none';
     document.getElementById('accommodation-note').style.display=km>100?'block':'none';
     document.getElementById('e-map').classList.remove('show');
     const btnAF=document.getElementById('btn-autofill');
@@ -2246,15 +2282,18 @@ function buildSummary(){
     document.getElementById('s-purees').textContent=S.selectedPurees.map((p,i)=>i===0?p+' (free)':p+' (+RM70)').join(', ');
     sp.style.display='flex';
   } else sp.style.display='none';
-  // Comp drink
-  const sc=document.getElementById('s-comp-row');
-  if(S.compDrink){document.getElementById('s-comp').textContent=S.compDrink;sc.style.display='flex'}
-  else sc.style.display='none';
+  // Milk
+  const sm=document.getElementById('s-milk-row');
+  if(S.selectedDrinks.length>0){
+    document.getElementById('s-milk').textContent=S.milkType==='oat'?`${t('milk_oat')} (+RM1.00/cup)`:t('milk_fresh');
+    sm.style.display='flex';
+  } else sm.style.display='none';
   // Add-ons
   let aHtml='';let aTotal=0;
   if(S.masaAddon>0){const s=S.masaAddon*40;aTotal+=s;aHtml+=`<div class="sum-row"><span class="sum-key">${t('extra_time')} (${S.masaAddon}h)</span><span class="sum-val">RM ${s.toFixed(2)}</span></div>`}
   if(S.addonCanopy){aTotal+=50;aHtml+=`<div class="sum-row"><span class="sum-key">${S.canopyType==='CART_UMBRELLA'?'Cart Umbrella':'Canopy'}</span><span class="sum-val">RM 50.00</span></div>`}
-  if(S.addonCleanup){aTotal+=150;aHtml+=`<div class="sum-row"><span class="sum-key">${t('cleanup_name')}</span><span class="sum-val">RM 150.00</span></div>`}
+  if(S.addonCleanup){aTotal+=200;aHtml+=`<div class="sum-row"><span class="sum-key">${t('cleanup_name')}</span><span class="sum-val">RM 200.00</span></div>`}
+  if(S.addonOffgrid){aTotal+=150;aHtml+=`<div class="sum-row"><span class="sum-key">${t('offgrid_name')}</span><span class="sum-val">RM 150.00</span></div>`}
   const ab=document.getElementById('s-addon-block');
   if(aHtml){document.getElementById('s-addon-list').innerHTML=aHtml;ab.style.display='block'}
   else ab.style.display='none';
@@ -2273,15 +2312,19 @@ function buildSummary(){
   const base=S.menu?S.menu.price:0;
   const cupsAddon=Math.max(0,S.cupsQty-100)*(S.menu?.addonCupPrice||0);
   const flavAddon=getFlavAddonTotal();
+  const oatAddon=getOatMilkTotal();
   const masaAddon=S.masaAddon*40;
   const canopyAddon=S.addonCanopy?50:0;
-  const cleanupAddon=S.addonCleanup?150:0;
-  const total=base+cupsAddon+flavAddon+masaAddon+canopyAddon+cleanupAddon+S.logisticsCost;
+  const cleanupAddon=S.addonCleanup?200:0;
+  const offgridAddon=S.addonOffgrid?150:0;
+  const total=base+cupsAddon+flavAddon+oatAddon+masaAddon+canopyAddon+cleanupAddon+offgridAddon+S.logisticsCost;
   document.getElementById('b-menu').textContent=`RM ${base.toFixed(2)}`;
   if(cupsAddon>0){document.getElementById('b-cups').textContent=`RM ${cupsAddon.toFixed(2)}`;document.getElementById('b-cups-row').style.display='flex'}
   else document.getElementById('b-cups-row').style.display='none';
   if(flavAddon>0){document.getElementById('b-flavs').textContent=`RM ${flavAddon.toFixed(2)}`;document.getElementById('b-flav-row').style.display='flex'}
   else document.getElementById('b-flav-row').style.display='none';
+  if(oatAddon>0){document.getElementById('b-milk').textContent=`RM ${oatAddon.toFixed(2)}`;document.getElementById('b-milk-row').style.display='flex'}
+  else document.getElementById('b-milk-row').style.display='none';
   if(masaAddon>0){document.getElementById('b-masa').textContent=`RM ${masaAddon.toFixed(2)}`;document.getElementById('b-masa-row').style.display='flex'}
   else document.getElementById('b-masa-row').style.display='none';
   if(aTotal>0){document.getElementById('b-addons').textContent=`RM ${aTotal.toFixed(2)}`;document.getElementById('b-addon-row').style.display='flex'}
@@ -2310,10 +2353,12 @@ async function submitBooking() {
     const base = S.menu.price;
     const cupsAddon = Math.max(0, S.cupsQty - 100) * S.menu.addonCupPrice;
     const flavAddon = getFlavAddonTotal();
+    const oatAddon = getOatMilkTotal();
     const masaAddon = S.masaAddon * 40;
     const canopyAddon = S.addonCanopy ? 50 : 0;
-    const cleanupAddon = S.addonCleanup ? 150 : 0;
-    const subtotal = base + cupsAddon + flavAddon + masaAddon + canopyAddon + cleanupAddon;
+    const cleanupAddon = S.addonCleanup ? 200 : 0;
+    const offgridAddon = S.addonOffgrid ? 150 : 0;
+    const subtotal = base + cupsAddon + flavAddon + oatAddon + masaAddon + canopyAddon + cleanupAddon + offgridAddon;
     const total = subtotal + S.logisticsCost;
 
     const cat = document.getElementById('f-evcat').value;
@@ -2360,7 +2405,8 @@ async function submitBooking() {
       cups_quantity: S.cupsQty,
       addon_cups: Math.max(0, S.cupsQty - 100),
       addon_cups_price: cupsAddon,
-      complimentary_drink: S.compDrink || null,
+      milk_type: S.milkType,
+      oatmilk_addon_total: oatAddon,
       distance_km: S.distKm,
       logistics_cost: S.logisticsCost,
       logistics_km_cost: S.distKm * 1,
@@ -2409,7 +2455,9 @@ async function submitBooking() {
     const addonItems = [];
     if (S.masaAddon > 0) addonItems.push({ type: 'TIME', qty: S.masaAddon, price: 40 });
     if (S.addonCanopy) addonItems.push({ type: 'CANOPY', qty: 1, price: 50 });
-    if (S.addonCleanup) addonItems.push({ type: 'CLEANUP', qty: 1, price: 150 });
+    if (S.addonCleanup) addonItems.push({ type: 'CLEANUP', qty: 1, price: 200 });
+    if (S.addonOffgrid) addonItems.push({ type: 'OFFGRID', qty: 1, price: 150 });
+    if (S.milkType === 'oat') addonItems.push({ type: 'MILK', qty: S.cupsQty, price: 1 });
 
     for (const a of addonItems) {
       const ads = await sbGet('addons', `addon_type=eq.${a.type}&is_active=eq.true`);
@@ -2509,8 +2557,8 @@ function showToast(msg){const el=document.getElementById('toast-el');el.textCont
 
 function resetAll(){
   S={page:1,date:null,startHour:null,masaAddon:0,maxMasa:null,
-    menu:null,cupsQty:100,selectedDrinks:[],compDrink:null,
-    selectedFlavours:[],selectedPurees:[],addonCanopy:false,canopyType:null,addonCleanup:false,
+    menu:null,cupsQty:100,selectedDrinks:[],milkType:'fresh',
+    selectedFlavours:[],selectedPurees:[],addonCanopy:false,canopyType:null,addonCleanup:false,addonOffgrid:false,
     mapLat:null,mapLng:null,distKm:0,logisticsCost:0,
     tnc:false,reqCount:1,dietYes:null,blocked:S.blocked,existing:S.existing,magicLink:''};
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
