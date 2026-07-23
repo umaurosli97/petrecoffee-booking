@@ -1449,6 +1449,7 @@ function goTo(n){
   if(n===7)buildSummary();
   const waBtn=document.getElementById('wa-float-btn');
   if(waBtn)waBtn.style.display=(n===8)?'none':'flex';
+  saveDraft();
 }
 function updateProg(){}
 
@@ -1696,12 +1697,12 @@ function renderTimeGrid(ds){
     const freeTeams=Math.max(0,getMaxTeams(ds)-busyTeams);
     const label=hr<12?`${hr}AM`:hr===12?'12PM':`${hr-12}PM`;
     if(avail){
-      h+=`<button class="time-btn" onclick="pickTime(${hr})">
+      h+=`<button class="time-btn" data-hr="${hr}" onclick="pickTime(${hr})">
         ${label}
         <div class="avail-dots">${Array(freeTeams).fill('<div class="avail-dot"></div>').join('')}</div>
       </button>`;
     } else {
-      h+=`<button class="time-btn" disabled>${label}</button>`;
+      h+=`<button class="time-btn" data-hr="${hr}" disabled>${label}</button>`;
     }
   }
   document.getElementById('time-grid').innerHTML=h;
@@ -2031,6 +2032,12 @@ function initMapOnP5(){
     S.mapLat=e.latLng.lat();S.mapLng=e.latLng.lng();
     calcLogistics(S.mapLat,S.mapLng);
   });
+  // Kalau S.mapLat/S.mapLng dah ada (contoh restore dari draft tersimpan), letak pin terus
+  if(S.mapLat!=null&&S.mapLng!=null){
+    const savedPos={lat:S.mapLat,lng:S.mapLng};
+    map.setCenter(savedPos);map.setZoom(16);
+    marker.setPosition(savedPos);marker.setVisible(true);
+  }
 }
 
 function getMyLocation(){
@@ -2625,6 +2632,7 @@ async function submitBooking() {
     document.getElementById('load-overlay').classList.remove('show');
     S.magicLink = `petrecoffee.com/order?token=${token}`; // simpan untuk bila portal tracking siap nanti
     document.getElementById('suc-ref').textContent = token;
+    clearDraft(); // booking dah berjaya, tak perlu draft lagi
     goTo(8);
   } catch (err) {
     document.getElementById('load-overlay').classList.remove('show');
@@ -2638,6 +2646,7 @@ function copyLink(){navigator.clipboard.writeText(S.magicLink);showToast(LANG===
 function showToast(msg){const el=document.getElementById('toast-el');el.textContent=msg;el.classList.add('show');setTimeout(()=>el.classList.remove('show'),2400)}
 
 function resetAll(){
+  clearDraft();
   S={page:1,date:null,startHour:null,masaAddon:0,maxMasa:null,
     menu:null,cupsQty:100,selectedDrinks:[],milkType:'fresh',
     selectedFlavours:[],selectedPurees:[],addonCanopy:false,canopyType:null,addonCleanup:false,addonOffgrid:false,addonEarlySetup:false,
@@ -2723,6 +2732,177 @@ new MutationObserver(()=>{
   });
 })();
 
+// ═══════════════ DRAFT AUTOSAVE / RESTORE (elak data hilang bila page refresh) ═══════════════
+const DRAFT_KEY='petre_booking_draft_v1';
+// reqCount sengaja tak masuk sini — dikendalikan berasingan via addReq() supaya tak double-increment
+const S_PERSIST_KEYS=['page','date','startHour','masaAddon','maxMasa','menu','cupsQty','selectedDrinks','milkType','selectedFlavours','selectedPurees','addonCanopy','canopyType','addonCleanup','addonOffgrid','addonEarlySetup','mapLat','mapLng','distKm','logisticsCost','tnc','dietYes'];
+const FORM_FIELD_IDS=['f-pfx','f-phone','f-phone-full','f-name','f-email','f-company','f-designation','f-industry','f-evname','f-evcat','f-evtype','f-evtype-other','f-loctype','f-addr','f-city','f-postcode','f-state','f-pax','f-diet'];
+
+let draftSaveTimer=null;
+function saveDraftDebounced(){
+  clearTimeout(draftSaveTimer);
+  draftSaveTimer=setTimeout(saveDraft,400);
+}
+function saveDraft(){
+  try{
+    if(!S||S.page>=8)return; // takyah simpan lepas booking submitted (success page)
+    const snap={};
+    S_PERSIST_KEYS.forEach(k=>{snap[k]=S[k]});
+    const formVals={};
+    FORM_FIELD_IDS.forEach(id=>{
+      const el=document.getElementById(id);
+      if(el)formVals[id]=el.value;
+    });
+    const reqVals=[...document.querySelectorAll('.req-row input')].map(i=>i.value);
+    const draft={S:snap,BOOKER_TYPE,LANG,formVals,reqVals,savedAt:Date.now()};
+    sessionStorage.setItem(DRAFT_KEY,JSON.stringify(draft));
+  }catch(e){console.warn('Could not save draft:',e)}
+}
+function clearDraft(){
+  try{sessionStorage.removeItem(DRAFT_KEY)}catch(e){}
+}
+function discardDraft(){
+  clearDraft();
+  const banner=document.getElementById('draft-banner');
+  if(banner)banner.remove();
+  resetAll();
+}
+function showDraftBanner(){
+  if(document.getElementById('draft-banner'))return;
+  const b=document.createElement('div');
+  b.id='draft-banner';
+  b.style.cssText='position:fixed;top:0;left:0;right:0;z-index:1000;background:#1a1a1a;color:#fff;padding:10px 16px;display:flex;align-items:center;justify-content:center;gap:14px;font-family:"DM Sans",sans-serif;font-size:12.5px;flex-wrap:wrap;box-shadow:0 2px 10px rgba(0,0,0,.2)';
+  b.innerHTML=`<span>${LANG==='bm'?'Kami dah pulihkan progress booking anda sebelum ini.':'We restored your previous booking progress.'}</span><button onclick="discardDraft()" style="background:#fff;color:#1a1a1a;border:none;border-radius:999px;padding:5px 14px;font-weight:700;font-size:12px;cursor:pointer;font-family:'Syne',sans-serif">${LANG==='bm'?'Mula Semula':'Start Over'}</button>`;
+  document.body.prepend(b);
+  setTimeout(()=>{
+    const el=document.getElementById('draft-banner');
+    if(el){el.style.transition='opacity .4s';el.style.opacity='0';setTimeout(()=>el.remove(),450)}
+  },8000);
+}
+
+function loadDraftIfAny(){
+  let raw;
+  try{ raw=sessionStorage.getItem(DRAFT_KEY) }catch(e){return}
+  if(!raw)return;
+  let draft;
+  try{ draft=JSON.parse(raw) }catch(e){ clearDraft(); return }
+  if(!draft||!draft.S)return;
+  if(draft.S.page>=8){ clearDraft(); return } // booking dah submitted, tak relevan restore
+  try{ restoreFromDraft(draft) }catch(e){ console.warn('Could not restore draft:',e) }
+}
+
+function restoreFromDraft(draft){
+  // 1. Merge state (S) — kekalkan blocked/existing/slotCapacity yang baru fetch dari server
+  Object.assign(S,draft.S);
+
+  // 2. Booker type & language
+  if(draft.BOOKER_TYPE)pickBookerType(draft.BOOKER_TYPE);
+  if(draft.LANG && draft.LANG!==LANG){LANG=draft.LANG;applyLang()}
+
+  // 3. Form fields
+  if(draft.formVals){
+    Object.keys(draft.formVals).forEach(id=>{
+      const el=document.getElementById(id);
+      if(el)el.value=draft.formVals[id];
+    });
+    // f-evtype's <option> list dibina semula ikut kategori (onCatChange), so
+    // kena re-apply value dia lepas rebuild tu.
+    if(draft.formVals['f-evcat']){
+      onCatChange();
+      const evtypeEl=document.getElementById('f-evtype');
+      if(evtypeEl&&draft.formVals['f-evtype']!==undefined)evtypeEl.value=draft.formVals['f-evtype'];
+      onTypeChange();
+    }
+  }
+
+  // 4. Special request rows (rr-1 dah sedia ada by default)
+  const desiredRows=(draft.reqVals&&draft.reqVals.length)?draft.reqVals.length:1;
+  for(let i=1;i<desiredRows;i++)addReq();
+  if(draft.reqVals){
+    const inputs=document.querySelectorAll('.req-row input');
+    draft.reqVals.forEach((v,i)=>{ if(inputs[i])inputs[i].value=v });
+  }
+
+  // 5. Page 1 — tarikh & masa
+  if(S.date){
+    const dt=new Date(S.date+'T00:00:00');
+    CY=dt.getFullYear();CM=dt.getMonth();
+    renderCal();
+    document.getElementById('time-section').style.display='block';
+    renderTimeGrid(S.date);
+    if(S.startHour!==null){
+      const btn=document.querySelector(`.time-btn[data-hr="${S.startHour}"]`);
+      if(btn)btn.classList.add('sel');
+      updateTimeline();
+      document.getElementById('timeline-box').style.display='block';
+      document.getElementById('addon-masa-box').style.display='block';
+      document.getElementById('masa-input').value=S.masaAddon;
+      document.getElementById('masa-sub').textContent=`RM ${(S.masaAddon*40).toLocaleString()}`;
+      document.getElementById('btn2next').disabled=false;
+    }
+  }
+
+  // 6. Page 3 — menu & drinks
+  if(S.menu){
+    const card=document.getElementById(`p-menu-${S.menu.id}`);
+    if(card)card.classList.add('sel');
+    document.getElementById('cup-section').style.display='block';
+    document.getElementById('cups-inp').value=S.cupsQty;
+    updateCupsDisplay();
+    document.getElementById('drink-section').style.display='block';
+    renderDrinkOpts();
+    validateP3();
+  }
+
+  // 7. Page 4 — add-ons
+  const setChk=(id,val)=>{
+    const chk=document.getElementById(id);
+    if(!chk)return;
+    chk.classList.toggle('chkd',val);chk.textContent=val?'✓':'';
+  };
+  setChk('chk-canopy',S.addonCanopy);
+  if(S.addonCanopy){
+    const cc=document.getElementById('canopy-choices');
+    if(cc)cc.style.display='flex';
+    if(S.canopyType){
+      document.getElementById('cc-canopy')?.classList.toggle('sel',S.canopyType==='CANOPY');
+      document.getElementById('cc-umbrella')?.classList.toggle('sel',S.canopyType==='CART_UMBRELLA');
+    }
+  }
+  setChk('chk-cleanup',S.addonCleanup);
+  setChk('chk-offgrid',S.addonOffgrid);
+  setChk('chk-earlysetup',S.addonEarlySetup);
+
+  // 8. Page 6 — dietary & T&C
+  if(S.dietYes!==null)pickDiet(S.dietYes);
+  if(S.tnc){
+    document.getElementById('tnc-row')?.classList.add('chkd');
+    const tb=document.getElementById('tnc-box');
+    if(tb)tb.textContent='✓';
+    const sb=document.getElementById('submit-btn');
+    if(sb)sb.disabled=false;
+  }
+
+  // Nota: pin lokasi Google Maps (page 5) akan diletak balik secara automatik
+  // dalam initMapOnP5() sebaik saja Maps API siap load, guna S.mapLat/S.mapLng ni.
+
+  updateRT();
+  // Guna ini terus (bukan goTo()) sebab S.page dah di-set awal — goTo() akan cuba
+  // buang 'active' dari page yang salah kalau S.page dah bertukar sebelum dipanggil.
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  const targetPage=document.getElementById(`page-${S.page||1}`);
+  if(targetPage)targetPage.classList.add('active');
+  updateProg();
+  if(S.page===4)updateRT();
+  if(S.page===5)setTimeout(initMapOnP5,100);
+  if(S.page===7)buildSummary();
+  showDraftBanner();
+}
+
+// Autosave setiap kali ada input ditaip atau butang diklik (delegated, ringan)
+document.addEventListener('input',saveDraftDebounced);
+document.addEventListener('click',saveDraftDebounced);
+
 async function init(){
   try{
     const [bl, ex, cap] = await Promise.all([
@@ -2737,6 +2917,7 @@ async function init(){
   }catch(e){console.warn('Could not load availability:',e)}
   initCal();
   applyLang();
+  loadDraftIfAny();
 }
 init();
 </script>
