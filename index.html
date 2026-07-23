@@ -124,11 +124,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
 .time-btn .avail-dots{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);display:flex;gap:2px}
 .avail-dot{width:4px;height:4px;border-radius:50%;background:var(--ok)}
 .avail-dot.full{background:var(--err)}
-.time-btn-night{background:var(--white);border-color:#B9C4EF}
-.time-btn-night:hover:not(:disabled){border-color:#8B9CE0}
-.time-btn-night.sel{background:#2B2E63;color:var(--white);border-color:#2B2E63}
-.time-btn-night:disabled{background:var(--g50);border-color:#DADFF5;color:var(--g300)}
-.time-btn-moon{display:inline-block;font-size:12px;margin-left:3px;vertical-align:middle}
 
 /* TIMELINE */
 .timeline-box{background:var(--g50);border:1.5px solid var(--g100);border-radius:var(--rs);padding:16px;margin-top:16px}
@@ -514,15 +509,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
         </div>
       </div>
       <div class="err-msg" id="masa-err" data-i18n="num_only">Please enter numbers only.</div>
-    </div>
-
-    <!-- MIDNIGHT CHARGE — kotak berasingan -->
-    <div id="midnight-charge-box" style="display:none;margin-top:12px;background:var(--al);border:1.5px solid var(--accent);border-radius:var(--rs);padding:14px 16px">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <span style="font-size:13px;color:var(--ad)">🌙 <span data-i18n="midnight_charge_name">Midnight Charge</span></span>
-        <span style="font-weight:700;color:var(--ad)">RM 250.00</span>
-      </div>
-      <div style="font-size:11.5px;color:var(--g600);margin-top:4px" data-i18n="midnight_charge_desc">Your serving time falls between 11:00 PM and 8:00 AM, so a fixed midnight charge applies.</div>
     </div>
   </div>
 
@@ -1003,7 +989,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
     <div class="sum-row" id="b-flav-row" style="display:none"><span class="sum-key" data-i18n="flavour_addon">Flavour Add-on</span><span class="sum-val" id="b-flavs">RM 0.00</span></div>
     <div class="sum-row" id="b-milk-row" style="display:none"><span class="sum-key" data-i18n="milk_addon">Oat Milk Add-on</span><span class="sum-val" id="b-milk">RM 0.00</span></div>
     <div class="sum-row" id="b-masa-row" style="display:none"><span class="sum-key" data-i18n="extra_time">Extra Time</span><span class="sum-val" id="b-masa">RM 0.00</span></div>
-    <div class="sum-row" id="b-midnight-row" style="display:none"><span class="sum-key" data-i18n="midnight_charge_name">Midnight Charge</span><span class="sum-val" id="b-midnight">RM 0.00</span></div>
     <div class="sum-row" id="b-addon-row" style="display:none"><span class="sum-key" data-i18n="other_addons">Other Add-ons</span><span class="sum-val" id="b-addons">RM 0.00</span></div>
     <div class="sum-row"><span class="sum-key" data-i18n="logistics">Logistics</span><span class="sum-val" id="b-logistics">RM 0.00</span></div>
     <div class="sum-row" style="font-size:11px"><span class="sum-key" style="color:var(--g400)" data-i18n="toll_note">* Excess toll & parking refunded after event</span><span class="sum-val"></span></div>
@@ -1167,15 +1152,12 @@ const SB_URL='https://dfdgfujgygslhgkgujsr.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmZGdmdWpneWdzbGhna2d1anNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MDM4NjQsImV4cCI6MjA5MzQ3OTg2NH0.L6z152YBOKgSY6eJbAFeJ9XN2U93yyQgBgFfXYf608s';
 const SB_EDGE=`${SB_URL}/functions/v1/send-booking-emails`;
 const BASE_LAT=3.1779075, BASE_LNG=101.6448299;
-const DEFAULT_TEAMS=2, TEAM_BUFFER=3, DEFAULT_SERVE=3, MAX_TOTAL_SERVE=12, MIDNIGHT_CHARGE=250;
-// Peraturan extra hour: (1) jumlah serving max 12 jam, (2) serving MESTI habis pada atau sebelum 5AM.
-// Guna skala jam berterusan: 8AM=8 ... 11PM=23, 12AM=24, 1AM=25, 2AM=26 (supaya senang banding merentasi tengah malam).
-// 5AM (had akhir) = jam 29 dalam skala ni (24+5).
-const LAST_SERVE_END_CONTINUOUS=29;
-function continuousHour(hr){ return hr>=8?hr:hr+24; }
+const DEFAULT_TEAMS=2, TEAM_BUFFER=3, DEFAULT_SERVE=3, MAX_TOTAL_SERVE=12;
+// Peraturan extra hour: (1) jumlah serving max 12 jam, (2) serving MESTI habis pada atau sebelum 11PM.
+// Start slot hanya 8AM-8PM, so tiada isu merentasi tengah malam lagi.
+const LAST_SERVE_END_HOUR=23; // 11PM
 function getMaxMasaForHour(hr){
-  const startCont=continuousHour(hr);
-  const cutoffDiff=LAST_SERVE_END_CONTINUOUS-startCont; // baki jam sebelum 5AM
+  const cutoffDiff=LAST_SERVE_END_HOUR-hr; // baki jam sebelum 11PM
   const maxTotal=Math.min(MAX_TOTAL_SERVE,cutoffDiff);
   return Math.max(0,maxTotal-DEFAULT_SERVE);
 }
@@ -1211,7 +1193,6 @@ const TR={
     time_note:'Select when you\'d like us to start serving. Green dots = available team slots.',
     service_timeline:'Service Timeline',tl_setup:'Booth Setup',tl_serve:'Serving',tl_close:'Pack Up & Closing',
     extra_time:'Extra Serving Time',per_hour:'hour',
-    midnight_charge_name:'Midnight Charge',midnight_charge_desc:'Your serving time falls between 11:00 PM and 8:00 AM, so a fixed midnight charge applies.',
     num_only:'Please enter numbers only.',back:'Back',next:'Next',
     step_2_6:'Step 2 of 5',p3_title:'Choose Your Menu',p3_sub:'Select a menu, set cup quantity, and choose your drinks.',
     cups:'Cups',up_to:'Up to',drinks:'Drinks',cup:'cup',
@@ -1289,7 +1270,6 @@ const TR={
     time_note:'Pilih waktu anda mahu kami mula berkhidmat. Titik hijau = slot pasukan tersedia.',
     service_timeline:'Jadual Perkhidmatan',tl_setup:'Setup Booth',tl_serve:'Hidangan',tl_close:'Pembungkusan & Penutupan',
     extra_time:'Masa Hidangan Tambahan',per_hour:'jam',
-    midnight_charge_name:'Caj Tengah Malam',midnight_charge_desc:'Masa hidangan anda jatuh antara 11:00 malam dan 8:00 pagi, jadi caj tetap tengah malam dikenakan.',
     num_only:'Sila masukkan nombor sahaja.',back:'Kembali',next:'Seterusnya',
     step_2_6:'Langkah 2 dari 5',p3_title:'Pilih Menu Anda',p3_sub:'Pilih menu, tetapkan kuantiti cawan, dan pilih minuman.',
     cups:'Cawan',up_to:'Sehingga',drinks:'Minuman',cup:'cawan',
@@ -1599,8 +1579,7 @@ function renderMonthView(){
 function isDateFull(ds) {
   // Jika tarikh diblok, anggap full
   if (isDateBlocked(ds) !== null) return true;
-  for (let i = 0; i < 19; i++) {
-    const h = (8 + i) % 24; // 8AM...2AM sahaja (3AM dibuang — default 3 jam serving akan breach 5AM cutoff)
+  for (let h = 8; h <= 20; h++) { // 8AM...8PM sahaja
     if (isSlotAvail(ds, h)) return false;
   }
   return true;
@@ -1610,21 +1589,6 @@ function getMaxTeams(date) {
   // Guna slotting yang admin letak untuk tarikh ni; default 2 kalau admin belum set
   const cap = S.slotCapacity[date];
   return (cap === undefined || cap === null) ? DEFAULT_TEAMS : cap;
-}
-
-// Semak jika mana-mana jam serving (startHour, untuk totalHours jam) jatuh
-// dalam waktu 11PM (23) - 8AM (masuk sebelah 'esok' secara jam, bukan tarikh)
-function servingHitsMidnightBand(startHour, totalHours) {
-  for (let i = 0; i < totalHours; i++) {
-    const h = (startHour + i) % 24;
-    if (h >= 23 || h < 8) return true;
-  }
-  return false;
-}
-function getMidnightCharge() {
-  if (S.startHour === null) return 0;
-  const total = DEFAULT_SERVE + S.masaAddon;
-  return servingHitsMidnightBand(S.startHour, total) ? MIDNIGHT_CHARGE : 0;
 }
 
 function isSlotAvail(date, startH) {
@@ -1721,8 +1685,7 @@ function fmtH(h){
 function renderTimeGrid(ds){
   const bookings=S.existing.filter(b=>b.event_date===ds);
   let h='';
-  for(let i=0;i<19;i++){
-    const hr=(8+i)%24; // 8AM...11PM, then 12AM...2AM (3AM-7AM dibuang — default 3 jam serving akan breach 5AM cutoff)
+  for(let hr=8;hr<=20;hr++){ // 8AM...8PM sahaja
     const avail=isSlotAvail(ds,hr);
     // Count available teams
     const busyTeams=bookings.filter(b=>{
@@ -1731,17 +1694,14 @@ function renderTimeGrid(ds){
       return hr<bEnd&&(hr+DEFAULT_SERVE+TEAM_BUFFER)>bH;
     }).length;
     const freeTeams=Math.max(0,getMaxTeams(ds)-busyTeams);
-    const label=hr===0?'12AM':hr<12?`${hr}AM`:hr===12?'12PM':`${hr-12}PM`;
-    const isNight=hr>=21||hr<=2; // 9PM - 2AM
-    const nightCls=isNight?' time-btn-night':'';
-    const nightIcon=isNight?'<span class="time-btn-moon">🌙</span>':'';
+    const label=hr<12?`${hr}AM`:hr===12?'12PM':`${hr-12}PM`;
     if(avail){
-      h+=`<button class="time-btn${nightCls}" onclick="pickTime(${hr})">
-        ${label}${nightIcon}
+      h+=`<button class="time-btn" onclick="pickTime(${hr})">
+        ${label}
         <div class="avail-dots">${Array(freeTeams).fill('<div class="avail-dot"></div>').join('')}</div>
       </button>`;
     } else {
-      h+=`<button class="time-btn${nightCls}" disabled>${label}${nightIcon}</button>`;
+      h+=`<button class="time-btn" disabled>${label}</button>`;
     }
   }
   document.getElementById('time-grid').innerHTML=h;
@@ -1751,8 +1711,7 @@ function pickTime(hr){
   S.startHour=hr;S.masaAddon=0;
   document.querySelectorAll('.time-btn').forEach(b=>b.classList.remove('sel'));
   event.currentTarget.classList.add('sel');
-  // Max masa — total serving time (default + addon) tak boleh lebih 8 jam,
-  // Max masa — dihadkan oleh (a) total serving max 12 jam, DAN (b) serving mesti habis pada/sebelum 5AM
+  // Max masa — dihadkan oleh (a) total serving max 12 jam, DAN (b) serving mesti habis pada/sebelum 11PM
   S.maxMasa=getMaxMasaForHour(hr);
   document.getElementById('masa-input').value=0;
   document.getElementById('masa-sub').textContent='RM 0';
@@ -1761,22 +1720,21 @@ function pickTime(hr){
   document.getElementById('addon-masa-box').style.display='block';
   const maxNote=document.getElementById('masa-max-note');
   const plusBtn=document.getElementById('masa-btn-plus');
-  const cutoffDiff=LAST_SERVE_END_CONTINUOUS-continuousHour(hr);
-  const cappedBy5am=cutoffDiff<MAX_TOTAL_SERVE; // 5AM cutoff lebih ketat dari had 12 jam
+  const cutoffDiff=LAST_SERVE_END_HOUR-hr;
+  const cappedBy11pm=cutoffDiff<MAX_TOTAL_SERVE; // 11PM cutoff lebih ketat dari had 12 jam
   if(S.maxMasa>0){
-    maxNote.textContent=cappedBy5am
-      ? `Max ${S.maxMasa} additional hour(s) — serving must end by 5:00 AM`
+    maxNote.textContent=cappedBy11pm
+      ? `Max ${S.maxMasa} additional hour(s) — serving must end by 11:00 PM`
       : `Max ${S.maxMasa} additional hour(s) — total serving time capped at ${MAX_TOTAL_SERVE} hours per booking`;
     maxNote.style.display='block';
     maxNote.style.color='green';
     if(plusBtn)plusBtn.disabled=false;
   } else {
-    maxNote.textContent='Cannot add additional hour — serving must end by 5:00 AM';
+    maxNote.textContent='Cannot add additional hour — serving must end by 11:00 PM';
     maxNote.style.color='var(--err)';
     maxNote.style.display='block';
     if(plusBtn)plusBtn.disabled=true;
   }
-  updateMidnightNote();
   document.getElementById('btn2next').disabled=false;
 }
 
@@ -1791,12 +1749,6 @@ function updateTimeline(){
   document.getElementById('tl-close-time').textContent=`${fmtH(servEnd)} — ${fmtH(closeEnd)}`;
 }
 
-function updateMidnightNote(){
-  const box=document.getElementById('midnight-charge-box');
-  if(!box)return;
-  box.style.display=getMidnightCharge()>0?'block':'none';
-}
-
 function adjMasa(d){
   let v=S.masaAddon+d;
   if(S.maxMasa!==null)v=Math.min(v,S.maxMasa);
@@ -1805,7 +1757,7 @@ function adjMasa(d){
   document.getElementById('masa-sub').textContent=`RM ${(S.masaAddon*40).toLocaleString()}`;
   const plusBtn=document.getElementById('masa-btn-plus');
   if(plusBtn)plusBtn.disabled=(S.maxMasa!==null&&S.masaAddon>=S.maxMasa);
-  updateTimeline();updateMidnightNote();updateRT();
+  updateTimeline();updateRT();
 }
 
 function onMasaInput(el){
@@ -1817,7 +1769,7 @@ function onMasaInput(el){
     if(S.maxMasa!==null)v=Math.min(v,S.maxMasa);
     S.masaAddon=v;
     document.getElementById('masa-sub').textContent=`RM ${(v*40).toLocaleString()}`;
-    updateTimeline();updateMidnightNote();updateRT();
+    updateTimeline();updateRT();
   }
 }
 function onMasaBlur(el){
@@ -2006,8 +1958,7 @@ function updateRT(){
   const cleanupAddon=S.addonCleanup?200:0;
   const offgridAddon=S.addonOffgrid?150:0;
   const earlySetupAddon=S.addonEarlySetup?100:0;
-  const midnightCharge=getMidnightCharge();
-  const total=base+cupsAddon+flavAddon+oatAddon+masaAddon+canopyAddon+cleanupAddon+offgridAddon+earlySetupAddon+midnightCharge+S.logisticsCost;
+  const total=base+cupsAddon+flavAddon+oatAddon+masaAddon+canopyAddon+cleanupAddon+offgridAddon+earlySetupAddon+S.logisticsCost;
   document.getElementById('run-total').textContent=`RM ${total.toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2})}`;
 }
 // BOOKER TYPE TOGGLE
@@ -2447,8 +2398,7 @@ function buildSummary(){
   const cleanupAddon=S.addonCleanup?200:0;
   const offgridAddon=S.addonOffgrid?150:0;
   const earlySetupAddon=S.addonEarlySetup?100:0;
-  const midnightCharge=getMidnightCharge();
-  const total=base+cupsAddon+flavAddon+oatAddon+masaAddon+canopyAddon+cleanupAddon+offgridAddon+earlySetupAddon+midnightCharge+S.logisticsCost;
+  const total=base+cupsAddon+flavAddon+oatAddon+masaAddon+canopyAddon+cleanupAddon+offgridAddon+earlySetupAddon+S.logisticsCost;
   document.getElementById('b-menu').textContent=`RM ${base.toFixed(2)}`;
   if(cupsAddon>0){document.getElementById('b-cups').textContent=`RM ${cupsAddon.toFixed(2)}`;document.getElementById('b-cups-row').style.display='flex'}
   else document.getElementById('b-cups-row').style.display='none';
@@ -2458,8 +2408,6 @@ function buildSummary(){
   else document.getElementById('b-milk-row').style.display='none';
   if(masaAddon>0){document.getElementById('b-masa').textContent=`RM ${masaAddon.toFixed(2)}`;document.getElementById('b-masa-row').style.display='flex'}
   else document.getElementById('b-masa-row').style.display='none';
-  if(midnightCharge>0){document.getElementById('b-midnight').textContent=`RM ${midnightCharge.toFixed(2)}`;document.getElementById('b-midnight-row').style.display='flex'}
-  else document.getElementById('b-midnight-row').style.display='none';
   if(aTotal>0){document.getElementById('b-addons').textContent=`RM ${aTotal.toFixed(2)}`;document.getElementById('b-addon-row').style.display='flex'}
   else document.getElementById('b-addon-row').style.display='none';
   document.getElementById('b-logistics').textContent=`RM ${S.logisticsCost.toFixed(2)}`;
@@ -2492,8 +2440,7 @@ async function submitBooking() {
     const cleanupAddon = S.addonCleanup ? 200 : 0;
     const offgridAddon = S.addonOffgrid ? 150 : 0;
     const earlySetupAddon = S.addonEarlySetup ? 100 : 0;
-    const midnightCharge = getMidnightCharge();
-    const subtotal = base + cupsAddon + flavAddon + oatAddon + masaAddon + canopyAddon + cleanupAddon + offgridAddon + earlySetupAddon + midnightCharge;
+    const subtotal = base + cupsAddon + flavAddon + oatAddon + masaAddon + canopyAddon + cleanupAddon + offgridAddon + earlySetupAddon;
     const total = subtotal + S.logisticsCost;
 
     const cat = document.getElementById('f-evcat').value;
@@ -2594,7 +2541,6 @@ async function submitBooking() {
     if (S.addonOffgrid) addonItems.push({ type: 'OFFGRID', qty: 1, price: 150 });
     if (S.addonEarlySetup) addonItems.push({ type: 'EARLYSETUP', qty: 1, price: 100 });
     if (S.milkType === 'oat') addonItems.push({ type: 'MILK', qty: S.cupsQty, price: 1 });
-    if (midnightCharge > 0) addonItems.push({ type: 'MIDNIGHT', qty: 1, price: MIDNIGHT_CHARGE });
 
     for (const a of addonItems) {
       const ads = await sbGet('addons', `addon_type=eq.${a.type}&is_active=eq.true`);
