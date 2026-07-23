@@ -102,7 +102,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
 .yr-month-btn.past{opacity:.4}
 
 /* TIME SLOTS */
-.time-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px}
+.time-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:12px;align-items:start}
 .time-btn{padding:12px 6px;border:1.5px solid var(--g200);border-radius:var(--rs);background:var(--white);font-family:'Syne',sans-serif;font-weight:700;font-size:13px;color:var(--black);cursor:pointer;transition:var(--tr);text-align:center;position:relative}
 .time-btn:hover:not(:disabled){border-color:var(--black)}
 .time-btn.sel{background:var(--black);color:var(--white);border-color:var(--black)}
@@ -110,11 +110,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
 .time-btn .avail-dots{position:absolute;bottom:4px;left:50%;transform:translateX(-50%);display:flex;gap:2px}
 .avail-dot{width:4px;height:4px;border-radius:50%;background:var(--ok)}
 .avail-dot.full{background:var(--err)}
-.time-btn-night{background:#EEF0FB;border-color:#C9CDEF}
-.time-btn-night:hover:not(:disabled){border-color:#5B5FA6}
+.time-btn-night{background:var(--white);border-color:#B9C4EF}
+.time-btn-night:hover:not(:disabled){border-color:#8B9CE0}
 .time-btn-night.sel{background:#2B2E63;color:var(--white);border-color:#2B2E63}
-.time-btn-night:disabled{background:var(--g50);border-color:var(--g200)}
-.time-btn-moon{display:block;font-size:11px;margin-bottom:2px;line-height:1}
+.time-btn-night:disabled{background:var(--g50);border-color:#DADFF5;color:var(--g300)}
+.time-btn-moon{display:inline-block;font-size:12px;margin-left:3px;vertical-align:middle}
 
 /* TIMELINE */
 .timeline-box{background:var(--g50);border:1.5px solid var(--g100);border-radius:var(--rs);padding:16px;margin-top:16px}
@@ -460,23 +460,25 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
           <div class="addon-masa-price">RM 40.00 / <span data-i18n="per_hour">hour</span></div>
           <div id="masa-max-note" style="font-size:11px;color:var(--ad);margin-top:3px;display:none"></div>
         </div>
-        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:5px">
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px">
+          <div class="addon-sub" id="masa-sub" style="font-size:16px">RM 0</div>
           <div class="qty-wrap">
             <button class="qty-btn" id="masa-btn-minus" onclick="adjMasa(-1)">−</button>
             <input class="qty-input" id="masa-input" value="0" oninput="onMasaInput(this)" onblur="onMasaBlur(this)">
             <button class="qty-btn" id="masa-btn-plus" onclick="adjMasa(1)">+</button>
           </div>
-          <div class="addon-sub" id="masa-sub">RM 0</div>
         </div>
       </div>
       <div class="err-msg" id="masa-err" data-i18n="num_only">Please enter numbers only.</div>
-      <div id="midnight-charge-box" style="display:none;margin-top:10px;background:var(--al);border:1.5px solid var(--accent);border-radius:var(--rs);padding:9px 12px">
-        <div style="display:flex;justify-content:space-between;align-items:center">
-          <span style="font-size:12.5px;color:var(--ad)">🌙 <span data-i18n="midnight_charge_name">Midnight Charge</span></span>
-          <span style="font-weight:700;color:var(--ad)">RM 250.00</span>
-        </div>
-        <div style="font-size:11px;color:var(--g600);margin-top:4px" data-i18n="midnight_charge_desc">Your serving time falls between 11:00 PM and 8:00 AM, so a fixed midnight charge applies.</div>
+    </div>
+
+    <!-- MIDNIGHT CHARGE — kotak berasingan -->
+    <div id="midnight-charge-box" style="display:none;margin-top:12px;background:var(--al);border:1.5px solid var(--accent);border-radius:var(--rs);padding:14px 16px">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span style="font-size:13px;color:var(--ad)">🌙 <span data-i18n="midnight_charge_name">Midnight Charge</span></span>
+        <span style="font-weight:700;color:var(--ad)">RM 250.00</span>
       </div>
+      <div style="font-size:11.5px;color:var(--g600);margin-top:4px" data-i18n="midnight_charge_desc">Your serving time falls between 11:00 PM and 8:00 AM, so a fixed midnight charge applies.</div>
     </div>
   </div>
 
@@ -644,6 +646,17 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
       <div>
         <div class="addon-name"><span data-i18n="offgrid_name">Off-Grid Power Charge</span> <span style="font-size:12px;font-weight:400;color:var(--g400)">— RM 150.00</span></div>
         <div class="addon-desc" data-i18n="offgrid_desc">For venues without electricity access — beach, campsite, riverside, recreational park, or other outdoor nature locations. Petre Coffee will bring our own portable power station to run the coffee machine and equipment.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Early Move-In/Out -->
+  <div class="addon-card" onclick="toggleEarlySetup()" style="cursor:pointer">
+    <div class="addon-chk-wrap">
+      <div class="addon-chk" id="chk-earlysetup"></div>
+      <div>
+        <div class="addon-name"><span data-i18n="earlysetup_name">Early Move-In/Out Charge</span> <span style="font-size:12px;font-weight:400;color:var(--g400)">— RM 100.00</span></div>
+        <div class="addon-desc" data-i18n="earlysetup_desc">For venues that require booth setup a day before the event date — such as expos or corporate events. Petre Coffee will send the team a day early solely for setup.</div>
       </div>
     </div>
   </div>
@@ -979,11 +992,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
       <div class="ref-lbl" data-i18n="ref_number">Booking Reference</div>
       <div class="ref-num" id="suc-ref">PCO-2026-0001</div>
     </div>
-    <p style="font-size:12px;color:var(--g600);margin-bottom:7px" data-i18n="track_desc">Track your booking status via the link below:</p>
-    <div class="link-box">
-      <div class="link-url" id="suc-link">petrecoffee.com/order?token=...</div>
-      <button class="copy-btn" onclick="copyLink()" data-i18n="copy">Copy</button>
-    </div>
     <div class="info-chips">
       <div class="chip">📧 <span>Booking Request confirmation sent to you</span></div>
       <div class="chip">📅 <span>Owner received email for your Booking Request</span></div>
@@ -1172,6 +1180,7 @@ const TR={
     canopy_desc:'Shade solution for outdoor or open venues. Ideal for locations with rain risk.',
     cleanup_name:'Waste Management Service',cleanup_desc:'Petre Coffee handles all waste collection, booth area cleanup, and take everything back.',
     offgrid_name:'Off-Grid Power Charge',offgrid_desc:'For venues without electricity access — beach, campsite, riverside, recreational park, or other outdoor nature locations. Petre Coffee will bring our own portable power station to run the coffee machine and equipment.',
+    earlysetup_name:'Early Move-In/Out Charge',earlysetup_desc:'For venues that require booth setup a day before the event date — such as expos or corporate events. Petre Coffee will send the team a day early solely for setup.',
     milk_selection:'Milk Selection',milk_fresh:'Fresh Milk',milk_oat:'Oat Milk',milk_addon:'Oat Milk Add-on',flavor_selection:'Flavor & Puree Selection',
     milk_desc:'Choose your preferred milk base. Oat Milk adds RM 1.00 per cup. If you choose Fresh Milk, a limited number of complimentary Oat Milk cups will still be provided.',
     total_so_far:'Menu + Add-ons Total',
@@ -1249,6 +1258,7 @@ const TR={
     canopy_desc:'Pelindung teduhan untuk venue luar atau terbuka. Sesuai untuk lokasi berisiko hujan.',
     cleanup_name:'Perkhidmatan Pengurusan Sisa',cleanup_desc:'Petre Coffee menguruskan kutipan sampah, pembersihan kawasan booth, dan membawa semua balik.',
     offgrid_name:'Caj Kuasa Off-Grid',offgrid_desc:'Untuk venue tanpa capaian elektrik — pantai, tapak perkhemahan, tepi sungai, taman rekreasi, atau lokasi luar semula jadi lain. Petre Coffee akan membawa power station mudah alih sendiri untuk menjalankan mesin kopi dan peralatan.',
+    earlysetup_name:'Caj Setup Awal Sehari',earlysetup_desc:'Untuk venue yang perlukan setup booth sehari sebelum tarikh event — contoh expo atau corporate event. Petre Coffee akan hantar team sehari awal khas untuk setup.',
     milk_selection:'Pilihan Susu',milk_fresh:'Fresh Milk',milk_oat:'Oat Milk',milk_addon:'Add-on Oat Milk',flavor_selection:'Pilihan Perasa & Puree',
     milk_desc:'Pilih jenis susu pilihan anda. Oat Milk menambah RM 1.00 setiap cawan. Jika anda pilih Fresh Milk, sebilangan cawan Oat Milk percuma (terhad) tetap akan disediakan.',
     total_so_far:'Jumlah Menu + Add-ons',
@@ -1315,7 +1325,7 @@ let S={
   page:1,date:null,startHour:null,masaAddon:0,maxMasa:null,
   menu:null,cupsQty:100,selectedDrinks:[],milkType:'fresh',
   selectedFlavours:[],selectedPurees:[],
-  addonCanopy:false,canopyType:null,addonCleanup:false,addonOffgrid:false,
+  addonCanopy:false,canopyType:null,addonCleanup:false,addonOffgrid:false,addonEarlySetup:false,
   mapLat:null,mapLng:null,distKm:0,logisticsCost:0,
   tnc:false,reqCount:1,dietYes:null,
   blocked:[],existing:[],slotCapacity:{},magicLink:''
@@ -1681,11 +1691,11 @@ function renderTimeGrid(ds){
     const nightIcon=isNight?'<span class="time-btn-moon">🌙</span>':'';
     if(avail){
       h+=`<button class="time-btn${nightCls}" onclick="pickTime(${hr})">
-        ${nightIcon}${label}
+        ${label}${nightIcon}
         <div class="avail-dots">${Array(freeTeams).fill('<div class="avail-dot"></div>').join('')}</div>
       </button>`;
     } else {
-      h+=`<button class="time-btn${nightCls}" disabled>${nightIcon}${label}</button>`;
+      h+=`<button class="time-btn${nightCls}" disabled>${label}${nightIcon}</button>`;
     }
   }
   document.getElementById('time-grid').innerHTML=h;
@@ -1928,6 +1938,12 @@ function toggleOffgrid(){
   chk.classList.toggle('chkd',S.addonOffgrid);chk.textContent=S.addonOffgrid?'✓':'';
   updateRT();
 }
+function toggleEarlySetup(){
+  S.addonEarlySetup=!S.addonEarlySetup;
+  const chk=document.getElementById('chk-earlysetup');
+  chk.classList.toggle('chkd',S.addonEarlySetup);chk.textContent=S.addonEarlySetup?'✓':'';
+  updateRT();
+}
 
 function getFlavAddonTotal(){
   return(Math.max(0,S.selectedFlavours.length-1)*70)+(Math.max(0,S.selectedPurees.length-1)*70);
@@ -1943,8 +1959,9 @@ function updateRT(){
   const canopyAddon=S.addonCanopy?50:0;
   const cleanupAddon=S.addonCleanup?200:0;
   const offgridAddon=S.addonOffgrid?150:0;
+  const earlySetupAddon=S.addonEarlySetup?100:0;
   const midnightCharge=getMidnightCharge();
-  const total=base+cupsAddon+flavAddon+oatAddon+masaAddon+canopyAddon+cleanupAddon+offgridAddon+midnightCharge+S.logisticsCost;
+  const total=base+cupsAddon+flavAddon+oatAddon+masaAddon+canopyAddon+cleanupAddon+offgridAddon+earlySetupAddon+midnightCharge+S.logisticsCost;
   document.getElementById('run-total').textContent=`RM ${total.toLocaleString('en-MY',{minimumFractionDigits:2,maximumFractionDigits:2})}`;
 }
 // BOOKER TYPE TOGGLE
@@ -2359,6 +2376,7 @@ function buildSummary(){
   if(S.addonCanopy){aTotal+=50;aHtml+=`<div class="sum-row"><span class="sum-key">${S.canopyType==='CART_UMBRELLA'?'Cart Umbrella':'Canopy'}</span><span class="sum-val">RM 50.00</span></div>`}
   if(S.addonCleanup){aTotal+=200;aHtml+=`<div class="sum-row"><span class="sum-key">${t('cleanup_name')}</span><span class="sum-val">RM 200.00</span></div>`}
   if(S.addonOffgrid){aTotal+=150;aHtml+=`<div class="sum-row"><span class="sum-key">${t('offgrid_name')}</span><span class="sum-val">RM 150.00</span></div>`}
+  if(S.addonEarlySetup){aTotal+=100;aHtml+=`<div class="sum-row"><span class="sum-key">${t('earlysetup_name')}</span><span class="sum-val">RM 100.00</span></div>`}
   const ab=document.getElementById('s-addon-block');
   if(aHtml){document.getElementById('s-addon-list').innerHTML=aHtml;ab.style.display='block'}
   else ab.style.display='none';
@@ -2382,8 +2400,9 @@ function buildSummary(){
   const canopyAddon=S.addonCanopy?50:0;
   const cleanupAddon=S.addonCleanup?200:0;
   const offgridAddon=S.addonOffgrid?150:0;
+  const earlySetupAddon=S.addonEarlySetup?100:0;
   const midnightCharge=getMidnightCharge();
-  const total=base+cupsAddon+flavAddon+oatAddon+masaAddon+canopyAddon+cleanupAddon+offgridAddon+midnightCharge+S.logisticsCost;
+  const total=base+cupsAddon+flavAddon+oatAddon+masaAddon+canopyAddon+cleanupAddon+offgridAddon+earlySetupAddon+midnightCharge+S.logisticsCost;
   document.getElementById('b-menu').textContent=`RM ${base.toFixed(2)}`;
   if(cupsAddon>0){document.getElementById('b-cups').textContent=`RM ${cupsAddon.toFixed(2)}`;document.getElementById('b-cups-row').style.display='flex'}
   else document.getElementById('b-cups-row').style.display='none';
@@ -2426,8 +2445,9 @@ async function submitBooking() {
     const canopyAddon = S.addonCanopy ? 50 : 0;
     const cleanupAddon = S.addonCleanup ? 200 : 0;
     const offgridAddon = S.addonOffgrid ? 150 : 0;
+    const earlySetupAddon = S.addonEarlySetup ? 100 : 0;
     const midnightCharge = getMidnightCharge();
-    const subtotal = base + cupsAddon + flavAddon + oatAddon + masaAddon + canopyAddon + cleanupAddon + offgridAddon + midnightCharge;
+    const subtotal = base + cupsAddon + flavAddon + oatAddon + masaAddon + canopyAddon + cleanupAddon + offgridAddon + earlySetupAddon + midnightCharge;
     const total = subtotal + S.logisticsCost;
 
     const cat = document.getElementById('f-evcat').value;
@@ -2526,6 +2546,7 @@ async function submitBooking() {
     if (S.addonCanopy) addonItems.push({ type: 'CANOPY', qty: 1, price: 50 });
     if (S.addonCleanup) addonItems.push({ type: 'CLEANUP', qty: 1, price: 200 });
     if (S.addonOffgrid) addonItems.push({ type: 'OFFGRID', qty: 1, price: 150 });
+    if (S.addonEarlySetup) addonItems.push({ type: 'EARLYSETUP', qty: 1, price: 100 });
     if (S.milkType === 'oat') addonItems.push({ type: 'MILK', qty: S.cupsQty, price: 1 });
     if (midnightCharge > 0) addonItems.push({ type: 'MIDNIGHT', qty: 1, price: MIDNIGHT_CHARGE });
 
@@ -2610,9 +2631,8 @@ async function submitBooking() {
 
     // 10. Show success
     document.getElementById('load-overlay').classList.remove('show');
-    S.magicLink = `petrecoffee.com/order?token=${token}`;
+    S.magicLink = `petrecoffee.com/order?token=${token}`; // simpan untuk bila portal tracking siap nanti
     document.getElementById('suc-ref').textContent = token;
-    document.getElementById('suc-link').textContent = S.magicLink;
     goTo(8);
   } catch (err) {
     document.getElementById('load-overlay').classList.remove('show');
@@ -2628,7 +2648,7 @@ function showToast(msg){const el=document.getElementById('toast-el');el.textCont
 function resetAll(){
   S={page:1,date:null,startHour:null,masaAddon:0,maxMasa:null,
     menu:null,cupsQty:100,selectedDrinks:[],milkType:'fresh',
-    selectedFlavours:[],selectedPurees:[],addonCanopy:false,canopyType:null,addonCleanup:false,addonOffgrid:false,
+    selectedFlavours:[],selectedPurees:[],addonCanopy:false,canopyType:null,addonCleanup:false,addonOffgrid:false,addonEarlySetup:false,
     mapLat:null,mapLng:null,distKm:0,logisticsCost:0,
     tnc:false,reqCount:1,dietYes:null,blocked:S.blocked,existing:S.existing,slotCapacity:S.slotCapacity,magicLink:''};
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
