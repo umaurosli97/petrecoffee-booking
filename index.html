@@ -1398,9 +1398,11 @@ async function findOrCreateCustomer() {
     customer_type: customerType,
     full_name: fullName,
     phone: phoneRaw,
-    email: email,
+    email: email || null,   // email nullable sekarang — elak insert string kosong
     city: city,
     state: state,
+    loyalty_points: 0,
+    loyalty_tier: 'BRONZE',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   };
@@ -2461,7 +2463,31 @@ async function submitBooking() {
     const pkgs = await sbGet('packages', `name=eq.${encodeURIComponent(S.menu.name)}&is_active=eq.true`);
     if (!pkgs || pkgs.length === 0) throw new Error('Package not found');
 
+    // Dapatkan business_unit_id (default = Catering) — cache supaya tak query berulang
+    if (!S.businessUnitId) {
+      const bu = await sbGet('business_units', `unit_type=eq.CATERING&is_active=eq.true`);
+      if (!bu || bu.length === 0) throw new Error('Business unit (Catering) not found');
+      S.businessUnitId = bu[0].id;
+    }
+    const businessUnitId = S.businessUnitId;
+
+    // Insert orders dulu (header generic), dapatkan order_id untuk bookings
+    const orderPayload = {
+      order_type: 'CATERING',
+      business_unit_id: businessUnitId,
+      customer_id: customerId,
+      status: 'SUBMITTED',
+      payment_status: 'NOT_PAID',
+      subtotal: subtotal,
+      total_amount: total
+    };
+    const orderRes = await sbPost('orders', orderPayload);
+    const orderId = orderRes[0]?.id;
+    if (!orderId) throw new Error('Order insert failed');
+
     const bookingPayload = {
+      order_id: orderId,
+      business_unit_id: businessUnitId,
       order_token: token,
       customer_id: customerId,
       created_by: document.getElementById('f-name').value.trim(),
@@ -2494,7 +2520,6 @@ async function submitBooking() {
       cups_quantity: S.cupsQty,
       addon_cups: Math.max(0, S.cupsQty - 100),
       addon_cups_price: cupsAddon,
-      milk_type: S.milkType,
       oatmilk_addon_total: oatAddon,
       distance_km: S.distKm,
       logistics_cost: S.logisticsCost,
@@ -2510,6 +2535,16 @@ async function submitBooking() {
     const bookingRes = await sbPost('bookings', bookingPayload);
     const bookingId = bookingRes[0]?.id;
     if (!bookingId) throw new Error('Booking insert failed');
+
+    // 2b. Insert milk selection (gantikan column milk_type lama)
+    await sbPost('booking_milks', {
+      booking_id: bookingId,
+      milk_type: S.milkType === 'oat' ? 'OAT' : 'FRESH',
+      is_addon: S.milkType === 'oat',
+      unit_price: S.milkType === 'oat' ? 1 : 0,
+      cups_quantity: S.cupsQty,
+      subtotal: oatAddon
+    });
 
     // 3. Insert drinks
     for (let i = 0; i < S.selectedDrinks.length; i++) {
@@ -2557,7 +2592,8 @@ async function submitBooking() {
           addon_id: ads[0].id,
           quantity: a.qty,
           unit_price: a.price,
-          subtotal: a.qty * a.price
+          subtotal: a.qty * a.price,
+          source: 'BOOKING_APP'
         });
       }
     }
@@ -2651,7 +2687,7 @@ function resetAll(){
     menu:null,cupsQty:100,selectedDrinks:[],milkType:'fresh',
     selectedFlavours:[],selectedPurees:[],addonCanopy:false,canopyType:null,addonCleanup:false,addonOffgrid:false,addonEarlySetup:false,
     mapLat:null,mapLng:null,distKm:0,logisticsCost:0,
-    tnc:false,reqCount:1,dietYes:null,blocked:S.blocked,existing:S.existing,slotCapacity:S.slotCapacity,magicLink:''};
+    tnc:false,reqCount:1,dietYes:null,blocked:S.blocked,existing:S.existing,slotCapacity:S.slotCapacity,magicLink:'',businessUnitId:S.businessUnitId};
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-1').classList.add('active');
   updateProg();
