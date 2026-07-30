@@ -1614,6 +1614,20 @@ function isDateFull(ds) {
 
 // Slot terbaik yang available sepanjang hari tu (angka paling besar merentasi semua jam
 // 8AM-8PM) — digunakan untuk papar "X slots" ringkas kat calendar month-view.
+// Ambil window sebenar (start, end+buffer) untuk satu booking sedia ada.
+// Utamakan start_serve_hour/end_serve_hour (numeric, sokong .30 minit —
+// Supabase pulangkan numeric sebagai string, so kena parseFloat).
+// Fallback ke serving_start_hour/slot_time untuk data lama yang belum backfill.
+function getBookingWindow(b) {
+  const start = b.start_serve_hour != null ? parseFloat(b.start_serve_hour) : null;
+  const end = b.end_serve_hour != null ? parseFloat(b.end_serve_hour) : null;
+  if (start != null && end != null && !isNaN(start) && !isNaN(end)) {
+    return { start, end: end + TEAM_BUFFER };
+  }
+  const bH = b.serving_start_hour || (b.slot_time === '8AM' ? 8 : b.slot_time === '2PM' ? 14 : 20);
+  return { start: bH, end: bH + (b.duration_hours || 0) + TEAM_BUFFER };
+}
+
 // Slot paling SIBUK (worst-case) sepanjang hari tu (jam 8AM-8PM) — lebih honest/conservative
 // untuk label ringkas "X slots" kat calendar month-view berbanding tunjuk jam paling longgar.
 function getWorstAvailableSlots(ds) {
@@ -1621,8 +1635,7 @@ function getWorstAvailableSlots(ds) {
   let worst = getMaxTeams(ds);
   for (let hr = 8; hr <= 20; hr++) {
     const busyTeams = bookings.filter(b => {
-      const bH = b.serving_start_hour || (b.slot_time === '8AM' ? 8 : b.slot_time === '2PM' ? 14 : 20);
-      const bEnd = bH + b.duration_hours + TEAM_BUFFER;
+      const { start: bH, end: bEnd } = getBookingWindow(b);
       return hr < bEnd && (hr + DEFAULT_SERVE + TEAM_BUFFER) > bH;
     }).length;
     const free = Math.max(0, getMaxTeams(ds) - busyTeams);
@@ -1643,8 +1656,7 @@ function isSlotAvail(date, startH) {
   const bookings = S.existing.filter(b => b.event_date === date);
   const newEnd = startH + DEFAULT_SERVE + TEAM_BUFFER;
   const conflicts = bookings.filter(b => {
-    const bH = b.serving_start_hour || (b.slot_time === '8AM' ? 8 : b.slot_time === '2PM' ? 14 : 20);
-    const bEnd = bH + b.duration_hours + TEAM_BUFFER;
+    const { start: bH, end: bEnd } = getBookingWindow(b);
     return startH < bEnd && newEnd > bH;
   });
   return conflicts.length < getMaxTeams(date);
@@ -1735,8 +1747,7 @@ function renderTimeGrid(ds){
     const avail=isSlotAvail(ds,hr);
     // Count available teams
     const busyTeams=bookings.filter(b=>{
-      const bH=b.serving_start_hour||(b.slot_time==='8AM'?8:b.slot_time==='2PM'?14:20);
-      const bEnd=bH+b.duration_hours+TEAM_BUFFER;
+      const {start:bH,end:bEnd}=getBookingWindow(b);
       return hr<bEnd&&(hr+DEFAULT_SERVE+TEAM_BUFFER)>bH;
     }).length;
     const freeTeams=Math.max(0,getMaxTeams(ds)-busyTeams);
@@ -2576,7 +2587,8 @@ async function submitBooking() {
       logistics_km_cost: S.distKm * 1,
       logistics_toll_parking: 50,
       flavor_addon_total: flavAddon,
-      serving_start_hour: S.startHour,
+      start_serve_hour: S.startHour,
+      end_serve_hour: S.startHour + DEFAULT_SERVE + S.masaAddon,
       is_active: true,
       checklist_status: 'NOT_STARTED',
       work_status: 'Not started'
@@ -2982,7 +2994,7 @@ async function init(){
   try{
     const [bl, ex, cap] = await Promise.all([
     sbGet('blocked_dates', 'select=blocked_date,reason'),
-    sbGet('bookings', 'select=event_date,slot_time,serving_start_hour,duration_hours,status&status=not.in.(REJECTED,CANCELLED)'),
+    sbGet('bookings', 'select=event_date,slot_time,serving_start_hour,start_serve_hour,end_serve_hour,duration_hours,status&status=not.in.(REJECTED,CANCELLED)'),
     sbGet('daily_slot_capacity', 'select=slot_date,available_teams')
   ]);
   S.blocked = bl || [];   // setiap item: { blocked_date, reason }
