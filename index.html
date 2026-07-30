@@ -1590,7 +1590,7 @@ function renderMonthView(){
     // yang boleh dibooking (bukan past/blocked/full)
     let slotLbl = '';
     if (!isPast && blockedReason === null && !isFull) {
-      const bestFree = getBestAvailableSlots(ds);
+      const bestFree = getWorstAvailableSlots(ds);
       slotLbl = `<span class="cal-slot-lbl">${bestFree} slot${bestFree===1?'':'s'}</span>`;
     }
 
@@ -1614,9 +1614,11 @@ function isDateFull(ds) {
 
 // Slot terbaik yang available sepanjang hari tu (angka paling besar merentasi semua jam
 // 8AM-8PM) — digunakan untuk papar "X slots" ringkas kat calendar month-view.
-function getBestAvailableSlots(ds) {
+// Slot paling SIBUK (worst-case) sepanjang hari tu (jam 8AM-8PM) — lebih honest/conservative
+// untuk label ringkas "X slots" kat calendar month-view berbanding tunjuk jam paling longgar.
+function getWorstAvailableSlots(ds) {
   const bookings = S.existing.filter(b => b.event_date === ds);
-  let best = 0;
+  let worst = getMaxTeams(ds);
   for (let hr = 8; hr <= 20; hr++) {
     const busyTeams = bookings.filter(b => {
       const bH = b.serving_start_hour || (b.slot_time === '8AM' ? 8 : b.slot_time === '2PM' ? 14 : 20);
@@ -1624,9 +1626,9 @@ function getBestAvailableSlots(ds) {
       return hr < bEnd && (hr + DEFAULT_SERVE + TEAM_BUFFER) > bH;
     }).length;
     const free = Math.max(0, getMaxTeams(ds) - busyTeams);
-    if (free > best) best = free;
+    if (free < worst) worst = free;
   }
-  return best;
+  return worst;
 }
 
 function getMaxTeams(date) {
@@ -2980,7 +2982,7 @@ async function init(){
   try{
     const [bl, ex, cap] = await Promise.all([
     sbGet('blocked_dates', 'select=blocked_date,reason'),
-    sbGet('bookings', 'select=event_date,slot_time,serving_start_hour,duration_hours,status&status=in.(SUBMITTED,CONFIRMED)'),
+    sbGet('bookings', 'select=event_date,slot_time,serving_start_hour,duration_hours,status&status=not.in.(REJECTED,CANCELLED)'),
     sbGet('daily_slot_capacity', 'select=slot_date,available_teams')
   ]);
   S.blocked = bl || [];   // setiap item: { blocked_date, reason }
