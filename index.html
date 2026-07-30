@@ -106,6 +106,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
 .cal-cell.cal-empty{cursor:default}
 .cal-today-lbl{font-size:7px;letter-spacing:.5px;text-transform:uppercase;color:var(--ad);line-height:1}
 .cal-cell.cal-sel .cal-today-lbl{color:rgba(255,255,255,.7)}
+.cal-slot-lbl{font-size:8.5px;font-weight:700;color:var(--ok);line-height:1}
+.cal-cell.cal-sel .cal-slot-lbl{color:rgba(255,255,255,.85)}
 
 /* YEAR VIEW */
 .yr-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:12px}
@@ -575,6 +577,16 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
       </div>
     </div>
 
+    <!-- PROMO: COMPLIMENTARY DRINK 200+ CUPS -->
+    <div id="comp-promo-sec" style="display:none;margin-top:16px;background:var(--al);border:1.5px solid var(--accent);border-radius:var(--rs);padding:14px 16px">
+      <div class="comp-badge">🎁 <span data-i18n="comp_promo_title">Promo: 100 Complimentary Cups!</span></div>
+      <p style="font-size:12.5px;color:var(--g600);margin:6px 0 10px" data-i18n="comp_promo_note">Your booking qualifies for 100 complimentary cups (200+ cups bookings this month). Pick your complimentary drink:</p>
+      <div class="radio-row">
+        <label class="radio-opt" id="comp-thai-milk" onclick="pickCompDrink('Iced Thai Milk Tea')"><input type="radio" name="comp-promo"><span data-i18n="comp_thai_milk">Iced Thai Milk Tea</span></label>
+        <label class="radio-opt" id="comp-thai-green" onclick="pickCompDrink('Iced Thai Green Tea')"><input type="radio" name="comp-promo"><span data-i18n="comp_thai_green">Iced Thai Green Tea</span></label>
+      </div>
+    </div>
+
   </div>
 
   <!-- DRINKS -->
@@ -965,6 +977,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
     <div class="sum-row" id="s-flav-row" style="display:none"><span class="sum-key" data-i18n="flavour">Flavour Syrup</span><span class="sum-val" id="s-flavs">—</span></div>
     <div class="sum-row" id="s-puree-row" style="display:none"><span class="sum-key" data-i18n="fruit_puree">Fruit Puree</span><span class="sum-val" id="s-purees">—</span></div>
     <div class="sum-row" id="s-milk-row" style="display:none"><span class="sum-key" data-i18n="milk_selection">Milk</span><span class="sum-val" id="s-milk">—</span></div>
+    <div class="sum-row" id="s-comp-row" style="display:none"><span class="sum-key">🎁 <span data-i18n="comp_promo_short">Complimentary Drink</span></span><span class="sum-val" id="s-comp">—</span></div>
   </div>
 
   <div class="sum-block" id="s-addon-block" style="display:none">
@@ -1152,7 +1165,7 @@ const SB_URL='https://dfdgfujgygslhgkgujsr.supabase.co';
 const SB_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRmZGdmdWpneWdzbGhna2d1anNyIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Nzc5MDM4NjQsImV4cCI6MjA5MzQ3OTg2NH0.L6z152YBOKgSY6eJbAFeJ9XN2U93yyQgBgFfXYf608s';
 const SB_EDGE=`${SB_URL}/functions/v1/send-booking-emails`;
 const BASE_LAT=3.1779075, BASE_LNG=101.6448299;
-const DEFAULT_TEAMS=2, TEAM_BUFFER=3, DEFAULT_SERVE=3, MAX_TOTAL_SERVE=12;
+const DEFAULT_TEAMS=4, TEAM_BUFFER=3, DEFAULT_SERVE=3, MAX_TOTAL_SERVE=12;
 // Peraturan extra hour: (1) jumlah serving max 12 jam, (2) serving MESTI habis pada atau sebelum 11PM.
 // Start slot hanya 8AM-8PM, so tiada isu merentasi tengah malam lagi.
 const LAST_SERVE_END_HOUR=23; // 11PM
@@ -1197,6 +1210,8 @@ const TR={
     step_2_6:'Step 2 of 5',p3_title:'Choose Your Menu',p3_sub:'Select a menu, set cup quantity, and choose your drinks.',
     cups:'Cups',up_to:'Up to',drinks:'Drinks',cup:'cup',
     cup_qty:'Cup Quantity',cup_note:'Min 100 cups. +/- adds/removes 50.',
+    comp_promo_title:'Promo: 100 Complimentary Cups!',comp_promo_note:'Your booking qualifies for 100 complimentary cups (200+ cups bookings this month). Pick your complimentary drink:',
+    comp_thai_milk:'Iced Thai Milk Tea',comp_thai_green:'Iced Thai Green Tea',comp_promo_short:'Complimentary Drink',
     drink_selection:'Drink Selection',
     comp_syrup:'Complimentary: Sugar Syrup + 1 Flavour Syrup',syrup_note:'Choose 1 complimentary flavour. Additional flavours: RM 70 each.',
     comp_puree:'Complimentary: 1 Fruit Puree',puree_note:'Choose 1 complimentary puree. Additional purees: RM 70 each.',
@@ -1274,6 +1289,8 @@ const TR={
     step_2_6:'Langkah 2 dari 5',p3_title:'Pilih Menu Anda',p3_sub:'Pilih menu, tetapkan kuantiti cawan, dan pilih minuman.',
     cups:'Cawan',up_to:'Sehingga',drinks:'Minuman',cup:'cawan',
     cup_qty:'Kuantiti Cawan',cup_note:'Min 100 cawan. +/- tambah/tolak 50.',
+    comp_promo_title:'Promo: 100 Cawan Percuma!',comp_promo_note:'Booking anda layak dapat 100 cawan percuma (untuk booking 200+ cawan bulan ni). Pilih minuman percuma anda:',
+    comp_thai_milk:'Iced Thai Milk Tea',comp_thai_green:'Iced Thai Green Tea',comp_promo_short:'Minuman Percuma',
     drink_selection:'Pilihan Minuman',
     comp_syrup:'Percuma: Sirap Gula + 1 Sirap Perisa',syrup_note:'Pilih 1 perisa percuma. Perisa tambahan: RM 70 setiap satu.',
     comp_puree:'Percuma: 1 Puree Buah',puree_note:'Pilih 1 puree percuma. Puree tambahan: RM 70 setiap satu.',
@@ -1347,7 +1364,7 @@ function applyLang(){
 // ═══════════════ STATE ═══════════════
 let S={
   page:1,date:null,startHour:null,masaAddon:0,maxMasa:null,
-  menu:null,cupsQty:100,selectedDrinks:[],milkType:'fresh',
+  menu:null,cupsQty:100,selectedDrinks:[],milkType:'fresh',compDrink:null,
   selectedFlavours:[],selectedPurees:[],
   addonCanopy:false,canopyType:null,addonCleanup:false,addonOffgrid:false,addonEarlySetup:false,
   mapLat:null,mapLng:null,distKm:0,logisticsCost:0,
@@ -1398,11 +1415,9 @@ async function findOrCreateCustomer() {
     customer_type: customerType,
     full_name: fullName,
     phone: phoneRaw,
-    email: email || null,   // email nullable sekarang — elak insert string kosong
+    email: email,
     city: city,
     state: state,
-    loyalty_points: 0,
-    loyalty_tier: 'BRONZE',
     created_at: new Date().toISOString(),
     updated_at: new Date().toISOString()
   };
@@ -1571,8 +1586,17 @@ function renderMonthView(){
     let titleAttr = '';
     if (blockedReason) titleAttr = ` title="${blockedReason.replace(/"/g, '&quot;')}"`;
 
+    // Papar slotting available (ikut booking sebenar dalam DB) — hanya untuk tarikh
+    // yang boleh dibooking (bukan past/blocked/full)
+    let slotLbl = '';
+    if (!isPast && blockedReason === null && !isFull) {
+      const bestFree = getBestAvailableSlots(ds);
+      slotLbl = `<span class="cal-slot-lbl">${bestFree} slot${bestFree===1?'':'s'}</span>`;
+    }
+
     h += `<div class="${cls}" ${cb} ${titleAttr}>
       <span>${d}</span>
+      ${slotLbl}
       ${isToday ? `<span class="cal-today-lbl">Today</span>` : ''}
     </div>`;
   }
@@ -1588,8 +1612,25 @@ function isDateFull(ds) {
   return true;
 }
 
+// Slot terbaik yang available sepanjang hari tu (angka paling besar merentasi semua jam
+// 8AM-8PM) — digunakan untuk papar "X slots" ringkas kat calendar month-view.
+function getBestAvailableSlots(ds) {
+  const bookings = S.existing.filter(b => b.event_date === ds);
+  let best = 0;
+  for (let hr = 8; hr <= 20; hr++) {
+    const busyTeams = bookings.filter(b => {
+      const bH = b.serving_start_hour || (b.slot_time === '8AM' ? 8 : b.slot_time === '2PM' ? 14 : 20);
+      const bEnd = bH + b.duration_hours + TEAM_BUFFER;
+      return hr < bEnd && (hr + DEFAULT_SERVE + TEAM_BUFFER) > bH;
+    }).length;
+    const free = Math.max(0, getMaxTeams(ds) - busyTeams);
+    if (free > best) best = free;
+  }
+  return best;
+}
+
 function getMaxTeams(date) {
-  // Guna slotting yang admin letak untuk tarikh ni; default 2 kalau admin belum set
+  // Guna slotting yang admin letak untuk tarikh ni; default 4 kalau admin belum set
   const cap = S.slotCapacity[date];
   return (cap === undefined || cap === null) ? DEFAULT_TEAMS : cap;
 }
@@ -1811,7 +1852,30 @@ function updateCupsDisplay(){
   const addon=Math.max(0,S.cupsQty-100);
   document.getElementById('cups-addon-cost').textContent=`Add-on: RM ${(addon*S.menu.addonCupPrice).toFixed(2)}`;
   renderMilkOpt();
+  updateCompPromo();
   updateRT();
+}
+
+// PROMO: Complimentary drink untuk booking 200+ cawan (promo sebulan ni sahaja)
+const COMP_PROMO_THRESHOLD=200;
+function updateCompPromo(){
+  const sec=document.getElementById('comp-promo-sec');
+  if(!sec)return;
+  const qualifies=S.cupsQty>=COMP_PROMO_THRESHOLD;
+  sec.style.display=qualifies?'block':'none';
+  if(!qualifies){
+    S.compDrink=null;
+    document.getElementById('comp-thai-milk')?.classList.remove('sel');
+    document.getElementById('comp-thai-green')?.classList.remove('sel');
+  } else {
+    document.getElementById('comp-thai-milk')?.classList.toggle('sel',S.compDrink==='Iced Thai Milk Tea');
+    document.getElementById('comp-thai-green')?.classList.toggle('sel',S.compDrink==='Iced Thai Green Tea');
+  }
+}
+function pickCompDrink(drink){
+  S.compDrink=drink;
+  document.getElementById('comp-thai-milk').classList.toggle('sel',drink==='Iced Thai Milk Tea');
+  document.getElementById('comp-thai-green').classList.toggle('sel',drink==='Iced Thai Green Tea');
 }
 
 function renderDrinkOpts(){
@@ -2376,6 +2440,12 @@ function buildSummary(){
     document.getElementById('s-milk').textContent=S.milkType==='oat'?`${t('milk_oat')} (+RM1.00/cup)`:t('milk_fresh');
     sm.style.display='flex';
   } else sm.style.display='none';
+  // Complimentary drink promo (200+ cawan)
+  const scomp=document.getElementById('s-comp-row');
+  if(S.cupsQty>=COMP_PROMO_THRESHOLD&&S.compDrink){
+    document.getElementById('s-comp').textContent=S.compDrink;
+    scomp.style.display='flex';
+  } else scomp.style.display='none';
   // Add-ons
   let aHtml='';let aTotal=0;
   if(S.masaAddon>0){const s=S.masaAddon*40;aTotal+=s;aHtml+=`<div class="sum-row"><span class="sum-key">${t('extra_time')} (${S.masaAddon}h)</span><span class="sum-val">RM ${s.toFixed(2)}</span></div>`}
@@ -2463,31 +2533,7 @@ async function submitBooking() {
     const pkgs = await sbGet('packages', `name=eq.${encodeURIComponent(S.menu.name)}&is_active=eq.true`);
     if (!pkgs || pkgs.length === 0) throw new Error('Package not found');
 
-    // Dapatkan business_unit_id (default = Catering) — cache supaya tak query berulang
-    if (!S.businessUnitId) {
-      const bu = await sbGet('business_units', `unit_type=eq.CATERING&is_active=eq.true`);
-      if (!bu || bu.length === 0) throw new Error('Business unit (Catering) not found');
-      S.businessUnitId = bu[0].id;
-    }
-    const businessUnitId = S.businessUnitId;
-
-    // Insert orders dulu (header generic), dapatkan order_id untuk bookings
-    const orderPayload = {
-      order_type: 'CATERING',
-      business_unit_id: businessUnitId,
-      customer_id: customerId,
-      status: 'SUBMITTED',
-      payment_status: 'NOT_PAID',
-      subtotal: subtotal,
-      total_amount: total
-    };
-    const orderRes = await sbPost('orders', orderPayload);
-    const orderId = orderRes[0]?.id;
-    if (!orderId) throw new Error('Order insert failed');
-
     const bookingPayload = {
-      order_id: orderId,
-      business_unit_id: businessUnitId,
       order_token: token,
       customer_id: customerId,
       created_by: document.getElementById('f-name').value.trim(),
@@ -2520,7 +2566,9 @@ async function submitBooking() {
       cups_quantity: S.cupsQty,
       addon_cups: Math.max(0, S.cupsQty - 100),
       addon_cups_price: cupsAddon,
+      milk_type: S.milkType,
       oatmilk_addon_total: oatAddon,
+      complimentary_drink: (S.cupsQty >= COMP_PROMO_THRESHOLD && S.compDrink) ? S.compDrink : null,
       distance_km: S.distKm,
       logistics_cost: S.logisticsCost,
       logistics_km_cost: S.distKm * 1,
@@ -2535,16 +2583,6 @@ async function submitBooking() {
     const bookingRes = await sbPost('bookings', bookingPayload);
     const bookingId = bookingRes[0]?.id;
     if (!bookingId) throw new Error('Booking insert failed');
-
-    // 2b. Insert milk selection (gantikan column milk_type lama)
-    await sbPost('booking_milks', {
-      booking_id: bookingId,
-      milk_type: S.milkType === 'oat' ? 'OAT' : 'FRESH',
-      is_addon: S.milkType === 'oat',
-      unit_price: S.milkType === 'oat' ? 1 : 0,
-      cups_quantity: S.cupsQty,
-      subtotal: oatAddon
-    });
 
     // 3. Insert drinks
     for (let i = 0; i < S.selectedDrinks.length; i++) {
@@ -2592,8 +2630,7 @@ async function submitBooking() {
           addon_id: ads[0].id,
           quantity: a.qty,
           unit_price: a.price,
-          subtotal: a.qty * a.price,
-          source: 'BOOKING_APP'
+          subtotal: a.qty * a.price
         });
       }
     }
@@ -2684,10 +2721,10 @@ function showToast(msg){const el=document.getElementById('toast-el');el.textCont
 function resetAll(){
   clearDraft();
   S={page:1,date:null,startHour:null,masaAddon:0,maxMasa:null,
-    menu:null,cupsQty:100,selectedDrinks:[],milkType:'fresh',
+    menu:null,cupsQty:100,selectedDrinks:[],milkType:'fresh',compDrink:null,
     selectedFlavours:[],selectedPurees:[],addonCanopy:false,canopyType:null,addonCleanup:false,addonOffgrid:false,addonEarlySetup:false,
     mapLat:null,mapLng:null,distKm:0,logisticsCost:0,
-    tnc:false,reqCount:1,dietYes:null,blocked:S.blocked,existing:S.existing,slotCapacity:S.slotCapacity,magicLink:'',businessUnitId:S.businessUnitId};
+    tnc:false,reqCount:1,dietYes:null,blocked:S.blocked,existing:S.existing,slotCapacity:S.slotCapacity,magicLink:''};
   document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
   document.getElementById('page-1').classList.add('active');
   updateProg();
@@ -2771,7 +2808,7 @@ new MutationObserver(()=>{
 // ═══════════════ DRAFT AUTOSAVE / RESTORE (elak data hilang bila page refresh) ═══════════════
 const DRAFT_KEY='petre_booking_draft_v1';
 // reqCount sengaja tak masuk sini — dikendalikan berasingan via addReq() supaya tak double-increment
-const S_PERSIST_KEYS=['page','date','startHour','masaAddon','maxMasa','menu','cupsQty','selectedDrinks','milkType','selectedFlavours','selectedPurees','addonCanopy','canopyType','addonCleanup','addonOffgrid','addonEarlySetup','mapLat','mapLng','distKm','logisticsCost','tnc','dietYes'];
+const S_PERSIST_KEYS=['page','date','startHour','masaAddon','maxMasa','menu','cupsQty','selectedDrinks','milkType','compDrink','selectedFlavours','selectedPurees','addonCanopy','canopyType','addonCleanup','addonOffgrid','addonEarlySetup','mapLat','mapLng','distKm','logisticsCost','tnc','dietYes'];
 const FORM_FIELD_IDS=['f-pfx','f-phone','f-phone-full','f-name','f-email','f-company','f-designation','f-industry','f-evname','f-evcat','f-evtype','f-evtype-other','f-loctype','f-addr','f-city','f-postcode','f-state','f-pax','f-diet'];
 
 let draftSaveTimer=null;
