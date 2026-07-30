@@ -2994,7 +2994,7 @@ async function init(){
   try{
     const [bl, ex, cap] = await Promise.all([
     sbGet('blocked_dates', 'select=blocked_date,reason'),
-    sbGet('bookings', 'select=event_date,slot_time,serving_start_hour,start_serve_hour,end_serve_hour,duration_hours,status&status=not.in.(REJECTED,CANCELLED)'),
+    sbGet('booking_availability', 'select=event_date,slot_time,serving_start_hour,start_serve_hour,end_serve_hour,duration_hours,status'),
     sbGet('daily_slot_capacity', 'select=slot_date,available_teams')
   ]);
   S.blocked = bl || [];   // setiap item: { blocked_date, reason }
