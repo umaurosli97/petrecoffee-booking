@@ -2076,22 +2076,32 @@ let map,marker,distSvc,autocomplete;
 window.mapsReady=false;
 function initMaps(){window.mapsReady=true}
 
-// Peta nama state dari Google Geocoder -> format yang app guna (sama dengan <select> f-state)
-const STATE_MAP={
-  'Selangor':'Selangor',
-  'Kuala Lumpur':'W.P. Kuala Lumpur',
-  'Federal Territory of Kuala Lumpur':'W.P. Kuala Lumpur',
-  'Putrajaya':'W.P. Putrajaya',
-  'Federal Territory of Putrajaya':'W.P. Putrajaya',
-  'Johor':'Johor','Kedah':'Kedah','Kelantan':'Kelantan',
-  'Malacca':'Melaka','Melaka':'Melaka',
-  'Negeri Sembilan':'Negeri Sembilan',
-  'Pahang':'Pahang','Perak':'Perak','Perlis':'Perlis',
-  'Penang':'Pulau Pinang','Pulau Pinang':'Pulau Pinang',
-  'Terengganu':'Terengganu',
-  'Sabah':'Sabah','Sarawak':'Sarawak',
-  'Labuan':'W.P. Labuan'
-};
+// Normalize nama state dari Google Geocoder (pelbagai variasi macam
+// "Wilayah Persekutuan Putrajaya", "Federal Territory of Kuala Lumpur",
+// "W.P Putrajaya" dsb) ke format tetap yang app guna (sama dengan
+// <option> f-state). Guna keyword-matching (bukan exact-match dictionary)
+// supaya lebih tahan variasi penamaan Google.
+function normalizeStateName(rawState){
+  if(!rawState)return '';
+  const s=rawState.toLowerCase();
+  if(s.includes('putrajaya'))return 'W.P. Putrajaya';
+  if(s.includes('kuala lumpur'))return 'W.P. Kuala Lumpur';
+  if(s.includes('labuan'))return 'W.P. Labuan';
+  if(s.includes('pulau pinang')||s.includes('penang'))return 'Pulau Pinang';
+  if(s.includes('melaka')||s.includes('malacca'))return 'Melaka';
+  if(s.includes('negeri sembilan'))return 'Negeri Sembilan';
+  if(s.includes('johor'))return 'Johor';
+  if(s.includes('kedah'))return 'Kedah';
+  if(s.includes('kelantan'))return 'Kelantan';
+  if(s.includes('pahang'))return 'Pahang';
+  if(s.includes('perak'))return 'Perak';
+  if(s.includes('perlis'))return 'Perlis';
+  if(s.includes('selangor'))return 'Selangor';
+  if(s.includes('terengganu'))return 'Terengganu';
+  if(s.includes('sabah'))return 'Sabah';
+  if(s.includes('sarawak'))return 'Sarawak';
+  return rawState; // tak jumpa keyword -> biar sebagai raw (loop kat bawah cuba match/parsial)
+}
 
 // Auto-detect state terus dari lat/lng (ringan, cuma untuk kira transport cost) —
 // jalan automatik sebaik pin diletak/diubah, tak perlu tunggu customer tekan
@@ -2104,7 +2114,7 @@ function detectStateForCost(lat,lng){
     if(status==='OK'&&res[0]){
       const comp=res[0].address_components;
       const rawState=comp.find(c=>c.types.includes('administrative_area_level_1'))?.long_name||'';
-      const mapped=STATE_MAP[rawState]||rawState;
+      const mapped=normalizeStateName(rawState);
       const sel=document.getElementById('f-state');
       if(sel){
         for(let o of sel.options){
@@ -2113,6 +2123,7 @@ function detectStateForCost(lat,lng){
       }
       updateTransportCost();
     }
+
   });
 }
 
@@ -2187,7 +2198,7 @@ function autoFillAddress(){
       const comp=res[0].address_components;
       const get=type=>comp.find(c=>c.types.includes(type))?.long_name||'';
 
-      // ── 1. Guna STATE_MAP (shared constant) ──
+      // ── 1. Guna normalizeStateName() (shared function) ──
 
       // ── 2. EXTRACT components ──
       const rawState=get('administrative_area_level_1');
@@ -2201,7 +2212,7 @@ function autoFillAddress(){
       const isPlusCode=s=>/^[A-Z0-9]{4,}\+[A-Z0-9]+/.test(s.trim());
 
       // Strip Malaysia, state, city, postcode, plus code dari formatted_address
-      const stopWords=[city,rawState,'Malaysia',STATE_MAP[rawState]||'',
+      const stopWords=[city,rawState,'Malaysia',normalizeStateName(rawState),
         'Malacca','Melaka','Selangor','Kuala Lumpur','Putrajaya',
         'Johor','Kedah','Kelantan','Negeri Sembilan','Pahang',
         'Perak','Perlis','Penang','Pulau Pinang','Terengganu',
@@ -2260,7 +2271,7 @@ function autoFillAddress(){
       if(city)document.getElementById('f-city').value=city;
 
       // ── 6. STATE ──
-      const mapped=STATE_MAP[rawState]||rawState;
+      const mapped=normalizeStateName(rawState);
       const sel=document.getElementById('f-state');
       let matched=false;
       for(let o of sel.options){
