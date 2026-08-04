@@ -924,10 +924,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
     <div class="form-sel-wrap">
       <select class="form-select" id="f-loctype">
         <option value="">-- Select Type --</option>
-        <option>Dewan</option><option>Rumah Landed</option><option>Apartment/Condo/Flat</option>
-        <option>Event Space</option><option>Rumah Kedai</option><option>Tempat Awam</option>
-        <option>Bangunan Kerajaan</option><option>Rumah Ibadat</option><option>Mall</option>
-        <option>Cafe</option><option>Others</option>
+        <option>Dewan</option><option>Hotel/Ballroom</option><option>Bangunan Pejabat/Office</option>
+        <option>Rumah Landed</option><option>Apartment/Condo/Flat</option><option>Rumah Kedai</option>
+        <option>Event Space</option><option>Mall</option><option>Tempat Awam</option>
+        <option>Outdoor (Pantai/Taman/Camping)</option><option>Sekolah/Kampus</option>
+        <option>Bangunan Kerajaan</option><option>Rumah Ibadat</option><option>Others</option>
       </select>
     </div>
     <div class="err-msg" id="e-loctype" data-i18n="loctype_err">Please select location type.</div>
@@ -1181,7 +1182,15 @@ function getMaxMasaForHour(hr){
 const H={'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Content-Type':'application/json'};
 
 async function sbGet(t,q=''){const r=await fetch(`${SB_URL}/rest/v1/${t}${q?'?'+q:''}`,{headers:H});return r.json()}
-async function sbPost(t,d){const r=await fetch(`${SB_URL}/rest/v1/${t}`,{method:'POST',headers:{...H,'Prefer':'return=representation'},body:JSON.stringify(d)});return r.json()}
+async function sbPost(t,d){
+  const r=await fetch(`${SB_URL}/rest/v1/${t}`,{method:'POST',headers:{...H,'Prefer':'return=representation'},body:JSON.stringify(d)});
+  const j=await r.json();
+  if(!r.ok){
+    console.error(`sbPost gagal untuk table '${t}':`,j);
+    throw new Error(`Gagal simpan data (${t}): ${j?.message||j?.hint||r.status}`);
+  }
+  return j;
+}
 
 // ═══════════════ TRANSLATIONS ═══════════════
 const TR={
@@ -2778,31 +2787,19 @@ async function submitBooking() {
       note: 'Booking submitted by customer'
     });
 
-    // 9. Notification (email trigger)
+    // 9. Notification (email trigger) — guna laluan 'NEW' (type+booking_id) supaya
+    // edge function verify DAN baca terus dari DB, bukan terima terus data client
+    // (elak email 'berjaya' walhal row bookings sebenar gagal insert).
     try {
-      await fetch(SB_EDGE, {
+      const emailRes = await fetch(SB_EDGE, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${SB_KEY}` },
-        body: JSON.stringify({
-          booking: {
-            ...bookingPayload,
-            package_name: S.menu.name,
-            package_price: S.menu.price,
-            drinks: S.selectedDrinks.join(', '),
-            customer_name: document.getElementById('f-name').value.trim(),
-            customer_email: document.getElementById('f-email').value.trim(),
-            customer_phone: document.getElementById('f-phone-full').value.trim(),
-            booking_type: BOOKER_TYPE,
-            company_name: BOOKER_TYPE === 'company' ? document.getElementById('f-company').value.trim() : null,
-            pic_designation: BOOKER_TYPE === 'company' ? document.getElementById('f-designation').value.trim() : null,
-            flavours: S.selectedFlavours,
-            purees: S.selectedPurees
-          },
-          addons: addonItems,
-          special_requests: Array.from(document.querySelectorAll('.req-row input')).map(i => i.value.trim()).filter(Boolean),
-          dietary: S.dietYes ? { has_dietary_req: S.dietYes, details: document.getElementById('f-diet').value.trim() } : null
-        })
+        body: JSON.stringify({ type: 'SUBMITTED', booking_id: bookingId })
       });
+      if (!emailRes.ok) {
+        const errBody = await emailRes.json().catch(() => ({}));
+        console.warn('Email trigger gagal:', errBody);
+      }
     } catch (e) { console.warn('Email failed:', e); }
 
     await sbPost('notifications', {
