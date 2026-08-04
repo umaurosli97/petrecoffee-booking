@@ -809,7 +809,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
       <select class="form-select" id="f-evcat" onchange="onCatChange()">
         <option value="">-- Select Event Type --</option>
         <option>Corporate Events</option><option>Government Events</option><option>Private Events</option>
-        <option>Pop-up & Public Events</option><option>Wedding & Romantic Events</option>
+        <option>Pop-up & Public Events</option>
         <option>Lifestyle & Community Events</option><option>Education Events</option>
         <option>Creative & Media Events</option><option>Others</option>
       </select>
@@ -1390,9 +1390,8 @@ const LATTE_DRINKS=['Americano','Cafe Latte','Americano & Cafe Latte'];
 const EVENT_TYPES={
   'Corporate Events':['Company Meeting / Townhall','Training & Workshop','Product Launch','Client Meeting / Client Visit','Networking Session','Team Building','Office Celebration','Conference / Seminar'],
   'Government Events':['Official Meeting','Government Seminar / Kursus','Training Program','Majlis Rasmi','Community Program','Hari Terbuka Jabatan','Conference / Forum Kerajaan','CSR / Outreach Program','Election-Related Events'],
-  'Private Events':['Birthday Party','Engagement (Tunangan)','Wedding (Nikah / Sanding / Reception Kecil)','Anniversary Celebration','Baby Shower','Aqiqah','Family Gathering','Housewarming'],
+  'Private Events':['Birthday Party','Engagement (Tunangan)','Wedding (Nikah / Sanding / Reception)','Proposal Event','Anniversary Celebration','Baby Shower','Aqiqah','Family Gathering','Housewarming'],
   'Pop-up & Public Events':['Bazaar / Weekend Market','Festival / Carnival','Mall Activation','Pop-up Store Collaboration','Brand Activation Event','Roadshow'],
-  'Wedding & Romantic Events':['Wedding Reception','Nikah Ceremony','Engagement Event','Anniversary Dinner','Proposal Event'],
   'Lifestyle & Community Events':['Fun Run / Marathon','Fitness / Gym Event','Cycling Event','Yoga / Wellness Session','Community Gathering','Charity Event'],
   'Education Events':['University / College Event','Orientation Week','Graduation Day','Student Festival','School Event'],
   'Creative & Media Events':['Photoshoot','Video Production / Filming','Influencer Event','Content Creation Event','Podcast Session']
@@ -2618,6 +2617,16 @@ async function submitBooking() {
       total_amount: total
     });
 
+    // Lookup ID untuk event_category/event_type (kalau customer pilih dari dropdown,
+    // bukan 'Others' punya custom text — 'Others' tiada padanan row FK)
+    const evIds = EVENT_TYPE_IDS[`${cat}::${evtype}`];
+
+    // Lookup transport_zone id ikut state yang dipilih (untuk FK, transport_cost
+    // sendiri tetap dikira client-side dalam S.logisticsCost macam biasa)
+    const selectedState = document.getElementById('f-state').value;
+    const tz = await sbGet('transport_zones', `zone_name=eq.${encodeURIComponent(selectedState)}&is_active=eq.true`);
+    const transportZoneId = (tz && tz[0]) ? tz[0].id : null;
+
     const bookingPayload = {
       id: bookingId,
       order_id: orderId,
@@ -2631,7 +2640,7 @@ async function submitBooking() {
       event_lng: S.mapLng,
       location_type: document.getElementById('f-loctype').value,
       pax_count: document.getElementById('f-pax').value,
-      transport_zone_id: null,
+      transport_zone_id: transportZoneId,
       package_id: pkgs[0].id,
       event_date: S.date,
       slot_time: S.startHour < 12 ? `${S.startHour}AM` : (S.startHour === 12 ? '12PM' : `${S.startHour-12}PM`),
@@ -2644,6 +2653,8 @@ async function submitBooking() {
       tnc_accepted: S.tnc,
       event_category: cat,
       event_type: evtype,
+      event_category_id: evIds ? evIds.category_id : null,
+      event_type_id: evIds ? evIds.type_id : null,
       event_name: document.getElementById('f-evname').value.trim() || null,
       postcode: document.getElementById('f-postcode').value.trim(),
       city: document.getElementById('f-city').value.trim(),
@@ -3079,14 +3090,16 @@ document.addEventListener('click',saveDraftDebounced);
 
 let BUSINESS_UNIT_ID = null;
 let TRANSPORT_ZONES = {}; // { 'Selangor': 40, 'Johor': 90, ... }
+let EVENT_TYPE_IDS = {}; // key: "CategoryName::TypeName" -> {category_id, type_id}
 async function init(){
   try{
-    const [bl, ex, cap, bu, tz] = await Promise.all([
+    const [bl, ex, cap, bu, tz, et] = await Promise.all([
     sbGet('blocked_dates', 'select=blocked_date,reason'),
     sbGet('booking_availability', 'select=event_date,slot_time,serving_start_hour,start_serve_hour,end_serve_hour,duration_hours,status'),
     sbGet('daily_slot_capacity', 'select=slot_date,available_teams'),
     sbGet('business_units', 'select=id&unit_type=eq.CATERING&is_active=eq.true&limit=1'),
-    sbGet('transport_zones', 'select=zone_name,transport_cost&is_active=eq.true')
+    sbGet('transport_zones', 'select=zone_name,transport_cost&is_active=eq.true'),
+    sbGet('event_types', 'select=id,type_name,event_categories(id,category_name)')
   ]);
   S.blocked = bl || [];   // setiap item: { blocked_date, reason }
   S.existing = ex || [];  // setiap item: booking sedia ada untuk kira slot busy
@@ -3095,6 +3108,11 @@ async function init(){
   BUSINESS_UNIT_ID = (bu && bu[0]) ? bu[0].id : null;
   TRANSPORT_ZONES = {};
   (tz || []).forEach(z => { TRANSPORT_ZONES[z.zone_name] = parseFloat(z.transport_cost); });
+  EVENT_TYPE_IDS = {};
+  (et || []).forEach(t => {
+    const cat = t.event_categories;
+    if(cat) EVENT_TYPE_IDS[`${cat.category_name}::${t.type_name}`] = { category_id: cat.id, type_id: t.id };
+  });
   }catch(e){console.warn('Could not load availability:',e)}
   initCal();
   applyLang();
