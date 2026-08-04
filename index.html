@@ -863,6 +863,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
   <div class="logistics-info" id="logistics-info">
     <div class="sec-label" style="margin-top:0;font-size:13px">Transportation Cost Breakdown</div>
     <div class="logistics-row">
+      <span class="logistics-key">Distance Cost (RM1/km)</span>
+      <span class="logistics-val" id="l-distance-cost">—</span>
+    </div>
+    <div class="logistics-row">
       <span class="logistics-key">Toll & Parking Cost (by State)</span>
       <span class="logistics-val" id="l-km-cost">—</span>
     </div>
@@ -2272,16 +2276,17 @@ function clearAddressFields(){
 function getZoneTransportCost(){
   const state=document.getElementById('f-state')?.value;
   if(state && TRANSPORT_ZONES[state]!=null) return TRANSPORT_ZONES[state];
-  return (S.distKm||0)*1+50;
+  return 50; // fallback flat RM50 kalau state tak dipilih/tak match transport_zones
 }
 
-// Kira semula kos logistics (zone + accommodation) — dipanggil lepas jarak
-// diperoleh ATAU bila customer tukar/isi state (supaya sentiasa updated).
+// Formula: (jarak km × RM1) + toll_cost+parking_cost (by state) + accommodation (>100km)
 function updateTransportCost(){
   if(S.mapLat==null||S.mapLng==null)return; // belum pin lokasi lagi
+  const distanceCost=(S.distKm||0)*1;
   const zoneCost=getZoneTransportCost();
   const accommodation=S.distKm>100?250:0; // itemized dalam booking_addons masa submit (addon_type ACCOMMODATION), tapi dikira sekali dalam logisticsCost di bawah — bukan double charge
-  S.logisticsCost=zoneCost+accommodation;
+  S.logisticsCost=distanceCost+zoneCost+accommodation;
+  document.getElementById('l-distance-cost').textContent=`RM ${distanceCost.toFixed(2)}`;
   document.getElementById('l-km-cost').textContent=`RM ${zoneCost.toFixed(2)}`;
   document.getElementById('l-total').textContent=`RM ${S.logisticsCost.toFixed(2)}`;
   const accRow=document.getElementById('accommodation-row');
