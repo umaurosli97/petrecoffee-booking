@@ -863,7 +863,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
   <div class="logistics-info" id="logistics-info">
     <div class="sec-label" style="margin-top:0;font-size:13px">Transportation Cost Breakdown</div>
     <div class="logistics-row">
-      <span class="logistics-key">Distance, Toll & Parking Cost</span>
+      <span class="logistics-key">Toll & Parking Cost (by State)</span>
       <span class="logistics-val" id="l-km-cost">—</span>
     </div>
     <div class="logistics-row" id="accommodation-row" style="display:none">
@@ -903,7 +903,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--white);color:var(--black)
   <div class="form-group">
     <label class="form-lbl"><span data-i18n="state">State</span> <span class="req">*</span></label>
     <div class="form-sel-wrap">
-      <select class="form-select" id="f-state">
+      <select class="form-select" id="f-state" onchange="updateTransportCost()">
         <option value="">-- Select State --</option>
         <option>Johor</option><option>Kedah</option><option>Kelantan</option><option>Melaka</option>
         <option>Negeri Sembilan</option><option>Pahang</option><option>Perak</option><option>Perlis</option>
@@ -2104,6 +2104,14 @@ function initMapOnP5(){
     const savedPos={lat:S.mapLat,lng:S.mapLng};
     map.setCenter(savedPos);map.setZoom(16);
     marker.setPosition(savedPos);marker.setVisible(true);
+    if(S.distKm){
+      const lDist=document.getElementById('l-distance');
+      if(lDist)lDist.textContent=`${S.distKm.toFixed(1)} km`;
+      const lDistTop=document.getElementById('l-distance-top');
+      if(lDistTop){lDistTop.textContent=`${S.distKm.toFixed(1)} km`;document.getElementById('distance-info').style.display='block';}
+    }
+    document.getElementById('logistics-info')?.classList.add('show');
+    updateTransportCost(); // papar balik kos guna S.distKm/S.logisticsCost yang dah restore
   }
 }
 
@@ -2239,6 +2247,7 @@ function autoFillAddress(){
       }
 
       showToast('✅ Address filled! Please verify and edit if needed.');
+      updateTransportCost(); // state baru diisi programmatically, onchange tak trigger — panggil manual
     } else {
       showToast('Could not detect address. Please fill manually.');
     }
@@ -2258,6 +2267,30 @@ function clearAddressFields(){
   });
   showToast('Address fields cleared.');
 }
+// Kos tol+parking sekarang fixed by-state (transport_zones), bukan RM1/km lagi.
+// Fallback ke formula lama (km*1+RM50) kalau state tak dipilih/data zone tak jumpa.
+function getZoneTransportCost(){
+  const state=document.getElementById('f-state')?.value;
+  if(state && TRANSPORT_ZONES[state]!=null) return TRANSPORT_ZONES[state];
+  return (S.distKm||0)*1+50;
+}
+
+// Kira semula kos logistics (zone + accommodation) — dipanggil lepas jarak
+// diperoleh ATAU bila customer tukar/isi state (supaya sentiasa updated).
+function updateTransportCost(){
+  if(S.mapLat==null||S.mapLng==null)return; // belum pin lokasi lagi
+  const zoneCost=getZoneTransportCost();
+  const accommodation=S.distKm>100?250:0; // itemized dalam booking_addons masa submit (addon_type ACCOMMODATION), tapi dikira sekali dalam logisticsCost di bawah — bukan double charge
+  S.logisticsCost=zoneCost+accommodation;
+  document.getElementById('l-km-cost').textContent=`RM ${zoneCost.toFixed(2)}`;
+  document.getElementById('l-total').textContent=`RM ${S.logisticsCost.toFixed(2)}`;
+  const accRow=document.getElementById('accommodation-row');
+  if(accRow)accRow.style.display=S.distKm>100?'flex':'none';
+  const accNote=document.getElementById('accommodation-note');
+  if(accNote)accNote.style.display=S.distKm>100?'block':'none';
+  updateRT();
+}
+
 function calcLogistics(dLat,dLng){
   if(!distSvc)return;
   distSvc.getDistanceMatrix({
@@ -2271,24 +2304,15 @@ function calcLogistics(dLat,dLng){
     if(el.status!=='OK')return;
     const km=el.distance.value/1000;
     S.distKm=km;
-    const kmCost=km*1;
-    const toll=50;
-    const accommodation=km>100?250:0;
-    S.logisticsCost=kmCost+toll+accommodation;
     const lDist=document.getElementById('l-distance');
     if(lDist)lDist.textContent=`${km.toFixed(1)} km`;
     const lDistTop=document.getElementById('l-distance-top');
     if(lDistTop){lDistTop.textContent=`${km.toFixed(1)} km`;document.getElementById('distance-info').style.display='block';}
-    document.getElementById('l-km-cost').textContent=`RM ${(kmCost+toll).toFixed(2)}`;
-    document.getElementById('l-total').textContent=`RM ${S.logisticsCost.toFixed(2)}`;
     document.getElementById('logistics-info').classList.add('show');
-    const accRow=document.getElementById('accommodation-row');
-    if(accRow)accRow.style.display=km>100?'flex':'none';
-    document.getElementById('accommodation-note').style.display=km>100?'block':'none';
     document.getElementById('e-map').classList.remove('show');
     const btnAF=document.getElementById('btn-autofill');
     if(btnAF)btnAF.style.display='flex';
-    updateRT();
+    updateTransportCost();
   });
 }
 
@@ -2643,7 +2667,9 @@ async function submitBooking() {
     if (S.addonCleanup) addonItems.push({ type: 'CLEANUP', qty: 1, price: 200 });
     if (S.addonOffgrid) addonItems.push({ type: 'OFFGRID', qty: 1, price: 150 });
     if (S.addonEarlySetup) addonItems.push({ type: 'EARLYSETUP', qty: 1, price: 100 });
-    if (S.milkType === 'oat') addonItems.push({ type: 'MILK', qty: S.cupsQty, price: 1 });
+    if (S.distKm > 100) addonItems.push({ type: 'ACCOMMODATION', qty: 1, price: 250 });
+    // Nota: MILK sengaja TAK guna addonItems/addons table — ada table khas
+    // 'booking_milks' untuk ni, insert berasingan kat bawah (lepas booking_addons).
 
     for (const a of addonItems) {
       const ads = await sbGet('addons', `addon_type=eq.${a.type}&is_active=eq.true`);
@@ -2657,6 +2683,16 @@ async function submitBooking() {
         });
       }
     }
+
+    // 5b. Insert milk selection (table khas booking_milks, bukan generic addons)
+    await sbPost('booking_milks', {
+      booking_id: bookingId,
+      milk_type: S.milkType === 'oat' ? 'OAT' : 'FRESH',
+      is_addon: S.milkType === 'oat',
+      unit_price: S.milkType === 'oat' ? 1 : 0,
+      cups_quantity: S.cupsQty,
+      subtotal: oatAddon
+    });
 
     // 6. Special requests
     let orderIdx = 1;
@@ -3000,19 +3036,23 @@ document.addEventListener('input',saveDraftDebounced);
 document.addEventListener('click',saveDraftDebounced);
 
 let BUSINESS_UNIT_ID = null;
+let TRANSPORT_ZONES = {}; // { 'Selangor': 40, 'Johor': 90, ... }
 async function init(){
   try{
-    const [bl, ex, cap, bu] = await Promise.all([
+    const [bl, ex, cap, bu, tz] = await Promise.all([
     sbGet('blocked_dates', 'select=blocked_date,reason'),
     sbGet('booking_availability', 'select=event_date,slot_time,serving_start_hour,start_serve_hour,end_serve_hour,duration_hours,status'),
     sbGet('daily_slot_capacity', 'select=slot_date,available_teams'),
-    sbGet('business_units', 'select=id&unit_type=eq.CATERING&is_active=eq.true&limit=1')
+    sbGet('business_units', 'select=id&unit_type=eq.CATERING&is_active=eq.true&limit=1'),
+    sbGet('transport_zones', 'select=zone_name,transport_cost&is_active=eq.true')
   ]);
   S.blocked = bl || [];   // setiap item: { blocked_date, reason }
   S.existing = ex || [];  // setiap item: booking sedia ada untuk kira slot busy
   S.slotCapacity = {};
   (cap || []).forEach(c => { S.slotCapacity[c.slot_date] = c.available_teams; });
   BUSINESS_UNIT_ID = (bu && bu[0]) ? bu[0].id : null;
+  TRANSPORT_ZONES = {};
+  (tz || []).forEach(z => { TRANSPORT_ZONES[z.zone_name] = parseFloat(z.transport_cost); });
   }catch(e){console.warn('Could not load availability:',e)}
   initCal();
   applyLang();
