@@ -2674,7 +2674,9 @@ async function submitBooking() {
       cups_quantity: S.cupsQty,
       addon_cups: Math.max(0, S.cupsQty - 100),
       addon_cups_price: cupsAddon,
-      milk_type: S.milkType,
+      // Nota: milk_type sengaja TAK dihantar ke sini — susu disimpan
+      // sepenuhnya dalam bridge table 'booking_milks' (sama pattern macam
+      // booking_flavors untuk syrup/puree), bukan column terus pada bookings.
       oatmilk_addon_total: oatAddon,
       complimentary_drink: (S.cupsQty >= COMP_PROMO_THRESHOLD && S.compDrink) ? S.compDrink : null,
       distance_km: S.distKm,
