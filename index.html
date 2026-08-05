@@ -1182,14 +1182,15 @@ function getMaxMasaForHour(hr){
 const H={'apikey':SB_KEY,'Authorization':`Bearer ${SB_KEY}`,'Content-Type':'application/json'};
 
 async function sbGet(t,q=''){const r=await fetch(`${SB_URL}/rest/v1/${t}${q?'?'+q:''}`,{headers:H});return r.json()}
-async function sbPost(t,d){
-  const r=await fetch(`${SB_URL}/rest/v1/${t}`,{method:'POST',headers:{...H,'Prefer':'return=representation'},body:JSON.stringify(d)});
-  const j=await r.json();
+async function sbPost(t,d,needRepresentation=true){
+  const r=await fetch(`${SB_URL}/rest/v1/${t}`,{method:'POST',headers:{...H,'Prefer':needRepresentation?'return=representation':'return=minimal'},body:JSON.stringify(d)});
   if(!r.ok){
+    const j=await r.json().catch(()=>({}));
     console.error(`sbPost gagal untuk table '${t}':`,j);
     throw new Error(`Gagal simpan data (${t}): ${j?.message||j?.hint||r.status}`);
   }
-  return j;
+  if(!needRepresentation)return null; // return=minimal -> body kosong, jangan cuba parse JSON
+  return r.json();
 }
 
 // ═══════════════ TRANSLATIONS ═══════════════
@@ -2624,7 +2625,7 @@ async function submitBooking() {
       payment_status: 'NOT_PAID',
       subtotal: subtotal,
       total_amount: total
-    });
+    }, false);
 
     // Lookup ID untuk event_category/event_type (kalau customer pilih dari dropdown,
     // bukan 'Others' punya custom text — 'Others' tiada padanan row FK)
@@ -2691,7 +2692,7 @@ async function submitBooking() {
       work_status: 'Not started'
     };
 
-    await sbPost('bookings', bookingPayload);
+    await sbPost('bookings', bookingPayload, false);
     // bookingId dah di-generate client-side awal tadi (crypto.randomUUID()) —
     // tak perlu baca balik response, sebab anon cuma ada permission INSERT (tiada SELECT).
 
@@ -2701,7 +2702,7 @@ async function submitBooking() {
         booking_id: bookingId,
         drink_name: S.selectedDrinks[i],
         sort_order: i + 1
-      });
+      }, false);
     }
 
     // 4. Insert flavours & purees
@@ -2712,7 +2713,7 @@ async function submitBooking() {
         flavor_name: S.selectedFlavours[i],
         is_addon: i > 0,
         addon_price: i > 0 ? 70 : 0
-      });
+      }, false);
     }
     for (let i = 0; i < S.selectedPurees.length; i++) {
       await sbPost('booking_flavors', {
@@ -2721,7 +2722,7 @@ async function submitBooking() {
         flavor_name: S.selectedPurees[i],
         is_addon: i > 0,
         addon_price: i > 0 ? 70 : 0
-      });
+      }, false);
     }
 
     // 5. Insert addons (cari addon_id dari table addons)
@@ -2744,7 +2745,7 @@ async function submitBooking() {
           quantity: a.qty,
           unit_price: a.price,
           subtotal: a.qty * a.price
-        });
+        }, false);
       }
     }
 
@@ -2756,7 +2757,7 @@ async function submitBooking() {
       unit_price: S.milkType === 'oat' ? 1 : 0,
       cups_quantity: S.cupsQty,
       subtotal: oatAddon
-    });
+    }, false);
 
     // 6. Special requests
     let orderIdx = 1;
@@ -2767,7 +2768,7 @@ async function submitBooking() {
           booking_id: bookingId,
           request_text: txt,
           order_index: orderIdx++
-        });
+        }, false);
       }
     }
 
@@ -2777,7 +2778,7 @@ async function submitBooking() {
         booking_id: bookingId,
         has_dietary_req: S.dietYes,
         dietary_details: S.dietYes ? document.getElementById('f-diet').value.trim() : null
-      });
+      }, false);
     }
 
     // 8. Status log
@@ -2787,7 +2788,7 @@ async function submitBooking() {
       new_status: 'SUBMITTED',
       changed_by: 'system',
       note: 'Booking submitted by customer'
-    });
+    }, false);
 
     // 9. Notification (email trigger) — guna laluan 'NEW' (type+booking_id) supaya
     // edge function verify DAN baca terus dari DB, bukan terima terus data client
@@ -2810,7 +2811,7 @@ async function submitBooking() {
       trigger_event: 'ORDER_SUBMITTED',
       message: `Emails sent for ${token}`,
       status: 'SENT'
-    });
+    }, false);
 
     // 10. Show success
     document.getElementById('load-overlay').classList.remove('show');
